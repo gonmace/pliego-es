@@ -1,0 +1,45 @@
+services:
+  chat-legal-db:
+    image: postgres:15-alpine
+    container_name: chat-legal-db
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    networks:
+      - chat_legal_network
+
+  chat-legal-redis:
+    image: redis:alpine
+    container_name: chat-legal-redis
+    restart: unless-stopped
+    networks:
+      - chat_legal_network
+
+  chat-legal-django:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: chat-legal-django
+    restart: unless-stopped
+    command: ./entrypoint.sh
+    volumes:
+      - ./staticfiles:/app/staticfiles
+      - ./media:/app/media
+    ports:
+      - "8001:8000"
+    env_file:
+      - .env
+    depends_on:
+      - chat-legal-db
+      - chat-legal-redis
+    networks:
+      - chat_legal_network
+
+volumes:
+  postgres_data:
+
+networks:
+  chat_legal_network:
+    driver: bridge

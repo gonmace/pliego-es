@@ -1,0 +1,10 @@
+{
+    "name": "rag_legal",
+    "description": "Chatbot para la empresa",
+    "dependencies": ["."],
+    "graphs": {
+        "workflow": "rag_legal.graph.graph:create_workflow",
+        "workflow_summary": "rag_legal.graph.graph_summary:create_workflow_summary"
+    }
+
+}

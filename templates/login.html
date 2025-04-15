@@ -1,0 +1,49 @@
+{% extends 'base_chat.html' %}
+{% load static %}
+
+{% block meta %}
+<meta name="description" content="Login">
+{% endblock %}
+
+{% block title %}
+Login
+{% endblock %}
+
+{% block body_class %}h-full flex flex-col{% endblock %}
+
+{% block content %}
+<div class="flex flex-col justify-between items-center h-screen ">
+    <div></div>
+    <div class="w-sm p-8 space-y-3 rounded-xl bg-base-300 mx-auto">
+        <h1 class="text-xl text-center uppercase">Ingresar</h1>
+        <form method="POST" class="space-y-4" novalidate>
+            {% csrf_token %}
+
+            <div class="space-y-1 text-sm">
+                <label for="username" class="block">Usuario</label>
+                <input type="text" name="username" id="username" placeholder="Username"
+                    class="input input-primary w-full" required>
+            </div>
+
+            <div class="space-y-1 text-sm">
+                <label for="password" class="block">Contraseña</label>
+                <input type="password" name="password" id="password" placeholder="Password"
+                    class="input input-primary w-full" required>
+                <div class="flex justify-end text-xs dark:text-gray-600">
+                    <a href="#">¿Olvidaste tu contraseña?</a>
+                </div>
+            </div>
+
+            {% if error %}
+            <div class="text-red-600 text-sm">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <button class="btn btn-primary w-full">Ingresar</button>
+        </form>
+    </div>
+    {% include 'footer.html' with footer_text='magoreal' %}
+</div>
+
+{% endblock %}
