@@ -14,7 +14,7 @@ console = Console()
 
 class PliegoEspService:
     @staticmethod
-    async def process_message(input: str, config: RunnableConfig, user=None) -> dict:
+    async def process_message(input: dict, config: RunnableConfig, user=None) -> dict:
         """
         Procesa un mensaje y retorna la respuesta del chatbot.
         
@@ -51,7 +51,10 @@ class PliegoEspService:
         
         # Inicializar el estado con el mensaje del usuario
         initial_state = State(
-            messages=[HumanMessage(content=input)]
+            pliego_base=input["pliego_base"],
+            titulo=input["titulo"],
+            parametros_clave=input["parametros_clave"],
+            adicionales=input["adicionales"]
         )
         
         # Procesar el mensaje y obtener el estado

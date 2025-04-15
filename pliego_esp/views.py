@@ -8,7 +8,7 @@ from pathlib import Path
 from pliego_esp.services.graph_service import PliegoEspService
 
 # Definir la ruta al archivo Markdown del pliego base
-PLIEGO_BASE_PATH = Path(__file__).resolve().parent / "templates" / "pliego_base.md"
+PLIEGO_BASE_PATH = Path(__file__).resolve().parent / "pliegos_base" / "pintado_de_piso_industrial[].md"
 
 # Función para cargar el contenido del pliego base desde el archivo Markdown
 def load_pliego_base():
@@ -18,10 +18,11 @@ def load_pliego_base():
     else:
         return "Pliego de especificaciones base."
 
-especificaciones = {
+especificacion = {
     "pliego_base": load_pliego_base(),
-    "parametros": "Parametros de la especificación",
-    "adicionales": "Actividades adicionales de la especificación"
+    "titulo": "Pintado de piso industrial",
+    "parametros_clave": ["Acabado texturizado", "Compresor"],
+    "adicionales": ["Retiro de recubrimientos existentes"]
 }
 
 async def pliego_especificaciones_async(request):
@@ -36,12 +37,9 @@ async def pliego_especificaciones_async(request):
         }
     )
     
-    # Mensaje inicial para el procesamiento
-    initial_message = "Que puedes hacer."
-    
     # Procesamos el mensaje usando el servicio
     response_data = await PliegoEspService.process_message(
-        input=initial_message,
+        input=especificacion,
         config=config,
         user=request.user
     )

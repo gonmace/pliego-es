@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Dict, List
+from typing import Dict, List, TypedDict
 from langgraph.graph import MessagesState
 
 @dataclass(kw_only=True)
@@ -11,11 +11,27 @@ class State(MessagesState):
         metadata={"description": "Pliego de especificaciones base en formato Markdown."}
         )
     
-    parametros: str = field(
+    titulo: str = field(
+        default="",
+        metadata={"description": "Titulo de la especificación"}
+        )
+    
+    parametros_clave: List[str] = field(
+        default_factory=list,
+        metadata={"description": "Parametros clave para la nueva especificación"}
+        )
+    
+    parametros_pliego: List[str] = field(
+        default_factory=list,
         metadata={"description": "Parametros de la especificación"}
         )
     
     adicionales: List[str] = field(
+        default_factory=list,
+        metadata={"description": "Adicionales para la nueva especificación"}
+        )
+    
+    adicionales_pliego: List[str] = field(
         default_factory=list,
         metadata={"description": "Actividades adicionales de la especificación"}
         )

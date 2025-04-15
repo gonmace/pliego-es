@@ -96,8 +96,8 @@ async def create_workflow(memory_saver: MemorySaver) -> tuple[StateGraph, Memory
     workflow = StateGraph(State)
 
     # Agregar los nodos al workflow
-    # workflow.add_node("inicio", inicio)
-    workflow.add_node("rewrite_query_by_context", rewrite_query_by_context)
+    workflow.add_node("inicio", inicio)
+    # workflow.add_node("rewrite_query_by_context", rewrite_query_by_context)
     # workflow.add_node("relevance_check", relevance_check)
     # workflow.add_node("off_topic_query", off_topic_response)
     # workflow.add_node("rewrite_query_for_retriever", query_rewriter)
@@ -107,7 +107,7 @@ async def create_workflow(memory_saver: MemorySaver) -> tuple[StateGraph, Memory
     
     # Configurar el flujo de trabajo:
     # 1. Comienza con la reescritura de la consulta basada en el contexto
-    workflow.set_entry_point("rewrite_query_by_context")
+    # workflow.set_entry_point("rewrite_query_by_context")
     # workflow.add_edge("inicio", "rewrite_query_by_context")
     # workflow.add_edge("rewrite_query_by_context", "relevance_check")
     # 2. Verifica la relevancia de la consulta
@@ -122,7 +122,8 @@ async def create_workflow(memory_saver: MemorySaver) -> tuple[StateGraph, Memory
     #                                )
 
     # # 4. Continúa con la reescritura de la consulta y recuperación de documentos
-    workflow.add_edge("rewrite_query_by_context", END)
+    workflow.set_entry_point("inicio")
+    workflow.add_edge("inicio", END)
     
     # # 5. Verifica si se encontró contexto relevante
     # # Si hay contexto, procesa la entrada para generar la respuesta

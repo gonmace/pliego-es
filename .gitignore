@@ -17,3 +17,4 @@ db.sqlite3
 node_modules/
 ejemplos/
 chromadb/
+pliegos_base/
