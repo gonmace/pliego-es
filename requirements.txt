@@ -10,6 +10,11 @@ langchain-community==0.3.21
 langchain-core==0.3.52
 langchain-graph-retriever==0.8.0
 langchain-openai==0.3.13
+psycopg2-binary==2.9.10
+rich==14.0.0
 
 langgraph==0.3.30
-langgraph-cli==0.2.3
+# langgraph-cli==0.2.3
+
+# TODO IMPORTANTE
+# https://github.com/langchain-ai/langchain/pull/30899/commits/e2c3d61d73ee86c4ae6fc829e8b85c5c4edfe92b#diff-9700f0a70b33244afc1209eab2202c1e71d53ab7ad1d053d9522e372da4dd923

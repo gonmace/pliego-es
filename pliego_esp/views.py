@@ -4,6 +4,7 @@ from langchain_core.runnables import RunnableConfig
 import uuid
 import os
 from pathlib import Path
+from django.contrib.auth.decorators import login_required
 
 from pliego_esp.services.graph_service import PliegoEspService
 
@@ -21,8 +22,8 @@ def load_pliego_base():
 especificacion = {
     "pliego_base": load_pliego_base(),
     "titulo": "Pintado de piso industrial",
-    "parametros_clave": ["Acabado texturizado", "Compresor"],
-    "adicionales": ["Retiro de recubrimientos existentes"]
+    "parametros_clave": ["Acabado texturizado", "Pintura de 3 colores", "Empleo de compresor"],
+    "adicionales": ["Retiro de recubrimientos antiguos"]
 }
 
 async def pliego_especificaciones_async(request):
@@ -48,8 +49,11 @@ async def pliego_especificaciones_async(request):
     return render(request, 'pliego_especificaciones.html', {
         'response': response_data['response'],
         'token_cost': response_data['token_cost'],
-        'conversation_id': conversation_id
+        'conversation_id': conversation_id,
+        'user': request.user
     })
 
+# Opcional: Si quieres que solo los usuarios autenticados puedan acceder a esta vista
+# @login_required
 def pliego_especificaciones(request):
     return async_to_sync(pliego_especificaciones_async)(request)

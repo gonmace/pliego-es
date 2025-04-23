@@ -83,13 +83,9 @@ T = TypeVar("T", bound=IndexConfiguration)
 class Configuration(IndexConfiguration):
     """Clase de configuración para el agente."""
     # llm_chat: Literal["gpt-4o-mini", "gpt-3.5-turbo"] = field(default="gpt-4o-mini", metadata={"description": "Modelo de lenguaje a utilizar para chat."})
-    llm_chat_temperature: float = field(default=0.1, metadata={"description": "Temperatura para el modelo de lenguaje."})
-    llm_chat_model: Literal["gpt-4o-mini", "gpt-3.5-turbo"] = field(default="gpt-4o-mini", metadata={"description": "Modelo de lenguaje a utilizar para chat."})
-    
-    token_input_price: float = 0.15/1000000
-    token_output_price: float = 0.6/1000000
-    umbral_contexto: float = 0.45
-    
+
+    chat_model: Literal["gpt-4o-mini", "gpt-4.1-nano", "gpt-4.1-mini" ] = field(default="gpt-4o-mini", metadata={"description": "Modelo de lenguaje a utilizar para chat."})
+        
     connection_kwargs: dict = field(default_factory=lambda: {
         "autocommit": True,
         "prepare_threshold": 0,

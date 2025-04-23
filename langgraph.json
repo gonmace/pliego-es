@@ -1,10 +1,9 @@
 {
-    "name": "rag_legal",
+    "name": "pliego_esp",
     "description": "Chatbot para la empresa",
     "dependencies": ["."],
     "graphs": {
-        "workflow": "rag_legal.graph.graph:create_workflow",
-        "workflow_summary": "rag_legal.graph.graph_summary:create_workflow_summary"
+        "workflow": "pliego_esp.graph.graph:create_workflow"
     }
 
 }
