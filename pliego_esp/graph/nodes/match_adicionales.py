@@ -39,7 +39,7 @@ async def match_adicionales(state: State, *, config: RunnableConfig) -> State:
     
     # Guardar el costo inicial
     costo_inicial = shared_callback_handler.total_cost
-    console.print(f"Costo inicial: ${costo_inicial:.6f}", style="bold green")
+    console.print(f"Costo inicial: ${costo_inicial:.6f}", style="green")
     
     configuration = Configuration.from_runnable_config(config)
     
@@ -87,11 +87,11 @@ async def match_adicionales(state: State, *, config: RunnableConfig) -> State:
         
     # Calcular el costo total de este nodo
     costo_nodo = shared_callback_handler.total_cost - costo_inicial
-    console.print(f"Costo total del nodo match_adicionales: ${costo_nodo:.6f}", style="bold green")
-    console.print(f"Costo acumulado hasta ahora: ${shared_callback_handler.total_cost:.6f}", style="bold green")
+    console.print(f"Costo total del nodo match_adicionales: ${costo_nodo:.6f}", style="green")
+    console.print(f"Costo acumulado hasta ahora: ${shared_callback_handler.total_cost:.6f}", style="green")
 
-    console.print(f"Adicionales finales: {adicionales_finales}", style="bold green")
-    console.print(f"Otros adicionales: {other_adicionales}", style="bold turquoise")
+    console.print(f"Adicionales finales: {adicionales_finales}", style="green")
+    console.print(f"Otros adicionales: {other_adicionales}", style="bold green")
     return {
         "adicionales_finales": adicionales_finales,
         "other_adicionales": other_adicionales

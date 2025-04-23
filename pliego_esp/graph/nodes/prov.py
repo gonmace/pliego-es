@@ -5,7 +5,7 @@ from pliego_esp.graph.callbacks import shared_callback_handler
 
 console = Console()
 
-def prov_pliego(state: State) -> State:
+async def prov_pliego(state: State) -> State:
     console.print("------ prov_pliego ------", style="bold red")
 
     # Usar el costo del callback handler

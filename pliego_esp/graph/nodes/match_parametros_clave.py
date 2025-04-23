@@ -11,7 +11,7 @@ from rich.console import Console
 
 console = Console()
 
-def match_parametros_clave(state: State, *, config: RunnableConfig) -> State:
+async def match_parametros_clave(state: State, *, config: RunnableConfig) -> State:
     console.print("------ match_parametros_clave ------", style="bold blue")
     
     # Guardar el costo inicial

@@ -11,7 +11,7 @@ from rich.console import Console
 
 console = Console()
 
-def add_other_parametros(state: State, *, config: RunnableConfig) -> State:
+async def add_other_parametros(state: State, *, config: RunnableConfig) -> State:
     console.print("------ add_other_parametros ------", style="bold magenta")
 
     # Guardar el costo inicial

@@ -31,8 +31,15 @@ if not api_key:
     raise ValueError("OPENAI_API_KEY no está configurada en las variables de entorno")
 console.print(f"[graph.py] OPENAI_API_KEY: {api_key[:10] + '...' if api_key else 'No encontrada'}", style="bold red")
 
-# Crear un único MemorySaver para toda la aplicación
-# Este objeto se encarga de mantener el estado entre ejecuciones
+def router(state: State) -> str:
+    """
+    Router que determina si ambos flujos paralelos han completado su ejecución.
+    """
+    console.print("------ router ------", style="bold yellow")
+    # Verificar si ambos flujos han completado su ejecución
+    if "other_parametros" in state and "other_adicionales" in state:
+        return "prov_pliego"
+    return END
 
 async def create_workflow(memory_saver: MemorySaver) -> StateGraph:
     """
@@ -64,15 +71,35 @@ async def create_workflow(memory_saver: MemorySaver) -> StateGraph:
     # Flujo de trabajo
     workflow.set_entry_point("clean_and_capture_sections")
     
+    # Primer flujo paralelo
     workflow.add_edge("clean_and_capture_sections", "parse_adicionales")
     workflow.add_edge("parse_adicionales", "match_adicionales")
-    workflow.add_edge("match_adicionales", "prov_pliego")
     
+    # Segundo flujo paralelo
     workflow.add_edge("clean_and_capture_sections", "parse_parametros")  
     workflow.add_edge("parse_parametros", "match_parametros_clave")
     workflow.add_edge("match_parametros_clave", "add_other_parametros")
-    workflow.add_edge("add_other_parametros", "prov_pliego")
     
+    # Agregar el router para manejar la convergencia
+    workflow.add_conditional_edges(
+        "match_adicionales",
+        router,
+        {
+            "prov_pliego": "prov_pliego",
+            END: END
+        }
+    )
+    
+    workflow.add_conditional_edges(
+        "add_other_parametros",
+        router,
+        {
+            "prov_pliego": "prov_pliego",
+            END: END
+        }
+    )
+    
+    # Flujo final
     workflow.add_edge("prov_pliego", END)
     
     # Compilar el workflow con el memory_saver para mantener el estado entre ejecuciones

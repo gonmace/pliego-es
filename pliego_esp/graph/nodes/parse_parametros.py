@@ -4,7 +4,7 @@ import re
 from rich.console import Console
 console = Console()
 
-def parse_parametros(state: State) -> State:
+async def parse_parametros(state: State) -> State:
     console.print("------ parse_parametros ------", style="bold yellow")
     tabla_md = state["parametros_pliego"]
     # Filas de la tabla (omitimos la línea de separadores)

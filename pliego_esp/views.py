@@ -24,6 +24,8 @@ especificacion = {
     "titulo": "Pintado de piso industrial",
     "parametros_clave": ["Acabado texturizado", "Pintura de 3 colores", "Empleo de compresor"],
     "adicionales": ["Retiro de recubrimientos antiguos"]
+    # "parametros_clave": [],
+    # "adicionales": []
 }
 
 async def pliego_especificaciones_async(request):
