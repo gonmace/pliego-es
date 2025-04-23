@@ -7,7 +7,7 @@ from langchain_core.runnables import RunnableConfig
 from graph_retriever.strategies import Eager
 from langgraph.checkpoint.memory import MemorySaver
 
-from pliego_esp.graph.nodes.prov import prov_pliego
+from pliego_esp.graph.nodes.process_pliego import process_pliego
 from pliego_esp.graph.state import State
 
 from pliego_esp.graph.nodes.clean_and_capture_sections import clean_and_capture_sections
@@ -31,16 +31,6 @@ if not api_key:
     raise ValueError("OPENAI_API_KEY no está configurada en las variables de entorno")
 console.print(f"[graph.py] OPENAI_API_KEY: {api_key[:10] + '...' if api_key else 'No encontrada'}", style="bold red")
 
-def router(state: State) -> str:
-    """
-    Router que determina si ambos flujos paralelos han completado su ejecución.
-    """
-    console.print("------ router ------", style="bold yellow")
-    # Verificar si ambos flujos han completado su ejecución
-    if "other_parametros" in state and "other_adicionales" in state:
-        return "prov_pliego"
-    return END
-
 async def create_workflow(memory_saver: MemorySaver) -> StateGraph:
     """
     Crea y configura el workflow principal del sistema.
@@ -59,14 +49,16 @@ async def create_workflow(memory_saver: MemorySaver) -> StateGraph:
     # Agregar los nodos al workflow con el callback_handler compartido
     workflow.add_node("clean_and_capture_sections", clean_and_capture_sections)
     
+    # Primer flujo paralelo
     workflow.add_node("parse_adicionales", parse_adicionales)
     workflow.add_node("match_adicionales", match_adicionales)
     
+    # Segundo flujo paralelo
     workflow.add_node("parse_parametros", parse_parametros)
     workflow.add_node("match_parametros_clave", match_parametros_clave)
     workflow.add_node("add_other_parametros", add_other_parametros)
 
-    workflow.add_node("prov_pliego", prov_pliego)
+    workflow.add_node("process_pliego", process_pliego)
 
     # Flujo de trabajo
     workflow.set_entry_point("clean_and_capture_sections")
@@ -80,27 +72,13 @@ async def create_workflow(memory_saver: MemorySaver) -> StateGraph:
     workflow.add_edge("parse_parametros", "match_parametros_clave")
     workflow.add_edge("match_parametros_clave", "add_other_parametros")
     
-    # Agregar el router para manejar la convergencia
-    workflow.add_conditional_edges(
-        "match_adicionales",
-        router,
-        {
-            "prov_pliego": "prov_pliego",
-            END: END
-        }
-    )
-    
-    workflow.add_conditional_edges(
-        "add_other_parametros",
-        router,
-        {
-            "prov_pliego": "prov_pliego",
-            END: END
-        }
-    )
+    # Convergencia de flujos
+    workflow.add_edge(
+        ["add_other_parametros", "match_adicionales"], 
+        "process_pliego")
     
     # Flujo final
-    workflow.add_edge("prov_pliego", END)
+    workflow.add_edge("process_pliego", END)
     
     # Compilar el workflow con el memory_saver para mantener el estado entre ejecuciones
     return workflow.compile(checkpointer=memory_saver)
