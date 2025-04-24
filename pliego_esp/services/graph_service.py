@@ -64,7 +64,7 @@ class PliegoEspService:
         # Procesar el mensaje y obtener el estado
         result = await workflow.ainvoke(initial_state, config)
 
-        state = workflow.get_state(config)
+        # state = workflow.get_state(config)
         
         response = result["messages"][-1]
         

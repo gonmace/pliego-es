@@ -1,30 +1,20 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pliego de Especificaciones</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+{% extends "base_chat.html" %}
+{% load static tailwind_tags %}
+
+{% block meta %}
+{% endblock %}
+
+{% block css %}
+    {% tailwind_css %}
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        dark: {
-                            bg: '#121212',
-                            card: '#1e1e1e',
-                            text: '#e0e0e0',
-                            accent: '#3b82f6'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-</head>
-<body class="bg-dark-bg text-dark-text min-h-screen">
+{% endblock %}
+
+{% block title %}
+Pliego de Especificaciones
+{% endblock %}
+
+{% block content %}
+
     <div class="container mx-auto px-4 py-8 max-w-4xl">
         <h1 class="text-3xl font-bold text-dark-text mb-6">Asistente de Pliego de Especificaciones</h1>
         
@@ -33,7 +23,8 @@
                 <div class="prose prose-invert max-w-none">
                     <h2 class="text-xl font-semibold text-dark-text mb-4">Resultado:</h2>
                     <div class="bg-gray-800 p-4 rounded-md border border-gray-700">
-                        <div id="response-content" class="text-dark-text"></div>
+                        <article id="response-content" class="prose lg:prose-xl">
+                        </article>
                     </div>
                     
                     <div class="mt-4 text-sm text-gray-400">
@@ -45,12 +36,22 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const responseContent = document.getElementById('response-content');
-            const markdownContent = `{{ response|safe }}`;
-            responseContent.innerHTML = marked.parse(markdownContent);
+{% endblock %}
+
+{% block js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const markdownContent = `{{ response|safe }}`;
+        const responseContent = document.getElementById('response-content');
+        
+        // Configurar marked para manejar saltos de línea
+        marked.setOptions({
+            breaks: true,
+            gfm: true
         });
-    </script>
-</body>
-</html>
+        
+        // Renderizar el contenido markdown
+        responseContent.innerHTML = marked.parse(markdownContent);
+    });
+</script>
+{% endblock %}

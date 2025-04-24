@@ -5,6 +5,7 @@ import uuid
 import os
 from pathlib import Path
 from django.contrib.auth.decorators import login_required
+# import markdown
 
 from pliego_esp.services.graph_service import PliegoEspService
 
@@ -47,8 +48,9 @@ async def pliego_especificaciones_async(request):
         user=request.user
     )
     
-    # Renderizar la plantilla con los datos de respuesta
+    # # Renderizar la plantilla con los datos de respuesta
     return render(request, 'pliego_especificaciones.html', {
+        # 'response': response_ejem,
         'response': response_data['response'],
         'token_cost': response_data['token_cost'],
         'conversation_id': conversation_id,

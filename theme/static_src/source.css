@@ -60,25 +60,6 @@
 }
 
 @layer base {
-  h1 {
-    @apply text-3xl ;
-    /* Ejemplo de estilos para h1 */
-  }
-
-  h2 {
-    @apply text-2xl ;
-    /* Ejemplo de estilos para h2 */
-  }
-
-  h3 {
-    @apply text-xl;
-    /* Ejemplo de estilos para h2 */
-  }
-
-  p {
-    @apply text-base ;
-    /* Ejemplo de estilos para texto párrafo */
-  }
   body {
     font-family: 'Nunito', sans-serif;
   }

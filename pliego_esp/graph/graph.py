@@ -31,7 +31,7 @@ if not api_key:
     raise ValueError("OPENAI_API_KEY no está configurada en las variables de entorno")
 console.print(f"[graph.py] OPENAI_API_KEY: {api_key[:10] + '...' if api_key else 'No encontrada'}", style="bold red")
 
-async def create_workflow(memory_saver: MemorySaver) -> StateGraph:
+async def create_workflow() -> StateGraph:
     """
     Crea y configura el workflow principal del sistema.
     
@@ -81,6 +81,6 @@ async def create_workflow(memory_saver: MemorySaver) -> StateGraph:
     workflow.add_edge("process_pliego", END)
     
     # Compilar el workflow con el memory_saver para mantener el estado entre ejecuciones
-    return workflow.compile(checkpointer=memory_saver)
+    return workflow.compile(debug=True)
 
 

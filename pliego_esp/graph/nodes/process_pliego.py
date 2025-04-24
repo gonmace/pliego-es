@@ -19,15 +19,13 @@ async def process_pliego(state: State, *, config: RunnableConfig) -> State:
     configuration = Configuration.from_runnable_config(config)
     llm = ChatOpenAI(
         model=configuration.chat_model,
-        temperature=0.4,
+        temperature=0.5,
         callbacks=[shared_callback_handler]
     )
 
     # Preparar el prompt para generar la especificación técnica
     prompt_template = ChatPromptTemplate.from_template("""
-Por favor genera una especificación técnica en formato **Markdown (.md)**, tomando como base la **especificación genérica** proporcionada más abajo.
-
-⚠️ El resultado debe ser un documento completo redactado **exclusivamente en formato Markdown**, respetando estrictamente la estructura, el estilo y el orden de la especificación original.
+Por favor genera una especificación técnica en formato **Markdown (.md)**, tomando como base la **especificación genérica** proporcionada más abajo, respetando estrictamente la estructura, el estilo y el orden de la especificación original.
 
 ---
 
@@ -36,7 +34,7 @@ Por favor genera una especificación técnica en formato **Markdown (.md)**, tom
 Adaptar la especificación genérica al nuevo ítem indicado, incorporando únicamente:
 
 - Los **parámetros técnicos relevantes**, usando su **Valor Asignado**.
-- Los **adicionales**, integrados según su impacto en el desarrollo de la obra.
+- Los **adicionales**, integrados en las secciones que correspondan, considerando el orden de ejecución del ítem.
 
 ---
 
@@ -53,17 +51,18 @@ Adaptar la especificación genérica al nuevo ítem indicado, incorporando únic
 ### Descripción
 - Presentar el propósito del ítem y sus componentes esenciales.
 - Mencionar materiales clave como hormigón, mallas, selladores o aditivos si aplican, redactados de forma técnica y natural.
-- **No incluir pasos constructivos ni acciones específicas.**
+- **No incluir pasos constructivos, procedimientos ni acciones específicas.**
 
 ### Materiales, herramientas y equipo
-- Incluir materiales, herramientas, equipos y EPP requeridos.
-- Considerar tanto los parámetros clave como los valores por defecto cuando sea necesario.
-- Integrar los adicionales en esta sección si se relacionan con insumos o recursos.
+- Incluir exclusivamente los materiales, herramientas, equipos y EPP requeridos, según los parámetros técnicos disponibles o sus valores por defecto.
+- **Integrar los Materiales, herramientas ó equipos que requiera el ítem en esta sección, no agregar una sección adicional.**
 
 ### Procedimiento
-- Redactar en párrafos sin numeración ni listas.
-- Describir secuencialmente el proceso constructivo, integrando los parámetros técnicos y adicionales que modifiquen o complementen las etapas de ejecución.
-- Omitir los adicionales que no alteran el procedimiento.
+- Redactar en párrafos, sin numeración ni viñetas.
+- Describir el proceso constructivo incorporando:
+  - Los parámetros técnicos relevantes.
+  - Los adicionales, **solo si modifican o complementan el procedimiento**.
+- Omitir los adicionales que no alteran el desarrollo del procedimiento.
 - Resaltar con **negrita** las acciones clave del proceso (ej. **Hormigonado**, **Limpieza**, **Verificación**, etc.).
 
 ### Medición y Forma de Pago
@@ -82,9 +81,6 @@ Redactar tres párrafos consecutivos, uno por cada aspecto:
 - Redacción técnica, precisa, profesional y sin ambigüedades.
 - **No modificar** los títulos ni el orden de las secciones.
 - **No incluir**:
-  - La tabla de *Parámetros Técnicos Recomendados*
-  - El bloque titulado “Adicionales”
-  - Cualquier contenido posterior al separador `------` de la especificación base
   - Listas, numeraciones, encabezados adicionales ni explicaciones fuera de contexto.
 
 ---
@@ -93,7 +89,7 @@ El resultado debe ser una especificación técnica **clara, profesional y lista 
 
 ---
 
-## Especificación genérica base:
+## Especificación genérica:
 
 {especificacion_base}
 """)
