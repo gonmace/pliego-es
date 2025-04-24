@@ -119,7 +119,7 @@ El resultado debe ser una especificación técnica **clara, profesional y lista 
     state["messages"] = [
         HumanMessage(content=f"{especificacion_generada}")
     ]
-
+    console.print(especificacion_generada, style="bold white")
     console.print(20*"-", style="bold red")
     return {
         "messages": state["messages"],

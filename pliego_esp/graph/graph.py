@@ -81,6 +81,6 @@ async def create_workflow() -> StateGraph:
     workflow.add_edge("process_pliego", END)
     
     # Compilar el workflow con el memory_saver para mantener el estado entre ejecuciones
-    return workflow.compile(debug=True)
+    return workflow.compile(debug=False)
 
 
