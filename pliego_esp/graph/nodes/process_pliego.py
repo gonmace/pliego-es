@@ -10,11 +10,11 @@ from langchain_core.messages import HumanMessage
 console = Console()
 
 async def process_pliego(state: State, *, config: RunnableConfig) -> State:
-    console.print("------ process_pliego ------", style="bold red")
+    console.print("------ process_pliego ------", style="bold white")
 
     # Guardar el costo inicial
     costo_inicial = shared_callback_handler.total_cost
-    console.print(f"Costo inicial: ${costo_inicial:.6f}", style="red")
+    console.print(f"Costo inicial: ${costo_inicial:.6f}", style="white")
 
     configuration = Configuration.from_runnable_config(config)
     llm = ChatOpenAI(
@@ -113,14 +113,14 @@ El resultado debe ser una especificación técnica **clara, profesional y lista 
 
     # Calcular el costo del nodo
     costo_nodo = shared_callback_handler.total_cost - costo_inicial
-    console.print(f"Costo total del nodo process_pliego: ${costo_nodo:.6f}", style="bold red")
-    console.print(f"Costo acumulado hasta ahora: ${shared_callback_handler.total_cost:.6f}", style="red")
+    console.print(f"Costo total del nodo process_pliego: ${costo_nodo:.6f}", style="bold white")
+    console.print(f"Costo acumulado hasta ahora: ${shared_callback_handler.total_cost:.6f}", style="white")
     
     state["messages"] = [
         HumanMessage(content=f"{especificacion_generada}")
     ]
-    console.print(especificacion_generada, style="bold white")
-    console.print(20*"-", style="bold red")
+    console.print(especificacion_generada, style="white")
+    console.print(20*"-", style="bold white")
     return {
         "messages": state["messages"],
         "especificacion_generada": especificacion_generada,

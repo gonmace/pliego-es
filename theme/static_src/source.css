@@ -36,6 +36,7 @@
 @plugin "@tailwindcss/forms";
 @plugin "@tailwindcss/typography";
 @plugin "@tailwindcss/aspect-ratio";
+@plugin "daisyui";
 
 @plugin "daisyui" {
   themes: light --default, dark --prefersdark;
@@ -44,8 +45,11 @@
 @plugin "daisyui/theme" {
   name: "light";
   --color-primary: #0070B8;
+  --color-primary-content: #F2F0F2;
   --color-secondary: #B03F5B;
+  --color-secondary-content: #F2F0F2;
   --color-accent: #DA8276;
+  --color-accent-content: #F2F0F2;
   --color-neutral: #2D304E;
   --color-neutral-content: #F2F0F2;
 }
@@ -53,8 +57,11 @@
 @plugin "daisyui/theme" {
   name: "dark";
   --color-primary: #0070B8;
+  --color-primary-content: #F2F0F2;
   --color-secondary: #B03F5B;
+  --color-secondary-content: #F2F0F2;
   --color-accent: #DA8276;
+  --color-accent-content: #F2F0F2;
   --color-neutral: #F2F0F2;
   --color-neutral-content: #2D304E;
 }

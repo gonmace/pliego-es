@@ -8,7 +8,7 @@ from django.contrib.auth.views import LoginView
 from django.contrib.auth.views import LogoutView
 
 urlpatterns = [
-    path('', include('pliego_esp.urls')),
+    path('pliego/', include('pliego_esp.urls')),
     path('admin/', admin.site.urls),
     # path('pliego_especificaciones/', include('pliego_especificaciones.urls')),
     # path('chat/', include('chat.urls')),

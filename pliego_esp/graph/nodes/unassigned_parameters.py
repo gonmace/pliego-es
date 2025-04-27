@@ -11,8 +11,8 @@ from rich.console import Console
 
 console = Console()
 
-async def add_other_parametros(state: State, *, config: RunnableConfig) -> State:
-    console.print("------ add_other_parametros ------", style="bold magenta")
+async def unassigned_parameters(state: State, *, config: RunnableConfig) -> State:
+    console.print("------ unassigned_parameters ------", style="bold magenta")
 
     # Guardar el costo inicial
     costo_inicial = shared_callback_handler.total_cost
@@ -26,11 +26,7 @@ async def add_other_parametros(state: State, *, config: RunnableConfig) -> State
     )
 
     nombre_prompt = ChatPromptTemplate.from_template("""
-Dado un parámetro clave del proyecto expresado de forma libre:
-
-"{parametro_clave}"
-
-Dado un parámetro clave expresado de forma libre por un usuario de obra:
+Dado un parámetro para una especificacion tecnica de obra:
 
 "{parametro_clave}"
 
@@ -61,7 +57,7 @@ Tu tarea es sugerir un nombre técnico **de una sola palabra**, clara y neutra, 
         if sugerido.lower() == "otros" or sugerido == "":
             nombre_param = "Otros"
         else:
-            nombre_param = sugerido.strip().rstrip(".") + "*"  # Marcar con * para revisión
+            nombre_param = sugerido.strip().rstrip(".")
 
         nueva_fila = {
             "Parámetro Técnico": nombre_param,

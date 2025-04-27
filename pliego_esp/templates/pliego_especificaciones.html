@@ -1,38 +1,87 @@
 {% extends "base_chat.html" %}
-{% load static tailwind_tags %}
+{% load static crispy_forms_tags %}
 
 {% block meta %}
 {% endblock %}
 
 {% block css %}
-    {% tailwind_css %}
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .loading-spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            color: white;
+            margin-top: 15px;
+            font-size: 18px;
+        }
+    </style>
 {% endblock %}
 
 {% block title %}
 Pliego de Especificaciones
 {% endblock %}
 
+{% block body_class %}{% endblock %}
+
 {% block content %}
 
-    <div class="container mx-auto px-4 py-8 max-w-4xl">
-        <h1 class="text-3xl font-bold text-dark-text mb-6">Asistente de Pliego de Especificaciones</h1>
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <h1 class="text-3xl font-bold mb-6">Asistente de Pliego de Especificaciones</h1>
+        <div class="mx-auto mt-10 p-8 bg-gray-100 rounded-lg shadow">
+            <form id="pliegoForm" method="post" class="space-y-6">
+                {% csrf_token %}
+                {{ form|crispy }}
+                
+                <button type="submit" class="btn btn-primary w-full">
+                Enviar
+                </button>
+            </form>
+        </div>
         
-        <div class="bg-dark-card rounded-lg shadow-lg overflow-hidden border border-gray-700">
-            <div class="p-6">
-                <div class="prose prose-invert max-w-none">
-                    <h2 class="text-xl font-semibold text-dark-text mb-4">Resultado:</h2>
-                    <div class="bg-gray-800 p-4 rounded-md border border-gray-700">
-                        <article id="response-content" class="prose lg:prose-xl">
-                        </article>
-                    </div>
-                    
-                    <div class="mt-4 text-sm text-gray-400">
-                        <p>Costo de tokens: {{ token_cost }}</p>
-                        <p class="mt-1">ID de conversación: {{ conversation_id }}</p>
-                    </div>
-                </div>
+        <div id="resultContainer" class="mt-8 mx-auto p-8 rounded-lg shadow" style="display: none;">
+            <h2 class="text-xl font-semibold mb-4">Resultado:</h2>
+            <div class="p-4 rounded-md">
+                <article id="response-content" class="prose lg:prose-xl">
+                </article>
             </div>
+            
+            <div class="mt-4 text-sm text-gray-600">
+                <p>Costo de tokens: <span id="tokenCost">-</span></p>
+                <p class="mt-1">ID de conversación: <span id="conversationId">-</span></p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Overlay de carga -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="text-center">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Procesando su solicitud...</div>
         </div>
     </div>
 
@@ -41,8 +90,9 @@ Pliego de Especificaciones
 {% block js %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const markdownContent = `{{ response|safe }}`;
-        const responseContent = document.getElementById('response-content');
+        const form = document.getElementById('pliegoForm');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const resultContainer = document.getElementById('resultContainer');
         
         // Configurar marked para manejar saltos de línea
         marked.setOptions({
@@ -50,8 +100,108 @@ Pliego de Especificaciones
             gfm: true
         });
         
-        // Renderizar el contenido markdown
-        responseContent.innerHTML = marked.parse(markdownContent);
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Mostrar el overlay de carga
+            loadingOverlay.style.display = 'flex';
+            
+            // Obtener los datos del formulario
+            const formData = new FormData(form);
+            
+            // Enviar la solicitud AJAX
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Ocultar el overlay de carga
+                loadingOverlay.style.display = 'none';
+                
+                // Mostrar el contenedor de resultados
+                resultContainer.style.display = 'block';
+                
+                // Actualizar el contenido de la respuesta
+                const responseContent = document.getElementById('response-content');
+                responseContent.innerHTML = marked.parse(data.response);
+                
+                // Actualizar información adicional
+                document.getElementById('tokenCost').textContent = data.token_cost || '-';
+                document.getElementById('conversationId').textContent = data.conversation_id || '-';
+                
+                // Verificar si hay una interrupción en la respuesta
+                if (data.response && data.response.includes('"type": "modal"')) {
+                    try {
+                        // Intentar extraer la información del modal de la respuesta
+                        const modalDataMatch = data.response.match(/\{[\s\S]*"type": "modal"[\s\S]*\}/);
+                        if (modalDataMatch) {
+                            const modalData = JSON.parse(modalDataMatch[0]);
+                            showModal(modalData);
+                        }
+                    } catch (error) {
+                        console.error('Error al procesar la interrupción:', error);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                loadingOverlay.style.display = 'none';
+                alert('Ha ocurrido un error al procesar su solicitud. Por favor, inténtelo de nuevo.');
+            });
+        });
+        
+        // Función para mostrar el modal
+        function showModal(data) {
+            const modal = document.getElementById('confirmationModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalMessage = document.getElementById('modalMessage');
+            const modalContent = document.getElementById('modalContent');
+            const modalButtonYes = document.getElementById('modalButtonYes');
+            const modalButtonNo = document.getElementById('modalButtonNo');
+
+            // Configurar el contenido del modal
+            modalTitle.textContent = data.title || 'Confirmar acción';
+            modalMessage.textContent = data.message || '¿Deseas continuar?';
+            
+            // Renderizar el contenido markdown si existe
+            if (data.content) {
+                modalContent.innerHTML = marked.parse(data.content);
+            } else {
+                modalContent.innerHTML = '';
+            }
+
+            // Configurar los botones
+            if (data.options && data.options.length > 0) {
+                modalButtonYes.textContent = data.options[0];
+                modalButtonNo.textContent = data.options[1] || 'No';
+            }
+
+            // Mostrar el modal
+            modal.style.display = 'block';
+        }
+
+        // Función para cerrar el modal
+        function closeModal() {
+            const modal = document.getElementById('confirmationModal');
+            modal.style.display = 'none';
+        }
+
+        // Función para manejar la respuesta del modal
+        function handleModalResponse(response) {
+            // Aquí se enviaría la respuesta al backend
+            console.log('Respuesta del modal:', response);
+            
+            // Cerrar el modal
+            closeModal();
+            
+            // En un caso real, aquí se enviaría la respuesta al backend para continuar el flujo
+            // Por ahora, solo mostramos un mensaje en la consola
+            alert(`Has seleccionado: ${response}`);
+        }
     });
 </script>
 {% endblock %}

@@ -43,10 +43,20 @@ class State(MessagesState):
         metadata={"description": "Otros parámetros clave que no coinciden en ninguno de los parametros del pliego base"}
         )
     
+    evaluaciones_otros_parametros: List[Dict[str, str]] = field(
+        default_factory=list,
+        metadata={"description": "Tabla de evaluaciones de parámetros en formato lista de diccionarios"}
+        )
+    
     # ADICIONALES PARA EL PLIEGO 
     adicionales_pliego: List[str] = field(
         default_factory=list,
         metadata={"description": "Actividades adicionales de la especificación"}
+        )
+    
+    evaluaciones_parametros: List[Dict[str, str]] = field(
+        default_factory=list,
+        metadata={"description": "Tabla de evaluaciones de parámetros en formato lista de diccionarios"}
         )
     
     parsed_adicionales: List[Dict[str, str]] = field(
@@ -73,6 +83,11 @@ class State(MessagesState):
     token_cost: Annotated[float, operator.add] = field(
         default=0.0,
         metadata={"description": "Costo de los tokens."}
+        )
+    
+    especificacion_generada: str = field(
+        default="",
+        metadata={"description": "Especificación generada en formato Markdown."}
         )
     
     def __getitem__(self, key):

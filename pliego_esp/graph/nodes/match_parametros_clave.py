@@ -77,9 +77,12 @@ No expliques nada más.
 
     console.print(tabla_actualizada, style="blue")
     
-    # Determinar cuáles parámetros clave NO se usaron
+    # Determinar cuáles parámetros clave NO se usaron y eliminarlos del state
     parametros_no_asignados = [
         clave for clave in state["parametros_clave"] if clave not in parametros_usados
+    ]
+    state["parametros_clave"] = [
+        clave for clave in state["parametros_clave"] if clave in parametros_usados
     ]
     
     console.print(f"Nuevos parametros: {len(parametros_no_asignados)}", style="cyan")
@@ -90,5 +93,6 @@ No expliques nada más.
     return {
         "parsed_parametros": tabla_actualizada,
         "parametros_no_asignados": parametros_no_asignados,
+        "parametros_clave": state["parametros_clave"]
         }
     

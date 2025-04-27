@@ -1,16 +1,15 @@
-import asyncio
-from langchain_core.runnables import RunnableConfig
-from langchain_core.messages import HumanMessage
-from langchain_core.load import load, dumpd
+from langgraph.graph import StateGraph, START, END
+
+from pliego_esp.graph.nodes.review_unassigned_parameters import review_unassigned_parameters
+from pliego_esp.graph.nodes.add_unassigned_parameters import add_unassigned_parameters
 
 from pliego_esp.graph.state import State
-from pliego_esp.models import TokenCost
-from pliego_esp.compile_graphs import get_workflow, get_memory_saver
-from pliego_esp.graph.callbacks import shared_callback_handler
 
+from langgraph.checkpoint.memory import MemorySaver
+from langchain_core.runnables import RunnableConfig
+import uuid
 from rich.console import Console
-from asgiref.sync import sync_to_async
-from langgraph.types import Command
+from langgraph.types import Command  # Importar Command para reanudar la interrupción
 
 console = Console()
 
@@ -58,102 +57,89 @@ requeridos.
 
 El **pago** se efectuará en función del avance efectivamente medido y aprobado, conforme a los valores unitarios establecidos en el contrato y previa validación de calidad de los trabajos realizados.
 """
-
-
-class PliegoEspService:
-    @staticmethod
-    async def process_message(input: dict, config: RunnableConfig, user=None) -> dict:
-
-        # Obtener el workflow y memory_saver
-        workflow = get_workflow()
-        memory_saver = get_memory_saver()
-        
-        if workflow is None:
-            return {
-                "response": "Error: El sistema no está inicializado correctamente. Por favor, contacte al administrador.",
-                "token_cost": 0
-            }
-        
-        # Obtener los valores de credits y total_cost del usuario actual
-        credits = 0.5  # Valor por defecto
-        total_cost = 0
-        
-        # Solo intentar obtener TokenCost si el usuario está autenticado
-        if user and hasattr(user, 'is_authenticated') and user.is_authenticated:
-            try:
-                # Usar sync_to_async para manejar correctamente las operaciones de base de datos
-                token_cost = await sync_to_async(TokenCost.objects.get)(user=user)
-                credits = token_cost.credits
-                total_cost = token_cost.total_cost
-                ratio = total_cost/credits*100
-                if ratio > 100:
-                    return {
-                        "response": "No tienes suficientes créditos para continuar. Por favor, actualiza tu plan.",
-                        "token_cost": 0
-                    }
-            except TokenCost.DoesNotExist:
-                # Si no existe un registro para este usuario, usamos los valores por defecto
-                pass
-        
-        # Reiniciar el callback_handler antes de cada ejecución
-        shared_callback_handler.total_tokens = 0
-        shared_callback_handler.prompt_tokens = 0
-        shared_callback_handler.completion_tokens = 0
-        shared_callback_handler.successful_requests = 0
-        shared_callback_handler.total_cost = 0.0
-        
-        # Inicializar el estado con el mensaje del usuario
-        initial_state = State(
-            pliego_base=input["pliego_base"],
-            titulo=input["titulo"],
-            parametros_clave=input["parametros_clave"],
-            adicionales=input["adicionales"],
-            token_cost=0.0,
-            
-            # TODO: Solo es para el grafo resumido, se debe eliminar
-            especificacion_generada=esp_generada,
-            other_parametros=[
+memory_saver = MemorySaver()
+async def run_node_only():
+    # Estado inicial para node_b (por ejemplo, resultado esperado de node_a)
+    initial_state = State(
+        especificacion_generada=esp_generada,
+        other_parametros=[
             {'Parámetro Técnico': 'Color', 'Opciones válidas': '-', 'Valor por defecto': '-', 'Valor Asignado': 'Pintura de 3 colores'},
             {'Parámetro Técnico': 'Revoque', 'Opciones válidas': '-', 'Valor por defecto': '-', 'Valor Asignado': 'Realizar revoque'}
-                ]
-            )
-            
+        ]
+    )
+    conversation_id = str(uuid.uuid4())
+    
+    # Configurar el RunnableConfig
+    config = RunnableConfig(
+        recursion_limit=10,
+        configurable={
+            "thread_id": conversation_id
+        }
+    )
+
+    try:
+        # Crear un workflow simplificado solo con el nodo que queremos probar
+        workflow = StateGraph(State)
+        workflow.add_node("review_unassigned_parameters", review_unassigned_parameters)
+        workflow.add_node("add_unassigned_parameters", add_unassigned_parameters)
         
-        # Primera invocación del workflow
-        async for event in workflow.astream(initial_state, config):
+        workflow.set_entry_point("review_unassigned_parameters")
+        workflow.add_edge("review_unassigned_parameters", "add_unassigned_parameters")
+        workflow.add_edge("add_unassigned_parameters", END)
+        
+        # Compilar el workflow
+        app = workflow.compile(checkpointer=memory_saver)
+        
+        # Primera ejecución - esto debería interrumpirse
+        console.print("\n=== PRIMERA EJECUCIÓN (DEBERÍA INTERRUMPIR) ===", style="bold yellow")
+        async for event in app.astream(initial_state, config):
             if "__interrupt__" in event:
-                console.print(event, style="bold blue")
-                resumed = await workflow.ainvoke(Command(resume="respuesta"), config=config)
-                result = resumed
-            else:
-                result = event
-        # result = await workflow.ainvoke(initial_state, config)
-        final_response = result["messages"][-1]
-        
-        # # Verificamos si hay interrupción mostrando 'items'
+                interrupt_data = event["__interrupt__"][0]
+                mensaje = interrupt_data.value["mensaje"]
+                items = interrupt_data.value["items"]
+                console.print("Esta interrumpido", style="bold red")
+                resumed = await app.ainvoke(Command(resume="respuesta"), config=config)
+            # if hasattr(event, "__interrupt__"):
+            #     console.print(event, style="bold blue")
+                
+            # if "__interrupt__" in event:
+            #     interrupt_data = result["__interrupt__"].value
+            #     console.print(event["__interrupt__"][0].value["items"], style="bold red")
+                
+            # if event.event == "complete":
+            #     console.print(event.result, style="bold blue")
+            # elif event.event == "interrupt":
+            #     console.print(event.result, style="bold red")
+        # Verificar si hay interrupción (ítems para revisar)
         # items = result.get("items", [])
         # if items:
-        #     console.print("INTERRUPCIÓN DETECTADA", style="bold yellow")
+        #     console.print("\n=== INTERRUPCIÓN DETECTADA ===", style="bold red")
         #     for item in items:
         #         console.print(f"- {item}", style="yellow")
-
-        #     # Simula la respuesta del usuario
-        #     respuesta_usuario = input("¿Qué deseas hacer con estos ítems?: ")
-
-        #     # Reanuda el grafo pasando solo la respuesta humana
-        #     resumed_result = await workflow.ainvoke(
+            
+        #     # Simular respuesta del usuario (en un entorno real, esto vendría de la interfaz)
+        #     respuesta_usuario = "Acepto todos los items"  # Esto es solo para prueba
+            
+        #     console.print("\n=== SEGUNDA EJECUCIÓN (CON RESPUESTA) ===", style="bold green")
+        #     # Reanudar el workflow con la respuesta del usuario
+        #     resumed_result = await app.ainvoke(
         #         Command(resume=respuesta_usuario),
         #         config=config
         #     )
-
-        #     final_response = resumed_result["messages"][-1]
+            
+        #     console.print("\nResultado final:", style="bold blue")
+        #     console.print(resumed_result, style="bold blue")
         # else:
-        #     final_response = result["messages"][-1]
-
-        # Obtener el costo total acumulado del callback_handler compartido
-        token_cost = shared_callback_handler.total_cost
-
+        #     console.print("\nNo se detectó interrupción", style="bold yellow")
+        #     console.print(result, style="bold red")
         return {
-            "response": final_response.content,
-            "token_cost": token_cost
-        }
+            "response": resumed,
+            "token_cost": 0
+            }
+    except Exception as e:
+        print(f"Error al ejecutar el nodo: {str(e)}")
+
+
+# Para correr la función async en un entorno normal:
+import asyncio
+asyncio.run(run_node_only())
