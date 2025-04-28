@@ -1,4 +1,5 @@
 import asyncio
+from typing import Optional
 from langchain_core.runnables import RunnableConfig
 from langchain_core.messages import HumanMessage
 from langchain_core.load import load, dumpd
@@ -11,6 +12,7 @@ from pliego_esp.graph.callbacks import shared_callback_handler
 from rich.console import Console
 from asgiref.sync import sync_to_async
 from langgraph.types import Command
+from langgraph.graph import StateGraph
 
 console = Console()
 
@@ -61,6 +63,10 @@ El **pago** se efectuará en función del avance efectivamente medido y aprobado
 
 
 class PliegoEspService:
+        # Variables de clase para guardar temporalmente
+    saved_config: Optional[RunnableConfig] = None
+    saved_workflow: Optional[StateGraph] = None
+    
     @staticmethod
     async def process_message(input: dict, config: RunnableConfig, user=None) -> dict:
 
@@ -95,13 +101,6 @@ class PliegoEspService:
                 # Si no existe un registro para este usuario, usamos los valores por defecto
                 pass
         
-        # Reiniciar el callback_handler antes de cada ejecución
-        shared_callback_handler.total_tokens = 0
-        shared_callback_handler.prompt_tokens = 0
-        shared_callback_handler.completion_tokens = 0
-        shared_callback_handler.successful_requests = 0
-        shared_callback_handler.total_cost = 0.0
-        
         # Inicializar el estado con el mensaje del usuario
         initial_state = State(
             pliego_base=input["pliego_base"],
@@ -117,43 +116,53 @@ class PliegoEspService:
             {'Parámetro Técnico': 'Revoque', 'Opciones válidas': '-', 'Valor por defecto': '-', 'Valor Asignado': 'Realizar revoque'}
                 ]
             )
-            
         
+        final_response = None
         # Primera invocación del workflow
         async for event in workflow.astream(initial_state, config):
+            primera_clave = next(iter(event))
+            console.print(primera_clave, style="bold red")
             if "__interrupt__" in event:
-                console.print(event, style="bold blue")
-                resumed = await workflow.ainvoke(Command(resume="respuesta"), config=config)
-                result = resumed
-            else:
-                result = event
+                console.print("INTERRUPCION", style="bold red")
+                interrupt_data = event["__interrupt__"][0].value
+                console.print({
+                    "type": "modal_parametros",
+                    "mensaje": interrupt_data["mensaje"],
+                    "items": interrupt_data["items"],
+                    "config": config
+                }, style="bold red")
+                
+                return {
+                    "type": "modal_parametros",
+                    "mensaje": interrupt_data["mensaje"],
+                    "items": interrupt_data["items"],
+                    "config": config
+                }
+                
+            # else:
+            #     result = event
         # result = await workflow.ainvoke(initial_state, config)
-        final_response = result["messages"][-1]
-        
-        # # Verificamos si hay interrupción mostrando 'items'
-        # items = result.get("items", [])
-        # if items:
-        #     console.print("INTERRUPCIÓN DETECTADA", style="bold yellow")
-        #     for item in items:
-        #         console.print(f"- {item}", style="yellow")
-
-        #     # Simula la respuesta del usuario
-        #     respuesta_usuario = input("¿Qué deseas hacer con estos ítems?: ")
-
-        #     # Reanuda el grafo pasando solo la respuesta humana
-        #     resumed_result = await workflow.ainvoke(
-        #         Command(resume=respuesta_usuario),
-        #         config=config
-        #     )
-
-        #     final_response = resumed_result["messages"][-1]
-        # else:
-        #     final_response = result["messages"][-1]
-
+            if "add_unassigned_parameters" in event:
+                console.print(event[primera_clave], style="bold green")
+                final_response = event[primera_clave]["especificacion_generada"]
+                # console.print(final_response, style="bold green")
+            
         # Obtener el costo total acumulado del callback_handler compartido
         token_cost = shared_callback_handler.total_cost
 
         return {
-            "response": final_response.content,
+            "type": "final",
+            "response": final_response,
             "token_cost": token_cost
         }
+
+    @staticmethod
+    async def resume_parameters(data: list, config: RunnableConfig) -> dict:
+        workflow = get_workflow()
+        async for event in workflow.astream(Command(resume=data), config=config):
+            response = event["add_unassigned_parameters"]
+            return {
+                "content": response["especificacion_generada"],
+                "token_cost": response["token_cost"],
+                "conversation_id": config["configurable"]["thread_id"]
+            }

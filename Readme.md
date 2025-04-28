@@ -52,3 +52,7 @@ Uses gunicorn + Redis.
 
 cp nginx.conf /etc/nginx/sites-available/chatlegal.c4all.org
 ln -s /etc/nginx/sites-available/chatlegal.c4all.org /etc/nginx/sites-enabled/
+
+
+
+tree -I '.venv|__pycache__|*.pyc|db.sqlite3|static|media|node_modules|migrations|__init__.py|theme|examples|chromadb|*.sh|docker*|Dock*'

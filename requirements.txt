@@ -15,7 +15,10 @@ rich==14.0.0
 
 langgraph==0.3.30
 django-crispy-forms==2.4
-django-crispy-tailwind==1.0.3
+crispy-tailwind==1.0.3
 
 # TODO IMPORTANTE
 # https://github.com/langchain-ai/langchain/pull/30899/commits/e2c3d61d73ee86c4ae6fc829e8b85c5c4edfe92b#diff-9700f0a70b33244afc1209eab2202c1e71d53ab7ad1d053d9522e372da4dd923
+
+channels==4.0.0
+channels-redis==4.2.0

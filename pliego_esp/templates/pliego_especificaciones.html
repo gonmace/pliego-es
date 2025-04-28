@@ -5,41 +5,46 @@
 {% endblock %}
 
 {% block css %}
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <style>
-        .loading-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+    .loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .loading-spinner {
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #3498db;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
         }
-        
-        .loading-spinner {
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #3498db;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
+
+        100% {
+            transform: rotate(360deg);
         }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .loading-text {
-            color: white;
-            margin-top: 15px;
-            font-size: 18px;
-        }
-    </style>
+    }
+
+    .loading-text {
+        color: white;
+        margin-top: 15px;
+        font-size: 18px;
+    }
+</style>
 {% endblock %}
 
 {% block title %}
@@ -50,157 +55,179 @@ Pliego de Especificaciones
 
 {% block content %}
 
-    <div class="container mx-auto px-4 py-8 max-w-6xl">
-        <h1 class="text-3xl font-bold mb-6">Asistente de Pliego de Especificaciones</h1>
-        <div class="mx-auto mt-10 p-8 bg-gray-100 rounded-lg shadow">
-            <form id="pliegoForm" method="post" class="space-y-6">
-                {% csrf_token %}
-                {{ form|crispy }}
-                
-                <button type="submit" class="btn btn-primary w-full">
+<div class="container mx-auto px-4 py-8 max-w-6xl">
+    <h1 class="text-3xl font-bold mb-6">Asistente de Pliego de Especificaciones</h1>
+    <div class="mx-auto mt-10 p-8 bg-gray-100 rounded-lg shadow">
+        <form id="pliegoForm" method="post" class="space-y-6">
+            {% csrf_token %}
+            {{ form|crispy }}
+
+            <button type="submit" class="btn btn-primary w-full">
                 Enviar
-                </button>
+            </button>
+        </form>
+    </div>
+
+    <div id="resultContainer" class="mt-8 mx-auto p-8 rounded-lg shadow" style="display: none;">
+        <h2 class="text-xl font-semibold mb-4">Resultado:</h2>
+        <div class="p-4 rounded-md">
+            <article id="response-content" class="prose lg:prose-xl">
+            </article>
+        </div>
+
+        <div class="mt-4 text-sm text-gray-600">
+            <p>Costo de tokens: <span id="tokenCost">-</span></p>
+            <p class="mt-1">ID de conversación: <span id="conversationId">-</span></p>
+        </div>
+    </div>
+</div>
+
+<!-- Overlay de carga -->
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="text-center">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Procesando su solicitud...</div>
+    </div>
+</div>
+
+<!-- Modal de confirmación -->
+<dialog id="modal_parametros" class="modal">
+    <div class="modal-box">
+        <h3 class="text-lg font-bold">Hello!</h3>
+        <p class="py-4">Press ESC key or click the button below to close</p>
+        <div class="modal-action">
+            <form method="dialog">
+                <button id="modalButtonYes" class="btn">Aceptar</button>
+                <button id="modalButtonNo" class="btn">Cancelar</button>
             </form>
         </div>
-        
-        <div id="resultContainer" class="mt-8 mx-auto p-8 rounded-lg shadow" style="display: none;">
-            <h2 class="text-xl font-semibold mb-4">Resultado:</h2>
-            <div class="p-4 rounded-md">
-                <article id="response-content" class="prose lg:prose-xl">
-                </article>
-            </div>
-            
-            <div class="mt-4 text-sm text-gray-600">
-                <p>Costo de tokens: <span id="tokenCost">-</span></p>
-                <p class="mt-1">ID de conversación: <span id="conversationId">-</span></p>
-            </div>
-        </div>
     </div>
-    
-    <!-- Overlay de carga -->
-    <div id="loadingOverlay" class="loading-overlay">
-        <div class="text-center">
-            <div class="loading-spinner"></div>
-            <div class="loading-text">Procesando su solicitud...</div>
-        </div>
-    </div>
+</dialog>
 
 {% endblock %}
 
 {% block js %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+
+    document.addEventListener('DOMContentLoaded', function () {
         const form = document.getElementById('pliegoForm');
         const loadingOverlay = document.getElementById('loadingOverlay');
         const resultContainer = document.getElementById('resultContainer');
-        
+
         // Configurar marked para manejar saltos de línea
         marked.setOptions({
             breaks: true,
             gfm: true
         });
-        
-        form.addEventListener('submit', function(e) {
+
+        form.addEventListener('submit', async function (e) {
             e.preventDefault();
-            
+
             // Mostrar el overlay de carga
             loadingOverlay.style.display = 'flex';
-            
-            // Obtener los datos del formulario
-            const formData = new FormData(form);
-            
-            // Enviar la solicitud AJAX
-            fetch(form.action, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Ocultar el overlay de carga
+
+            try {
+                // Obtener los datos del formulario
+                const formData = new FormData(form);
+                formData.append('request_type', 'inicio');
+
+                // Enviar la solicitud AJAX
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+
+                const data = await response.json();
                 loadingOverlay.style.display = 'none';
-                
-                // Mostrar el contenedor de resultados
-                resultContainer.style.display = 'block';
-                
-                // Actualizar el contenido de la respuesta
-                const responseContent = document.getElementById('response-content');
-                responseContent.innerHTML = marked.parse(data.response);
-                
-                // Actualizar información adicional
-                document.getElementById('tokenCost').textContent = data.token_cost || '-';
-                document.getElementById('conversationId').textContent = data.conversation_id || '-';
-                
-                // Verificar si hay una interrupción en la respuesta
-                if (data.response && data.response.includes('"type": "modal"')) {
+
+                if (data.type == "modal_parametros") {
+                    // console.log('data:', data);
+                    // Procesar los modales en secuencia
+                    for (const item of data.items) {
+                        const respuesta = await modal_parametros(item);
+                        item.agregar = respuesta;
+                        console.log('Item después del modal:', item);
+                    }
+
+                    // Enviar los items modificados al backend
                     try {
-                        // Intentar extraer la información del modal de la respuesta
-                        const modalDataMatch = data.response.match(/\{[\s\S]*"type": "modal"[\s\S]*\}/);
-                        if (modalDataMatch) {
-                            const modalData = JSON.parse(modalDataMatch[0]);
-                            showModal(modalData);
-                        }
+                        const formData = new FormData();
+                        formData.append('request_type', 'parametros');
+                        formData.append('items', JSON.stringify(data.items));
+                        formData.append('config', JSON.stringify(data.config));
+                        formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+                        const responseParameters = await fetch(form.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+
+                        const responseData = await responseParameters.json();
+
+                        document.getElementById('response-content').innerHTML = marked.parse(responseData.content);
+                        document.getElementById('resultContainer').style.display = 'block';
+                        document.getElementById('tokenCost').textContent = responseData.token_cost;
+                        document.getElementById('conversationId').textContent = responseData.conversation_id;
+                        //    alert('Hubo un error al procesar los parámetros. Por favor, intente nuevamente.');
+                        
                     } catch (error) {
-                        console.error('Error al procesar la interrupción:', error);
+                        console.error('Error al enviar los parámetros:', error);
+                        alert('Error al enviar los parámetros al servidor. Por favor, revise la consola para más detalles.');
                     }
                 }
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error('Error:', error);
                 loadingOverlay.style.display = 'none';
                 alert('Ha ocurrido un error al procesar su solicitud. Por favor, inténtelo de nuevo.');
-            });
+            }
         });
-        
         // Función para mostrar el modal
-        function showModal(data) {
-            const modal = document.getElementById('confirmationModal');
-            const modalTitle = document.getElementById('modalTitle');
-            const modalMessage = document.getElementById('modalMessage');
-            const modalContent = document.getElementById('modalContent');
-            const modalButtonYes = document.getElementById('modalButtonYes');
-            const modalButtonNo = document.getElementById('modalButtonNo');
+        async function modal_parametros(data) {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('modal_parametros');
+                const modalTitle = modal.getElementsByTagName('h3')[0];
+                const modalContent = modal.getElementsByTagName('p')[0];
+                const modalButtonYes = document.getElementById('modalButtonYes');
+                const modalButtonNo = document.getElementById('modalButtonNo');
 
-            // Configurar el contenido del modal
-            modalTitle.textContent = data.title || 'Confirmar acción';
-            modalMessage.textContent = data.message || '¿Deseas continuar?';
-            
-            // Renderizar el contenido markdown si existe
-            if (data.content) {
-                modalContent.innerHTML = marked.parse(data.content);
-            } else {
-                modalContent.innerHTML = '';
-            }
+                // Configurar el contenido del modal
+                modalTitle.textContent = data.parametro + ": " + data.valor;
+                modalContent.textContent = data.comentario;
 
-            // Configurar los botones
-            if (data.options && data.options.length > 0) {
-                modalButtonYes.textContent = data.options[0];
-                modalButtonNo.textContent = data.options[1] || 'No';
-            }
+                // Función para cerrar el modal y resolver la promesa
+                const closeModalAndResolve = (result) => {
+                    modal.close();
+                    // Añadir un pequeño retraso antes de resolver
+                    setTimeout(() => {
+                        resolve(result);
+                    }, 300); // 300ms de retraso
+                };
 
-            // Mostrar el modal
-            modal.style.display = 'block';
-        }
+                // Configurar los manejadores de eventos para los botones
+                modalButtonYes.onclick = () => {
+                    closeModalAndResolve(true);
+                };
 
-        // Función para cerrar el modal
-        function closeModal() {
-            const modal = document.getElementById('confirmationModal');
-            modal.style.display = 'none';
-        }
+                modalButtonNo.onclick = () => {
+                    closeModalAndResolve(false);
+                };
 
-        // Función para manejar la respuesta del modal
-        function handleModalResponse(response) {
-            // Aquí se enviaría la respuesta al backend
-            console.log('Respuesta del modal:', response);
-            
-            // Cerrar el modal
-            closeModal();
-            
-            // En un caso real, aquí se enviaría la respuesta al backend para continuar el flujo
-            // Por ahora, solo mostramos un mensaje en la consola
-            alert(`Has seleccionado: ${response}`);
+                // Asegurarse de que el modal anterior esté cerrado
+                if (modal.open) {
+                    modal.close();
+                }
+
+                // Pequeño retraso antes de mostrar el nuevo modal
+                setTimeout(() => {
+                    modal.showModal();
+                }, 100);
+            });
         }
     });
 </script>
