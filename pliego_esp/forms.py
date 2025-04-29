@@ -44,5 +44,5 @@ class PliegoForm(forms.Form):
                 'placeholder': 'Adicionales'
             }
         ),
-        initial="Retiro de recubrimientos antiguos"
+        initial="Retiro de recubrimientos antiguos únicamente con métodos mecánicos no deben usarse quimicos, colocación de barreras de protección para evitar choque de los montacargas"
     )

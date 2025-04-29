@@ -92,6 +92,7 @@ async def add_unassigned_parameters(state: State, *, config: RunnableConfig) -> 
         console.print(f"Costo acumulado hasta ahora: ${shared_callback_handler.total_cost:.6f}", style="white")
 
         return {
+            **state,
             "especificacion_generada": especificacion_con_parametros,
             "token_cost": shared_callback_handler.total_cost,
         }

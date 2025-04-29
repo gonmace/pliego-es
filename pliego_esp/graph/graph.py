@@ -8,6 +8,7 @@ from langchain_core.runnables import RunnableConfig
 from graph_retriever.strategies import Eager
 from langgraph.checkpoint.memory import MemorySaver
 
+from pliego_esp.graph.nodes.review_other_adicionales import review_other_adicionales
 from pliego_esp.graph.nodes.add_unassigned_parameters import add_unassigned_parameters
 from pliego_esp.graph.nodes.review_unassigned_parameters import review_unassigned_parameters
 from pliego_esp.graph.nodes.process_pliego import process_pliego
@@ -39,28 +40,32 @@ async def create_workflow(memory_saver: MemorySaver) -> CompiledStateGraph:
     workflow = StateGraph(State)
 
     # # Agregar los nodos al workflow con el callback_handler compartido
-    # workflow.add_node("clean_and_capture_sections", clean_and_capture_sections)
+    workflow.add_node("clean_and_capture_sections", clean_and_capture_sections)
     
     # # Primer flujo paralelo
-    # workflow.add_node("parse_adicionales", parse_adicionales)
-    # workflow.add_node("match_adicionales", match_adicionales)
+    workflow.add_node("parse_adicionales", parse_adicionales)
+    workflow.add_node("match_adicionales", match_adicionales)
     
     # # Segundo flujo paralelo
-    # workflow.add_node("parse_parametros", parse_parametros)
-    # workflow.add_node("match_parametros_clave", match_parametros_clave)
-    # workflow.add_node("unassigned_parameters", unassigned_parameters)
+    workflow.add_node("parse_parametros", parse_parametros)
+    workflow.add_node("match_parametros_clave", match_parametros_clave)
+    workflow.add_node("unassigned_parameters", unassigned_parameters)
 
     # # Tercer flujo convergente
-    # workflow.add_node("process_pliego", process_pliego)
+    workflow.add_node("process_pliego", process_pliego)
     workflow.add_node("review_unassigned_parameters", review_unassigned_parameters)
     workflow.add_node("add_unassigned_parameters", add_unassigned_parameters)
-
-    # # Flujo de trabajo
-    # workflow.set_entry_point("clean_and_capture_sections")
+    workflow.add_node("review_other_adicionales", review_other_adicionales)
     
-    # # Primer flujo paralelo
-    # workflow.add_edge("clean_and_capture_sections", "parse_adicionales")
-    # workflow.add_edge("parse_adicionales", "match_adicionales")
+    
+    
+    
+    # Flujo de trabajo
+    workflow.set_entry_point("clean_and_capture_sections")
+    
+    # Primer flujo paralelo
+    workflow.add_edge("clean_and_capture_sections", "parse_adicionales")
+    workflow.add_edge("parse_adicionales", "match_adicionales")
     
     # # Segundo flujo paralelo
     # workflow.add_edge("clean_and_capture_sections", "parse_parametros")  
@@ -75,9 +80,10 @@ async def create_workflow(memory_saver: MemorySaver) -> CompiledStateGraph:
     # # # Flujo final
     # workflow.add_edge("process_pliego", "review_unassigned_parameters")
     
-    workflow.set_entry_point("review_unassigned_parameters")
-    workflow.add_edge("review_unassigned_parameters", "add_unassigned_parameters")
-    workflow.add_edge("add_unassigned_parameters", END)
+    # # workflow.set_entry_point("review_unassigned_parameters")
+    # workflow.add_edge("review_unassigned_parameters", "add_unassigned_parameters")
+    # workflow.add_edge("add_unassigned_parameters", "review_other_adicionales")
+    # workflow.add_edge("review_other_adicionales", END)
         
     # Compilar el workflow con el memory_saver para mantener el estado entre ejecuciones
     return workflow.compile(checkpointer=memory_saver, debug=False)

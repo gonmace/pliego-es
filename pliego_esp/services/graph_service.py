@@ -110,11 +110,11 @@ class PliegoEspService:
             token_cost=0.0,
             
             # TODO: Solo es para el grafo resumido, se debe eliminar
-            especificacion_generada=esp_generada,
-            other_parametros=[
-            {'Parámetro Técnico': 'Color', 'Opciones válidas': '-', 'Valor por defecto': '-', 'Valor Asignado': 'Pintura de 3 colores'},
-            {'Parámetro Técnico': 'Revoque', 'Opciones válidas': '-', 'Valor por defecto': '-', 'Valor Asignado': 'Realizar revoque'}
-                ]
+            # especificacion_generada=esp_generada,
+            # other_parametros=[
+            # {'Parámetro Técnico': 'Color', 'Opciones válidas': '-', 'Valor por defecto': '-', 'Valor Asignado': 'Pintura de 3 colores'},
+            # {'Parámetro Técnico': 'Revoque', 'Opciones válidas': '-', 'Valor por defecto': '-', 'Valor Asignado': 'Realizar revoque'}
+            #     ]
             )
         
         final_response = None
@@ -161,8 +161,8 @@ class PliegoEspService:
         workflow = get_workflow()
         async for event in workflow.astream(Command(resume=data), config=config):
             response = event["add_unassigned_parameters"]
-            return {
-                "content": response["especificacion_generada"],
-                "token_cost": response["token_cost"],
-                "conversation_id": config["configurable"]["thread_id"]
-            }
+            # return {
+            #     "content": response["especificacion_generada"],
+            #     "token_cost": response["token_cost"],
+            #     "conversation_id": config["configurable"]["thread_id"]
+            # }

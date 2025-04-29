@@ -77,8 +77,13 @@ class State(MessagesState):
     other_adicionales: List[str] = field(
         default_factory=list,
         metadata={"description": "Otros adicionales para la nueva especificación"}
-        )    
-
+        )
+    
+    evaluaciones_adicionales: List[Dict[str, str]] = field(
+        default_factory=list,
+        metadata={"description": "Evaluaciones de actividades adicionales en formato lista de diccionarios"}
+        )
+    
     # COSTOS
     token_cost: Annotated[float, operator.add] = field(
         default=0.0,
