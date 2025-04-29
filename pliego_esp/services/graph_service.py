@@ -109,32 +109,30 @@ class PliegoEspService:
             adicionales=input["adicionales"],
             token_cost=0.0,
             
+            
             # TODO: Solo es para el grafo resumido, se debe eliminar
-            # especificacion_generada=esp_generada,
-            # other_parametros=[
-            # {'Parámetro Técnico': 'Color', 'Opciones válidas': '-', 'Valor por defecto': '-', 'Valor Asignado': 'Pintura de 3 colores'},
-            # {'Parámetro Técnico': 'Revoque', 'Opciones válidas': '-', 'Valor por defecto': '-', 'Valor Asignado': 'Realizar revoque'}
-            #     ]
+            especificacion_generada=esp_generada,
+            other_parametros=[
+            {'Parámetro Técnico': 'Color', 'Opciones válidas': '-', 'Valor por defecto': '-', 'Valor Asignado': 'Pintura de 3 colores'},
+            {'Parámetro Técnico': 'Revoque', 'Opciones válidas': '-', 'Valor por defecto': '-', 'Valor Asignado': 'Realizar revoque'}
+                ],
+            other_adicionales=[
+                {'actividad': 'Otros', 'descripcion': 'colocación de barreras de protección para evitar choque de los montacargas'}
+            ]
             )
-        
+
         final_response = None
         # Primera invocación del workflow
         async for event in workflow.astream(initial_state, config):
             primera_clave = next(iter(event))
             console.print(primera_clave, style="bold red")
+            
             if "__interrupt__" in event:
-                console.print("INTERRUPCION", style="bold red")
+                console.print("INTERRUPCION PARAMETROS", style="bold red")
                 interrupt_data = event["__interrupt__"][0].value
-                console.print({
-                    "type": "modal_parametros",
-                    "mensaje": interrupt_data["mensaje"],
-                    "items": interrupt_data["items"],
-                    "config": config
-                }, style="bold red")
                 
                 return {
-                    "type": "modal_parametros",
-                    "mensaje": interrupt_data["mensaje"],
+                    "type": interrupt_data["type"],
                     "items": interrupt_data["items"],
                     "config": config
                 }
@@ -142,9 +140,9 @@ class PliegoEspService:
             # else:
             #     result = event
         # result = await workflow.ainvoke(initial_state, config)
-            if "add_unassigned_parameters" in event:
-                console.print(event[primera_clave], style="bold green")
-                final_response = event[primera_clave]["especificacion_generada"]
+            # if "add_unassigned_parameters" in event:
+            #     console.print(event[primera_clave], style="bold green")
+            #     final_response = event[primera_clave]["especificacion_generada"]
                 # console.print(final_response, style="bold green")
             
         # Obtener el costo total acumulado del callback_handler compartido
@@ -157,10 +155,24 @@ class PliegoEspService:
         }
 
     @staticmethod
-    async def resume_parameters(data: list, config: RunnableConfig) -> dict:
+    async def resume_from_parametros(data: list, config: RunnableConfig) -> dict:
         workflow = get_workflow()
         async for event in workflow.astream(Command(resume=data), config=config):
-            response = event["add_unassigned_parameters"]
+
+            if "__interrupt__" in event:
+                console.print("INTERRUPCION ADICIONALES", style="bold red")
+                interrupt_data = event["__interrupt__"][0].value
+                
+                return {
+                    "type": interrupt_data["type"],
+                    "items": interrupt_data["items"],
+                    "config": config
+                }
+
+            
+            
+            # response = event["add_unassigned_parameters"]
+            
             # return {
             #     "content": response["especificacion_generada"],
             #     "token_cost": response["token_cost"],

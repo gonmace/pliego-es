@@ -1,7 +1,7 @@
 from langchain_core.runnables import RunnableConfig
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
-from langchain_community.callbacks.openai_info import OpenAICallbackHandler
+from langchain_core.output_parsers import StrOutputParser
 
 from pliego_esp.graph.state import State
 from pliego_esp.graph.configuration import Configuration
@@ -11,23 +11,7 @@ from rich.console import Console
 
 console = Console()
 
-async def match_parametros_clave(state: State, *, config: RunnableConfig) -> State:
-    console.print("------ match_parametros_clave ------", style="bold blue")
-    
-    # Guardar el costo inicial
-    costo_inicial = shared_callback_handler.total_cost
-    console.print(f"Costo inicial: ${costo_inicial:.6f}", style="bold blue")
-    
-    configuration = Configuration.from_runnable_config(config)
-    
-    # Cambiar a gpt-3.5-turbo que tiene mejor soporte para seguimiento de tokens
-    llm = ChatOpenAI(
-        model=configuration.chat_model,
-        temperature=0.0,
-        callbacks=[shared_callback_handler]
-    )
-
-    fila_prompt = ChatPromptTemplate.from_template("""
+fila_prompt = ChatPromptTemplate.from_template("""
 Estás procesando una tabla de parámetros técnicos para una especificación de construcción.
 
 Analiza el siguiente parámetro técnico de la tabla:
@@ -48,20 +32,33 @@ Y evalúa si **alguno de los siguientes valores clave del proyecto representa un
 No expliques nada más.
 """)
 
+async def match_parametros_clave(state: State, *, config: RunnableConfig) -> State:
+    console.print("------ match_parametros_clave ------", style="bold blue")
+    costo_inicial = shared_callback_handler.total_cost
+    
+    console.print(f"Costo inicial: ${costo_inicial:.6f}", style="blue")
+    
+    configuration = Configuration.from_runnable_config(config)
+    
+    # Cambiar a gpt-3.5-turbo que tiene mejor soporte para seguimiento de tokens
+    llm = ChatOpenAI(
+        model=configuration.chat_model,
+        temperature=0.0,
+        callbacks=[shared_callback_handler]
+    )
+    
     tabla_actualizada = []
     parametros_usados = set()
     
     for fila in state["parsed_parametros"]:
-        prompt = fila_prompt.format_prompt(
-            parametro=fila["Parámetro Técnico"],
-            opciones_validas=fila["Opciones válidas"],
-            parametros_clave=state["parametros_clave"]
-        ).to_messages()
         
-        # Pasar los callbacks en el método invoke
-        salida = llm.invoke(
-            prompt
-        ).content.strip()
+        chain = fila_prompt | llm | StrOutputParser()
+        
+        salida = await chain.ainvoke({
+            "parametro": fila["Parámetro Técnico"],
+            "opciones_validas": fila["Opciones válidas"],
+            "parametros_clave": state["parametros_clave"]
+            })
         
         console.print(f"Costo parcial después de procesar '{fila['Parámetro Técnico']}': ${shared_callback_handler.total_cost:.6f}", style="blue")
         if salida != "-" and salida in state["parametros_clave"]:
@@ -85,11 +82,11 @@ No expliques nada más.
         clave for clave in state["parametros_clave"] if clave in parametros_usados
     ]
     
-    console.print(f"Nuevos parametros: {len(parametros_no_asignados)}", style="cyan")
+    console.print(f"Nuevos parametros: {len(parametros_no_asignados)}", style="blue")
     for fila in parametros_no_asignados:
-        console.print(fila, style="bold cyan")
+        console.print(fila, style="bold blue")
 
-    console.print(20*"-", style="bold cyan")
+    console.print(20*"-", style="bold blue")
     return {
         "parsed_parametros": tabla_actualizada,
         "parametros_no_asignados": parametros_no_asignados,

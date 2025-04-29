@@ -42,7 +42,7 @@ Adaptar la especificación genérica al nuevo ítem indicado, incorporando únic
 
 - **Título del ítem**: {titulo}
 - **Parámetros técnicos relevantes**: {parametros_clave}
-- **Adicionales**: {adicionales}
+- **Adicionales**: {adicionales_finales}
 
 ---
 
@@ -103,26 +103,21 @@ El resultado debe ser una especificación técnica **clara, profesional y lista 
     prompt = prompt_template.format_prompt(
         titulo=state.get("titulo", ""),
         parametros_clave=parametros_clave,
-        adicionales=adicionales_finales,
+        adicionales_finales=adicionales_finales,
         especificacion_base=state.get("pliego_base", "")
     ).to_messages()
 
-    # console.print(prompt, style="bold white")
-    
-    especificacion_generada = llm.invoke(prompt).content
+    especificacion_generada = await llm.ainvoke(prompt)
 
-    # Calcular el costo del nodo
+    console.print(especificacion_generada.content, style="white")
+    
     costo_nodo = shared_callback_handler.total_cost - costo_inicial
     console.print(f"Costo total del nodo process_pliego: ${costo_nodo:.6f}", style="bold white")
     console.print(f"Costo acumulado hasta ahora: ${shared_callback_handler.total_cost:.6f}", style="white")
     
-    state["messages"] = [
-        HumanMessage(content=f"{especificacion_generada}")
-    ]
-    console.print(especificacion_generada, style="white")
     console.print(20*"-", style="bold white")
+
     return {
-        "messages": state["messages"],
-        "especificacion_generada": especificacion_generada,
+        "especificacion_generada": especificacion_generada.content,
         "token_cost": shared_callback_handler.total_cost
     }

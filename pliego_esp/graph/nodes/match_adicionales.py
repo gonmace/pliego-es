@@ -1,16 +1,14 @@
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from pliego_esp.graph.configuration import Configuration
-from pliego_esp.graph.state import State
 from langchain_core.runnables import RunnableConfig
-from langchain_community.callbacks.openai_info import OpenAICallbackHandler
 from pliego_esp.graph.callbacks import shared_callback_handler
 
 from rich.console import Console
 import json
 
 from pydantic import BaseModel, Field
-from typing import List, Dict
+from typing import List
 
 console = Console()
 
@@ -29,7 +27,6 @@ class MatchAdicionales(BaseModel):
     other_adicionales: List[Adicional] = Field(
         description="Lista de actividades que no coinciden técnicamente con las actividades adicionales existentes."
     )
-
 
 prompt_template = ChatPromptTemplate.from_template(
 """Eres un asistente técnico especializado en construcción.
@@ -68,7 +65,10 @@ async def match_adicionales(state: dict, *, config: RunnableConfig) -> dict:
     console.print("----- match_adicionales -----", style="bold green")
     costo_inicial = shared_callback_handler.total_cost
     
+    console.print(f"Costo inicial: ${costo_inicial:.6f}", style="green")
+
     configuration = Configuration.from_runnable_config(config)
+    
     llm = ChatOpenAI(
         model=configuration.chat_model,
         temperature=0.0,
@@ -76,33 +76,40 @@ async def match_adicionales(state: dict, *, config: RunnableConfig) -> dict:
     )
 
     match_chain = prompt_template | llm.with_structured_output(MatchAdicionales)
+    
     actividades_compatibles_json = json.dumps(state["parsed_adicionales"], ensure_ascii=False, indent=2)
 
+    state["adicionales_finales"] = []
+    state["other_adicionales"] = []
     adicionales_finales = []
     otros = []
 
     for actividad_propuesta in state["adicionales"]:
+        
         response = await match_chain.ainvoke({
             "actividades_adicionales": actividades_compatibles_json,
             "actividad_propuesta": actividad_propuesta
         })
-        
-        console.print(f"Response: {response}", style="green")
 
         if response.adicionales_finales:
             adicionales_finales.extend(response.adicionales_finales)
         else:
             otros.extend(response.other_adicionales)
+        
+        console.print(f"Costo parcial después de procesar '{actividad_propuesta}': ${shared_callback_handler.total_cost:.6f}", style="green")
 
     costo_nodo = shared_callback_handler.total_cost - costo_inicial
-    console.print(f"Costo total del nodo match_adicionales: ${costo_nodo:.6f}", style="bold green")
-
+    console.print(f"Costo total del nodo match_adicionales: ${costo_nodo:.6f}", style="green")
+    console.print(f"Costo acumulado hasta ahora: ${shared_callback_handler.total_cost:.6f}", style="green")
+    
     # Guardar resultados en el state
     state["adicionales_finales"] = [a.model_dump() for a in adicionales_finales]
     console.print(f"Adicionales finales: {state['adicionales_finales']}", style="green")
     
     state["other_adicionales"] = [a.model_dump() for a in otros]
     console.print(f"Other adicionales: {state['other_adicionales']}", style="green")
+    
+    console.print(20*"-", style="green")
     return {
         "adicionales_finales": adicionales_finales,
         "other_adicionales": otros

@@ -83,11 +83,10 @@ def pliego_especificaciones_view(request):
             data = json.loads(request.POST.get('items'))
             config = json.loads(request.POST.get('config'))
             
-            response_data = async_to_sync(PliegoEspService.resume_parameters)(
+            response_data = async_to_sync(PliegoEspService.resume_from_parametros)(
                 data=data,
                 config=config
             )
-            console.print(response_data, style="bold red")
             return JsonResponse({
                 'content': response_data.get('content', ''),
                 'token_cost': response_data.get('token_cost', 0),

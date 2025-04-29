@@ -45,13 +45,7 @@ async def clean_and_capture_sections(state: State) -> State:
     
     console.print(20*"-", style="white")
     
-    #TODO: Eliminar este mensaje
-    # state["messages"] = [
-    #     HumanMessage(content=f"Pliego base: {state['pliego_base']}\nTitulo: {state['titulo']}\nParametros clave: {state['parametros_clave']}\nAdicionales: {state['adicionales']}")
-    # ]
-    
     return {
-        # "messages": state["messages"],
         "pliego_base": state["pliego_base"],
         "titulo": state["titulo"],
         "parametros_clave": state["parametros_clave"],

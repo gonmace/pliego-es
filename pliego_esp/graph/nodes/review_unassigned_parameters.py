@@ -75,12 +75,12 @@ async def review_unassigned_parameters(state: State, *, config: RunnableConfig) 
         
         console.print(f"Costo parcial después de procesar '{parametro_nombre}': ${shared_callback_handler.total_cost:.6f}", style="green")
 
-        console.print(evaluacion)
         evaluaciones.append(
             evaluacion.model_dump()
         )
         cost += shared_callback_handler.total_cost
     
+    console.print(evaluaciones, style="bold green")    
     costo_nodo = shared_callback_handler.total_cost - costo_inicial
     console.print(f"Costo total del nodo review_unassigned_parameters: ${costo_nodo:.6f}", style="green")
     console.print(f"Costo acumulado hasta ahora: ${shared_callback_handler.total_cost:.6f}", style="green")

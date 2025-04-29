@@ -6,8 +6,6 @@ from pliego_esp.graph.configuration import Configuration
 from langchain_core.runnables import RunnableConfig
 from pliego_esp.graph.callbacks import shared_callback_handler
 from langgraph.types import interrupt
-from typing import Optional, Literal
-from langchain_core.messages import HumanMessage
 
 from pydantic import BaseModel, Field
 
@@ -55,7 +53,7 @@ Tu tarea es editar el documento para **adaptar e integrar** las **característic
 
 
 async def add_unassigned_parameters(state: State, *, config: RunnableConfig) -> State:
-    console.print("------ add_unassigned_parameters ------", style="bold blue")
+    console.print("------ add_unassigned_parameters ------", style="bold cyan")
 
     configuration = Configuration.from_runnable_config(config)
     
@@ -66,36 +64,47 @@ async def add_unassigned_parameters(state: State, *, config: RunnableConfig) -> 
     )
     
     costo_inicial = shared_callback_handler.total_cost
-    console.print(f"Costo inicial: ${costo_inicial:.6f}", style="blue")
+    console.print(f"Costo inicial: ${costo_inicial:.6f}", style="cyan")
 
     if len(state["evaluaciones_otros_parametros"]) > 0:
 
-        console.print(len(state["evaluaciones_otros_parametros"]), style="bold yellow")
+        console.print("Parametros a evaluar: ", len(state["evaluaciones_otros_parametros"]), style="cyan")
+        
         respuesta_humana = interrupt({
-            "mensaje": "nuevos parametros",
+            "type": "modal_parametros",
             "items": state.get("evaluaciones_otros_parametros", [])
         })
-             
-        caracteristicas_adicionales = "\n".join(f"{param['parametro']}: {param['valor']}" for param in respuesta_humana if param.get("agregar") == True)
         
-        # Armar el prompt
-        prompt = prompt_template.format_prompt(
-            caracteristicas_adicionales=caracteristicas_adicionales,
-            especificacion_generada=state.get("especificacion_generada", "")
-        ).to_messages()
+        # Contar cuántos tienen 'agregar': True
+        cantidad_agregar_true = sum(1 for item in respuesta_humana if item.get('agregar') == True)
         
-        especificacion_con_parametros = llm.invoke(prompt).content
+        console.print("Parametros a integrar: ", cantidad_agregar_true, style="bold cyan")
         
-        # Calcular el costo del nodo
-        costo_nodo = shared_callback_handler.total_cost - costo_inicial
-        console.print(f"Costo total del nodo add_unassigned_parameters: ${costo_nodo:.6f}", style="bold white")
-        console.print(f"Costo acumulado hasta ahora: ${shared_callback_handler.total_cost:.6f}", style="white")
+        if cantidad_agregar_true > 0:
+            
+            caracteristicas_adicionales = "\n".join(f"{param['parametro']}: {param['valor']}" for param in respuesta_humana if param.get("agregar") == True)
+            
+            
+            prompt = prompt_template.format_prompt(
+                caracteristicas_adicionales=caracteristicas_adicionales,
+                especificacion_generada=state.get("especificacion_generada", "")
+            ).to_messages()
+        
+            especificacion_con_parametros = await llm.ainvoke(prompt)
+        
+            # Calcular el costo del nodo
+            costo_nodo = shared_callback_handler.total_cost - costo_inicial
+            console.print(f"Costo total del nodo add_unassigned_parameters: ${costo_nodo:.6f}", style="bold cyan")
+            console.print(f"Costo acumulado hasta ahora: ${shared_callback_handler.total_cost:.6f}", style="cyan")
 
-        return {
-            **state,
-            "especificacion_generada": especificacion_con_parametros,
-            "token_cost": shared_callback_handler.total_cost,
-        }
+            return {
+                "especificacion_generada": especificacion_con_parametros.content,
+                "token_cost": shared_callback_handler.total_cost,
+            }
+        
+        else:
+            console.print("No hay parametros para integrar", style="bold red")
+            return state
     else:
-        console.print("No hay evaluaciones de otros parametros", style="bold red")
+        console.print("No hay parametros para integrar", style="bold red")
         return state

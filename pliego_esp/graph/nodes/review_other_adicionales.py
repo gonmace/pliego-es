@@ -25,7 +25,8 @@ A continuación se presenta una especificación técnica y una actividad adicion
 
 ## Actividad adicional:
 
-{actividad_adicional}
+### Nombre: {actividad_adicional}
+### Descripción: {descripcion_adicional}
 
 ---
 
@@ -35,7 +36,8 @@ Debes proporcionar tu respuesta en formato estructurado según el modelo definid
 """)
 
 class ReviewOtherAdicionales(BaseModel):
-    actividad: str = Field(description="El nombre de la actividad adicional")
+    actividad: str = Field(description="Nombre de la actividad adicional")
+    descripcion: str = Field(description="Descripción de la actividad adicional")
     comentario: str = Field(description="Una única oración breve y objetiva que indique si la actividad adicional es complementaria y aplicable técnicamente. Aclarar que debe ser una relación técnica, no de otra naturaleza.")
     corresponde: Literal["Sí", "No", "Parcialmente"] = Field(description="Indica si la actividad adicional corresponde (Sí / No / Parcialmente)")
 
@@ -44,10 +46,9 @@ async def review_other_adicionales(state: State, *, config: RunnableConfig) -> S
 
     costo_inicial = shared_callback_handler.total_cost
     console.print(f"Costo inicial: ${costo_inicial:.6f}", style="green")
-    
-    console.print(state, style="green")
 
     configuration = Configuration.from_runnable_config(config)
+    
     llm = ChatOpenAI(
         model=configuration.chat_model,
         temperature=0.0,
@@ -59,13 +60,24 @@ async def review_other_adicionales(state: State, *, config: RunnableConfig) -> S
 
     evaluaciones = []
     cost = 0
-
+    
+    console.print(20*"-", style="bold yellow")
+    console.print(state["other_adicionales"], style="bold yellow")
+    console.print(20*"-", style="bold yellow")
+        
     for adicional in state["other_adicionales"]:
         actividad = adicional.get("actividad", "").strip()
-
+        descripcion = adicional.get("descripcion", "").strip()
+        console.print(20*"-", style="bold red")
+        console.print("Especificación técnica: ", style="bold red")
+        console.print(state["especificacion_generada"], style="bold red")
+        console.print("Actividad adicional: ", actividad, style="bold red")
+        console.print(20*"-", style="bold red")
+        
         evaluacion = await review_chain.ainvoke({
             "especificacion_generada": state["especificacion_generada"],
-            "actividad_adicional": actividad
+            "actividad_adicional": actividad,
+            "descripcion_adicional": descripcion
         })
         
         console.print(f"Costo parcial después de procesar '{actividad}': ${shared_callback_handler.total_cost:.6f}", style="green")
