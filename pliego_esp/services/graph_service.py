@@ -168,13 +168,11 @@ class PliegoEspService:
                     "items": interrupt_data["items"],
                     "config": config
                 }
-
             
+            response = event["add_unassigned_parameters"]
             
-            # response = event["add_unassigned_parameters"]
-            
-            # return {
-            #     "content": response["especificacion_generada"],
-            #     "token_cost": response["token_cost"],
-            #     "conversation_id": config["configurable"]["thread_id"]
-            # }
+            return {
+                "content": response["especificacion_generada"],
+                "token_cost": response["token_cost"],
+                "conversation_id": config["configurable"]["thread_id"]
+            }

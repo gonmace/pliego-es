@@ -87,6 +87,7 @@ def pliego_especificaciones_view(request):
                 data=data,
                 config=config
             )
+
             return JsonResponse({
                 'content': response_data.get('content', ''),
                 'token_cost': response_data.get('token_cost', 0),
