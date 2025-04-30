@@ -3,6 +3,7 @@ from asgiref.sync import async_to_sync
 
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import StateGraph
+from langgraph.graph.state import CompiledStateGraph
 
 from pliego_esp.graph.graph import create_workflow
 
@@ -10,8 +11,8 @@ from rich.console import Console
 console = Console()
 
 # Variables globales para almacenar los grafos compilados
-workflow: StateGraph | None = None
-memory_saver: MemorySaver | None = None
+workflow: CompiledStateGraph = None
+memory_saver: MemorySaver = None
 
 def initialize_graphs():
     """

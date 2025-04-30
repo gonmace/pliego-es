@@ -98,6 +98,3 @@ def pliego_especificaciones_view(request):
         form = PliegoForm()
     
     return render(request, "pliego_especificaciones.html", {"form": form})
-
-def gracias_view(request):
-    return render(request, "gracias.html")
