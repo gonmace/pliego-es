@@ -4,7 +4,7 @@ from langchain_core.runnables import RunnableConfig
 
 console = Console()
 
-PARRAFO_FINAL = """
+PARRAFO_FINAL_PROCEDIMIENTO = """
 Los trabajos deben ser realizados por personal calificado y capacitado, siguiendo estrictamente las normas de seguridad y contando con los equipos de protección personal necesarios para cada etapa del proceso.
 
 > **Nota:** EMBOL S.A. se deslinda de cualquier responsabilidad asociada a la actividad de transporte y disposición de los residuos generados. La empresa contratista es responsable de llevar a cabo la actividad de manera segura y conforme a todas las normativas y regulaciones aplicables.
@@ -22,7 +22,7 @@ async def add_finales(state: State, *, config: RunnableConfig) -> State:
         if len(secciones) > 1:
             # Agregar el párrafo final al final de la sección de Procedimiento
             procedimiento = secciones[1].split("\n\n##")[0]  # Tomar solo la sección de Procedimiento
-            procedimiento_con_final = procedimiento.rstrip() + "\n\n" + PARRAFO_FINAL
+            procedimiento_con_final = procedimiento.rstrip() + "\n\n" + PARRAFO_FINAL_PROCEDIMIENTO
             
             # Reconstruir el documento
             especificacion_con_finales = (
@@ -39,5 +39,5 @@ async def add_finales(state: State, *, config: RunnableConfig) -> State:
             }
     
     # Si no se encuentra la sección de Procedimiento, devolver el estado sin cambios
-    console.print("No se encontró la sección de Procedimiento", style="red")
+    console.print("No se encontró la sección de Procedimiento", style="bold red")
     return state
