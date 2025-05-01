@@ -8,6 +8,8 @@ from langchain_core.runnables import RunnableConfig
 from graph_retriever.strategies import Eager
 from langgraph.checkpoint.memory import MemorySaver
 
+from pliego_esp.graph.nodes.add_finales import add_finales
+from pliego_esp.graph.nodes.add_other_adicionales import add_other_adicionales
 from pliego_esp.graph.nodes.review_other_adicionales import review_other_adicionales
 from pliego_esp.graph.nodes.add_unassigned_parameters import add_unassigned_parameters
 from pliego_esp.graph.nodes.review_unassigned_parameters import review_unassigned_parameters
@@ -56,8 +58,8 @@ async def create_workflow(memory_saver: MemorySaver) -> CompiledStateGraph:
     workflow.add_node("review_unassigned_parameters", review_unassigned_parameters)
     workflow.add_node("add_unassigned_parameters", add_unassigned_parameters)
     workflow.add_node("review_other_adicionales", review_other_adicionales)
-    
-    
+    workflow.add_node("add_other_adicionales", add_other_adicionales)
+    workflow.add_node("add_finales", add_finales)
     
     
     # # FLUJO DE TRABAJO
@@ -82,8 +84,11 @@ async def create_workflow(memory_saver: MemorySaver) -> CompiledStateGraph:
     
     workflow.set_entry_point("review_unassigned_parameters")
     workflow.add_edge("review_unassigned_parameters", "add_unassigned_parameters")
-    # workflow.add_edge("add_unassigned_parameters", "review_other_adicionales")
-    # workflow.add_edge("review_other_adicionales", END)
+    workflow.add_edge("add_unassigned_parameters", "review_other_adicionales")
+    workflow.add_edge("review_other_adicionales", "add_other_adicionales")
+    workflow.add_edge("add_other_adicionales", "add_finales")
+    workflow.add_edge("add_finales", END)
+    
         
     # Compilar el workflow con el memory_saver para mantener el estado entre ejecuciones
     return workflow.compile(checkpointer=memory_saver, debug=False)

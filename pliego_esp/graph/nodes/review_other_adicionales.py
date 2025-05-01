@@ -25,7 +25,6 @@ A continuación se presenta una especificación técnica y una actividad adicion
 
 ## Actividad adicional:
 
-### Nombre: {actividad_adicional}
 ### Descripción: {descripcion_adicional}
 
 ---
@@ -61,28 +60,21 @@ async def review_other_adicionales(state: State, *, config: RunnableConfig) -> S
     evaluaciones = []
     cost = 0
     
-    console.print(20*"-", style="bold yellow")
-    console.print(state["other_adicionales"], style="bold yellow")
-    console.print(20*"-", style="bold yellow")
-        
+    console.print(state["other_adicionales"], style="green")
+    
     for adicional in state["other_adicionales"]:
         actividad = adicional.get("actividad", "").strip()
         descripcion = adicional.get("descripcion", "").strip()
-        console.print(20*"-", style="bold red")
-        console.print("Especificación técnica: ", style="bold red")
-        console.print(state["especificacion_generada"], style="bold red")
-        console.print("Actividad adicional: ", actividad, style="bold red")
-        console.print(20*"-", style="bold red")
         
         evaluacion = await review_chain.ainvoke({
             "especificacion_generada": state["especificacion_generada"],
-            "actividad_adicional": actividad,
             "descripcion_adicional": descripcion
         })
         
         console.print(f"Costo parcial después de procesar '{actividad}': ${shared_callback_handler.total_cost:.6f}", style="green")
 
         console.print(evaluacion)
+        
         evaluaciones.append(
             evaluacion.model_dump()
         )

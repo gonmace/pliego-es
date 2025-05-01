@@ -89,6 +89,14 @@ def pliego_especificaciones_view(request):
                 config=config,
                 resume_data=True
             )
+            
+            if response_data["type"] == "__interrupt__":
+                return JsonResponse({
+                    'type': response_data["type"],
+                    'action': response_data["action"],
+                    'items': response_data['items'],
+                    'config': response_data['config'],
+                })
 
             return JsonResponse({
                 'content': response_data.get('content', ''),

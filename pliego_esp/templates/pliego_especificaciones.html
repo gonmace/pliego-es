@@ -93,8 +93,9 @@ Pliego de Especificaciones
 <!-- Modal de confirmación -->
 <dialog id="modal_parametros" class="modal">
     <div class="modal-box">
-        <h3 class="text-lg font-bold">Hello!</h3>
-        <p class="py-4">Press ESC key or click the button below to close</p>
+        <h3 class="text-lg font-bold"></h3>
+        <p class="py-4"></p>
+        <p class="py-4"></p>
         <div class="modal-action">
             <form method="dialog">
                 <button id="modalButtonYes" class="btn">Aceptar</button>
@@ -157,6 +158,7 @@ Pliego de Especificaciones
 
                         const newData = await newResponse.json();
                         return processResponse(newData); // Recursivamente procesar la nueva respuesta
+                        
                     } else {
                         // Si no es una interrupción, mostrar el resultado final
                         document.getElementById('response-content').innerHTML = marked.parse(responseData.content);
@@ -192,13 +194,14 @@ Pliego de Especificaciones
                 const modal = document.getElementById('modal_parametros');
                 const modalTitle = modal.getElementsByTagName('h3')[0];
                 const modalContent = modal.getElementsByTagName('p')[0];
+                const modalPregunta = modal.getElementsByTagName('p')[1];
                 const modalButtonYes = document.getElementById('modalButtonYes');
                 const modalButtonNo = document.getElementById('modalButtonNo');
 
                 // Configurar el contenido del modal
-                modalTitle.textContent = data.parametro + ": " + data.valor;
+                modalTitle.textContent = data.titulo;
                 modalContent.textContent = data.comentario;
-
+                modalPregunta.textContent = data.pregunta;
                 // Función para cerrar el modal y resolver la promesa
                 const closeModalAndResolve = (result) => {
                     modal.close();
