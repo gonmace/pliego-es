@@ -1,8 +1,7 @@
-import asyncio
+# graph_service.py
+
 from typing import Optional
 from langchain_core.runnables import RunnableConfig
-from langchain_core.messages import HumanMessage
-from langchain_core.load import load, dumpd
 
 from pliego_esp.graph.state import State
 from pliego_esp.models import TokenCost
@@ -65,24 +64,19 @@ El **pago** se efectuará en función del avance efectivamente medido y aprobado
 class PliegoEspService:
         # Variables de clase para guardar temporalmente
     saved_config: Optional[RunnableConfig] = None
-    saved_workflow: Optional[StateGraph] = None
+    workflow = get_workflow()
+    
     
     @staticmethod
-    async def process_message(input: dict, config: RunnableConfig, user=None) -> dict:
+    async def process_pliego(input: dict, config: RunnableConfig, user=None, resume_data=False ) -> dict:
 
-        # Obtener el workflow y memory_saver
-        workflow = get_workflow()
-        memory_saver = get_memory_saver()
+        workflow = PliegoEspService.workflow
         
         if workflow is None:
             return {
                 "response": "Error: El sistema no está inicializado correctamente. Por favor, contacte al administrador.",
                 "token_cost": 0
             }
-        
-        # Obtener los valores de credits y total_cost del usuario actual
-        credits = 0.5  # Valor por defecto
-        total_cost = 0
         
         # Solo intentar obtener TokenCost si el usuario está autenticado
         if user and hasattr(user, 'is_authenticated') and user.is_authenticated:
@@ -101,78 +95,57 @@ class PliegoEspService:
                 # Si no existe un registro para este usuario, usamos los valores por defecto
                 pass
         
-        # Inicializar el estado con el mensaje del usuario
-        initial_state = State(
-            pliego_base=input["pliego_base"],
-            titulo=input["titulo"],
-            parametros_clave=input["parametros_clave"],
-            adicionales=input["adicionales"],
-            token_cost=0.0,
-            
-            
-            # TODO: Solo es para el grafo resumido, se debe eliminar
-            especificacion_generada=esp_generada,
-            other_parametros=[
-            {'Parámetro Técnico': 'Color', 'Opciones válidas': '-', 'Valor por defecto': '-', 'Valor Asignado': 'Pintura de 3 colores'},
-            {'Parámetro Técnico': 'Revoque', 'Opciones válidas': '-', 'Valor por defecto': '-', 'Valor Asignado': 'Realizar revoque'}
-                ],
-            other_adicionales=[
-                {'actividad': 'Otros', 'descripcion': 'colocación de barreras de protección para evitar choque de los montacargas'}
-            ]
-            )
+        if resume_data is False:
+            # Inicializar el estado con el mensaje del usuario
+            initial_state = State(
+                pliego_base=input["pliego_base"],
+                titulo=input["titulo"],
+                parametros_clave=input["parametros_clave"],
+                adicionales=input["adicionales"],
+                token_cost=0.0,
+                
+                
+                # TODO: Solo es para el grafo resumido, se debe eliminar
+                especificacion_generada=esp_generada,
+                other_parametros=[
+                {'Parámetro Técnico': 'Color', 'Opciones válidas': '-', 'Valor por defecto': '-', 'Valor Asignado': 'Pintura de 3 colores'},
+                {'Parámetro Técnico': 'Revoque', 'Opciones válidas': '-', 'Valor por defecto': '-', 'Valor Asignado': 'Realizar revoque'}
+                    ],
+                other_adicionales=[
+                    {'actividad': 'Otros', 'descripcion': 'colocación de barreras de protección para evitar choque de los montacargas'}
+                    ]
+                )
 
+            PliegoEspService.saved_config = config
+            run_input = initial_state
+        else:
+            run_input = Command(resume=input)
+            
         final_response = None
+                
         # Primera invocación del workflow
-        async for event in workflow.astream(initial_state, config):
-            primera_clave = next(iter(event))
-            console.print(primera_clave, style="bold red")
+        async for event in workflow.astream(run_input, config):
+            clave = next(iter(event))
+            console.print(clave, style="bold red")
             
             if "__interrupt__" in event:
-                console.print("INTERRUPCION PARAMETROS", style="bold red")
-                interrupt_data = event["__interrupt__"][0].value
+                console.print("INTERRUPCION", style="bold red")
+                interrupt_obj = event["__interrupt__"][0]
                 
                 return {
-                    "type": interrupt_data["type"],
-                    "items": interrupt_data["items"],
+                    "type": clave,
+                    "action": interrupt_obj.value["action"],
+                    "items": interrupt_obj.value["items"],
                     "config": config
                 }
-                
-            # else:
-            #     result = event
-        # result = await workflow.ainvoke(initial_state, config)
-            # if "add_unassigned_parameters" in event:
-            #     console.print(event[primera_clave], style="bold green")
-            #     final_response = event[primera_clave]["especificacion_generada"]
-                # console.print(final_response, style="bold green")
-            
+            final_response = event[clave]
+
         # Obtener el costo total acumulado del callback_handler compartido
         token_cost = shared_callback_handler.total_cost
-
+        
         return {
             "type": "final",
-            "response": final_response,
-            "token_cost": token_cost
+            "content": final_response["especificacion_generada"],
+            "token_cost": token_cost,
+            "conversation_id": config["configurable"]["thread_id"]
         }
-
-    @staticmethod
-    async def resume_from_parametros(data: list, config: RunnableConfig) -> dict:
-        workflow = get_workflow()
-        async for event in workflow.astream(Command(resume=data), config=config):
-
-            if "__interrupt__" in event:
-                console.print("INTERRUPCION ADICIONALES", style="bold red")
-                interrupt_data = event["__interrupt__"][0].value
-                
-                return {
-                    "type": interrupt_data["type"],
-                    "items": interrupt_data["items"],
-                    "config": config
-                }
-            
-            response = event["add_unassigned_parameters"]
-            
-            return {
-                "content": response["especificacion_generada"],
-                "token_cost": response["token_cost"],
-                "conversation_id": config["configurable"]["thread_id"]
-            }

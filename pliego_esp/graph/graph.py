@@ -82,7 +82,7 @@ async def create_workflow(memory_saver: MemorySaver) -> CompiledStateGraph:
     
     workflow.set_entry_point("review_unassigned_parameters")
     workflow.add_edge("review_unassigned_parameters", "add_unassigned_parameters")
-    workflow.add_edge("add_unassigned_parameters", "review_other_adicionales")
+    # workflow.add_edge("add_unassigned_parameters", "review_other_adicionales")
     # workflow.add_edge("review_other_adicionales", END)
         
     # Compilar el workflow con el memory_saver para mantener el estado entre ejecuciones

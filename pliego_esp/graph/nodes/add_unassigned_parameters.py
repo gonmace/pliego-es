@@ -1,3 +1,5 @@
+# add_unassigned_parameters.py
+
 from pliego_esp.graph.state import State
 from rich.console import Console
 from langchain_openai import ChatOpenAI
@@ -71,7 +73,7 @@ async def add_unassigned_parameters(state: State, *, config: RunnableConfig) -> 
         console.print("Parametros a evaluar: ", len(state["evaluaciones_otros_parametros"]), style="cyan")
         
         respuesta_humana = interrupt({
-            "type": "modal_parametros",
+            "action": "modal_parametros",
             "items": state.get("evaluaciones_otros_parametros", [])
         })
         

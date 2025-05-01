@@ -1,3 +1,4 @@
+# views.py
 from django.shortcuts import render, redirect
 from asgiref.sync import async_to_sync, sync_to_async
 from langchain_core.runnables import RunnableConfig
@@ -45,6 +46,7 @@ def pliego_especificaciones_view(request):
         request_type = request.POST.get('request_type')
 
         if request_type == "inicio":
+            
             form = PliegoForm(request.POST)
             if form.is_valid():
                 
@@ -65,27 +67,27 @@ def pliego_especificaciones_view(request):
                         }
                     )
                 # Procesamos el mensaje usando el servicio de forma asíncrona
-                response_data = async_to_sync(PliegoEspService.process_message)(
+                response_data = async_to_sync(PliegoEspService.process_pliego)(
                     input=especificacion,
                     config=config
                     )
                 
-                if response_data["type"] == "modal_parametros":
-                    
+                if response_data["type"] == "__interrupt__":
                     return JsonResponse({
                         'type': response_data["type"],
-                        'mensaje': response_data.get('mensaje', ''),
-                        'items': response_data.get('items', []),
-                        'config': response_data.get('config', {}),
+                        'action': response_data["action"],
+                        'items': response_data['items'],
+                        'config': response_data['config'],
                     })
-
-        if request_type == "parametros":
-            data = json.loads(request.POST.get('items'))
+            
+        else:
+            resume = json.loads(request.POST.get('items'))
             config = json.loads(request.POST.get('config'))
             
-            response_data = async_to_sync(PliegoEspService.resume_from_parametros)(
-                data=data,
-                config=config
+            response_data = async_to_sync(PliegoEspService.process_pliego)(
+                input=resume,
+                config=config,
+                resume_data=True
             )
 
             return JsonResponse({

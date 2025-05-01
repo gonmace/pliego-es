@@ -131,56 +131,55 @@ Pliego de Especificaciones
                 const formData = new FormData(form);
                 formData.append('request_type', 'inicio');
 
-                // Enviar la solicitud AJAX
+                // Función para procesar la respuesta
+                const processResponse = async (responseData) => {
+                    if (responseData.type === "__interrupt__") {
+                        // Procesar los modales en secuencia
+                        for (const item of responseData.items) {
+                            const respuesta = await modal_parametros(item);
+                            item.agregar = respuesta;
+                        }
+
+                        // Enviar los items de parametros evaluados al backend
+                        const newFormData = new FormData();
+                        newFormData.append('request_type', JSON.stringify(responseData.type));
+                        newFormData.append('items', JSON.stringify(responseData.items));
+                        newFormData.append('config', JSON.stringify(responseData.config));
+                        newFormData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+                        const newResponse = await fetch(form.action, {
+                            method: 'POST',
+                            body: newFormData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+
+                        const newData = await newResponse.json();
+                        return processResponse(newData); // Recursivamente procesar la nueva respuesta
+                    } else {
+                        // Si no es una interrupción, mostrar el resultado final
+                        document.getElementById('response-content').innerHTML = marked.parse(responseData.content);
+                        document.getElementById('resultContainer').style.display = 'block';
+                        document.getElementById('tokenCost').textContent = responseData.token_cost;
+                        document.getElementById('conversationId').textContent = responseData.conversation_id;
+                        return responseData;
+                    }
+                };
+
+                // Enviar la solicitud inicial y procesar la respuesta
                 const response = await fetch(form.action, {
                     method: 'POST',
                     body: formData,
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest'
                     }
-                })
+                });
 
                 const data = await response.json();
+                await processResponse(data);
                 loadingOverlay.style.display = 'none';
 
-                if (data.type == "modal_parametros") {
-                    // console.log('data:', data);
-                    // Procesar los modales en secuencia
-                    for (const item of data.items) {
-                        const respuesta = await modal_parametros(item);
-                        item.agregar = respuesta;
-                        console.log('Item después del modal:', item);
-                    }
-
-                    // Enviar los items de parametros evaluados, modificados al backend
-                    try {
-                        const formData = new FormData();
-                        formData.append('request_type', 'parametros');
-                        formData.append('items', JSON.stringify(data.items));
-                        formData.append('config', JSON.stringify(data.config));
-                        formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
-
-                        const responseParameters = await fetch(form.action, {
-                            method: 'POST',
-                            body: formData,
-                            headers: {
-                                'X-Requested-With': 'XMLHttpRequest'
-                            }
-                        });
-
-                        const responseData = await responseParameters.json();
-
-                        document.getElementById('response-content').innerHTML = marked.parse(responseData.content);
-                        document.getElementById('resultContainer').style.display = 'block';
-                        document.getElementById('tokenCost').textContent = responseData.token_cost;
-                        document.getElementById('conversationId').textContent = responseData.conversation_id;
-                        //    alert('Hubo un error al procesar los parámetros. Por favor, intente nuevamente.');
-                        
-                    } catch (error) {
-                        console.error('Error al enviar los parámetros:', error);
-                        alert('Error al enviar los parámetros al servidor. Por favor, revise la consola para más detalles.');
-                    }
-                }
             } catch (error) {
                 console.error('Error:', error);
                 loadingOverlay.style.display = 'none';
