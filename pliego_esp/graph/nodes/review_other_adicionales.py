@@ -63,23 +63,20 @@ async def review_other_adicionales(state: State, *, config: RunnableConfig) -> S
     console.print(state["other_adicionales"], style="green")
     
     for adicional in state["other_adicionales"]:
-        actividad = adicional.get("actividad", "").strip()
-        descripcion = adicional.get("descripcion", "").strip()
         
         evaluacion = await review_chain.ainvoke({
             "especificacion_generada": state["especificacion_generada"],
-            "descripcion_adicional": descripcion
+            "descripcion_adicional": adicional.descripcion
         })
         
-        console.print(f"Costo parcial después de procesar '{actividad}': ${shared_callback_handler.total_cost:.6f}", style="green")
-
-        console.print(evaluacion)
+        console.print(f"Costo parcial después de procesar '{adicional.descripcion}': ${shared_callback_handler.total_cost:.6f}", style="green")
         
         evaluaciones.append(
             evaluacion.model_dump()
         )
         cost += shared_callback_handler.total_cost
     
+    console.print(evaluaciones, style="bold green")    
     costo_nodo = shared_callback_handler.total_cost - costo_inicial
     console.print(f"Costo total del nodo review_unassigned_parameters: ${costo_nodo:.6f}", style="green")
     console.print(f"Costo acumulado hasta ahora: ${shared_callback_handler.total_cost:.6f}", style="green")

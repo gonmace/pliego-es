@@ -62,27 +62,27 @@ async def create_workflow(memory_saver: MemorySaver) -> CompiledStateGraph:
     workflow.add_node("add_finales", add_finales)
     
     
-    # # FLUJO DE TRABAJO
-    # workflow.set_entry_point("clean_and_capture_sections")
+    # FLUJO DE TRABAJO
+    workflow.set_entry_point("clean_and_capture_sections")
     
-    # # # Primer flujo paralelo
-    # workflow.add_edge("clean_and_capture_sections", "parse_adicionales")
-    # workflow.add_edge("parse_adicionales", "match_adicionales")
+    # # Primer flujo paralelo
+    workflow.add_edge("clean_and_capture_sections", "parse_adicionales")
+    workflow.add_edge("parse_adicionales", "match_adicionales")
     
-    # # Segundo flujo paralelo
-    # workflow.add_edge("clean_and_capture_sections", "parse_parametros")  
-    # workflow.add_edge("parse_parametros", "match_parametros_clave")
-    # workflow.add_edge("match_parametros_clave", "unassigned_parameters")
+    # Segundo flujo paralelo
+    workflow.add_edge("clean_and_capture_sections", "parse_parametros")  
+    workflow.add_edge("parse_parametros", "match_parametros_clave")
+    workflow.add_edge("match_parametros_clave", "unassigned_parameters")
     
-    # # Convergencia de flujos
-    # workflow.add_edge(
-    #     ["unassigned_parameters", "match_adicionales"], 
-    #     "process_pliego")
+    # Convergencia de flujos
+    workflow.add_edge(
+        ["unassigned_parameters", "match_adicionales"], 
+        "process_pliego")
     
-    # # Flujo final
-    # workflow.add_edge("process_pliego", "review_unassigned_parameters")
+    # Flujo final
+    workflow.add_edge("process_pliego", "review_unassigned_parameters")
     
-    workflow.set_entry_point("review_unassigned_parameters")
+    # workflow.set_entry_point("review_unassigned_parameters")
     workflow.add_edge("review_unassigned_parameters", "add_unassigned_parameters")
     workflow.add_edge("add_unassigned_parameters", "review_other_adicionales")
     workflow.add_edge("review_other_adicionales", "add_other_adicionales")

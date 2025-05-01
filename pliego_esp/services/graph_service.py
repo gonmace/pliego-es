@@ -97,15 +97,15 @@ class PliegoEspService:
                 token_cost=0.0,
                 
                 
-                # TODO: Solo es para el grafo resumido, se debe eliminar
-                especificacion_generada=esp_generada,
-                other_parametros=[
-                {'Parámetro Técnico': 'Color', 'Opciones válidas': '-', 'Valor por defecto': '-', 'Valor Asignado': 'Pintura de 3 colores'},
-                {'Parámetro Técnico': 'Revoque', 'Opciones válidas': '-', 'Valor por defecto': '-', 'Valor Asignado': 'Realizar revoque'}
-                    ],
-                other_adicionales=[
-                    {'actividad': 'Otros', 'descripcion': 'colocación de barreras de protección para evitar choque de los montacargas'}
-                    ]
+                # # TODO: Solo es para el grafo resumido, se debe eliminar
+                # especificacion_generada=esp_generada,
+                # other_parametros=[
+                # {'Parámetro Técnico': 'Color', 'Opciones válidas': '-', 'Valor por defecto': '-', 'Valor Asignado': 'Pintura de 3 colores'},
+                # {'Parámetro Técnico': 'Revoque', 'Opciones válidas': '-', 'Valor por defecto': '-', 'Valor Asignado': 'Realizar revoque'}
+                #     ],
+                # other_adicionales=[
+                #     {'actividad': 'Otros', 'descripcion': 'colocación de barreras de protección para evitar choque de los montacargas'}
+                #     ]
                 )
 
             PliegoEspService.saved_config = config

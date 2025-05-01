@@ -3,6 +3,9 @@ from typing import Dict, List, TypedDict, Any, Annotated
 from langgraph.graph import MessagesState
 import json
 import operator
+
+from pliego_esp.graph.nodes.match_adicionales import Adicional
+
 @dataclass(kw_only=True)
 class State(MessagesState):
     """The state of your graph / agent."""
@@ -74,7 +77,7 @@ class State(MessagesState):
         metadata={"description": "Tabla de actividades adicionales en formato lista de diccionarios"}
         )
 
-    other_adicionales: List[str] = field(
+    other_adicionales: List[Adicional] = field(
         default_factory=list,
         metadata={"description": "Otros adicionales para la nueva especificación"}
         )
