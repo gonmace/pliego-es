@@ -1,0 +1,25 @@
+<!-- card.html -->
+{% load crispy_forms_tags %}
+
+<div class="bg-white rounded-lg shadow-lg p-6">
+    <div class="flex items-center justify-between mb-4">
+        {% include icon %}
+        <h2 class="text-xl font-semibold text-right text-{{ color }}">{{ title }}</h2>
+    </div>
+    <p class="text-gray-600 mb-4">
+        {{ description }}
+    </p>
+    <form method="POST" enctype="multipart/form-data" class="space-y-4" id="form-{{ form_type }}">
+        {% csrf_token %}
+        {{ form|crispy }}
+
+        <!-- Drop zone -->
+        <div class="drop-zone border-2 border-dashed border-gray-300 p-6 rounded-lg text-center cursor-pointer transition-colors duration-200">
+            <p class="drop-text text-gray-500">Arrastra un archivo aquí o haz clic para seleccionar</p>
+        </div>
+
+        <button type="submit" name="submit_{{ form_type }}" class="btn bg-{{ color }} w-full">
+            {{ button_text }}
+        </button>
+    </form>
+</div>

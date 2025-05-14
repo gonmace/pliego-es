@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'crispy_tailwind',
 
     'pliego_esp.apps.PliegoEspConfig',
+    'prep_doc_gen'
 
 ]
 

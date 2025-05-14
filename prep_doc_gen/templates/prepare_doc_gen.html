@@ -1,0 +1,85 @@
+<!-- prepare_doc_gen.html -->
+{% extends "base_chat.html" %}
+{% load static crispy_forms_tags %}
+
+{% block meta %}
+{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block title %}
+Pliego de Especificaciones
+{% endblock %}
+
+{% block body_class %}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen py-6 sm:py-8 md:py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            {% include "components/card.html" with icon="icons/document.html" title="Encabezado y pie de página" color="blue-600" description="Elimina el encabezado y pie de página de tu documento (10_*.docx)" form=form_eliminar form_type="eliminar"  button_text="Procesar Documento" %}
+
+            {% include "components/card.html" with icon="icons/convert.html" title="Convertir Formato" color="green-600" description="Convierte tu documento docx, doc a html (11_*.hmtl)" form=form_convertir form_type="convertir" button_text="Convertir a HTML" %}
+
+            {% include "components/card.html" with icon="icons/tags.html" title="Eliminar elementos" color="red-600" description="Elimina elementos (tags) de tu documento html (12_*.html)" form=form_etiquetas form_type="etiquetas" button_text="Eliminar elementos" %}
+
+            {% include "components/card.html" with icon="icons/tags2.html" title="Eliminar < p > dentro de < li >" color="purple-600" description="Elimina las etiquetas p que se encuentran dentro de elementos li (13_*.html)" form=form_lip form_type="lip" button_text="Eliminar < p >" %}
+
+            {% include "components/card.html" with icon="icons/format.html" title="Formatear Encabezados y Listas" color="indigo-600" description="Formatea los encabezados h1-h5 y elementos li en tu documento html (14_*.html)" form=form_format form_type="format" button_text="Formatear Documento" %}
+
+            {% include "components/card.html" with icon="icons/partir.html" title="Dividir en Markdown" color="teal-600" description="Divide tu documento HTML en archivos Markdown usando la etiqueta que elijas (h1-h5) y los comprime en ZIP (15_*.zip)" form=form_split form_type="split" button_text="Dividir y Comprimir" %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+    // Función para formatear tamaño
+    function formatSize(bytes) {
+        const kb = bytes / 1024;
+        if (kb < 1024) return `${kb.toFixed(1)} KB`;
+        return `${(kb / 1024).toFixed(2)} MB`;
+    }
+
+    document.querySelectorAll("form").forEach((form) => {
+        const dropZone = form.querySelector(".drop-zone");
+        const fileInput = form.querySelector("input[type='file']");
+        const dropText = form.querySelector(".drop-text");
+    
+        if (!dropZone || !fileInput || !dropText) return;
+    
+        dropZone.addEventListener("click", () => fileInput.click());
+    
+        dropZone.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            dropZone.classList.add("bg-gray-100");
+        });
+    
+        dropZone.addEventListener("dragleave", () => {
+            dropZone.classList.remove("bg-gray-100");
+        });
+    
+        dropZone.addEventListener("drop", (e) => {
+            e.preventDefault();
+            dropZone.classList.remove("bg-gray-100");
+            fileInput.files = e.dataTransfer.files;
+            const archivo = fileInput.files[0];
+            if (archivo) {
+                dropText.textContent = `📄 ${archivo.name} (${formatSize(archivo.size)})`;
+            }
+        });
+    
+        fileInput.addEventListener("change", () => {
+            const archivo = fileInput.files[0];
+            if (archivo) {
+                dropText.textContent = `📄 ${archivo.name} (${formatSize(archivo.size)})`;
+            }
+        });
+    });
+</script>
+{% endblock %}
