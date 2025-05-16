@@ -1,0 +1,138 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="constructor">
+
+<head>
+    <title>Principal</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <!--<link rel="icon" href="img/favicon.ico" type="image/x-icon" />-->
+    <!--<link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon" />-->
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE" />
+
+    <!-- <link rel="stylesheet"  href="{% static 'constructor-app/js/assets/css/admin/module.admin.page.index.min.css' %}" /> -->
+    <link rel="stylesheet" 
+        href="{% static 'constructor-app/js/assets/css/admin/module.admin.page.notifications.min.css' %}" />
+    <link rel="stylesheet"  href="{% static 'constructor-app/css/style.css' %}" />
+
+    {% block css %}
+    {% endblock %}
+
+    <!-- <script src="{% static 'constructor-app/js/assets/components/library/jquery/jquery.min.js?v=v1.2.3' %}"></script> -->
+    <!-- <script
+        src="{% static 'constructor-app/js/assets/components/library/jquery/jquery-migrate.min.js?v=v1.2.3' %}"></script> -->
+    <!-- <script src="{% static 'constructor-app/js/assets/components/library/modernizr/modernizr.js?v=v1.2.3' %}"></script> -->
+    <!-- <script src="{% static 'constructor-app/js/modules/main.js' %}"></script> -->
+</head>
+
+<body>
+    <!--Navbar-->
+    <div class="navbar navbar-fixed-top navbar-primary main" role="navigation">
+        <div class="navbar-header pull-left">
+            <div class="navbar-brand">
+                <div class="pull-left">
+                    <a href="" class="toggle-button toggle-sidebar btn-navbar"><i class="fa fa-bars"></i></a>
+                </div>
+                <a href="#" class="appbrand innerL">GDAR</a>
+            </div>
+        </div>
+        <ul class="nav navbar-nav navbar-left">
+            <!--Left Navbar Content-->
+        </ul>
+        <ul class="nav navbar-nav navbar-right hidden-xs">
+            <li>
+                <div id="spinner"></div>
+            </li>
+            <li class="dropdown">
+                <a href="" class="dropdown-toggle user" data-toggle="dropdown"> <img
+                        src="{% static 'constructor-app/js/assets/images/people/35/20.jpg' %}" alt="" class="img-circle" /><span
+                        class="hidden-xs hidden-sm"> &nbsp; Gonzalo Aldunate </span><span class="caret"></span></a>
+                <ul class="dropdown-menu list pull-right ">
+                    <li><a href="#">Tu Perfil <i class="fa fa-user pull-right"></i></a></li>
+                    <li><a href="" id="logout">Salir <i class="fa fa-sign-out pull-right"></i></a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <!--End of Navbar-->
+
+    <!--Sidebar-->
+
+    <div id="menu" class="hidden-print hidden-xs">
+        <div class="sidebar sidebar-inverse">
+            <div class="user-profile media innerAll">
+                <div class="media-body">
+                    <p class="text-success"><i class="fa fa-fw fa-circle"></i> Proyecto Activo:</p>
+                    <select class="col-md-7 form-control pull-right projects"></select>
+                </div>
+            </div>
+            <div class="sidebarMenuWrapper">
+                <ul class="list-unstyled">
+                    <li><a href="" id="dashboard" class="side-menu"><i
+                                class="icon-projector-screen-line"></i><span>Panel Principal</span></a></li>
+                    <li class="hasSubmenu">
+                        <a href="#" data-target="#projects-toggle" data-toggle="collapse"><i
+                                class="icon-new-window"></i><span>Proyectos</span></a>
+                        <ul class="collapse" id="projects-toggle">
+                            <li><a href="" id="new-project" class="side-menu"><i class="icon-new-window"></i><span>Nuevo
+                                        Proyecto</span></a></li>
+                            <li><a href="" id="list-projects" class="side-menu"><i
+                                        class="icon-paper-document"></i><span>Lista de Proyectos</span></a></li>
+                        </ul>
+                    </li>
+            </div>
+        </div>
+    </div>
+
+    <!--End of Sidebar-->
+
+    <!--Main Content-->
+
+    <div id="content">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <!--End of Main Content-->
+
+    <div class="clearfix"></div>
+
+    <div id="footer" class="hidden-print">
+        <div class="copy">&copy; 2019 <a href="">Const.</a> - Todos Los Derechos Reservados - Version: 1.0.0</div>
+    </div>
+
+    <!-- Global -->
+    <script>
+        var basePath = '',
+            commonPath = "{% static 'constructor-app/js/assets/' %}",
+            rootPath = "{% static 'constructor-app/js/' %}",
+            DEV = false,
+            componentsPath = "{% static 'constructor-app/js/assets/components/' %}";
+
+        var primaryColor = '#cb4040',
+            dangerColor = '#b55151',
+            infoColor = '#466baf',
+            successColor = '#8baf46',
+            warningColor = '#ab7a4b',
+            inverseColor = '#45484d';
+
+        var themerPrimaryColor = primaryColor;
+    </script>
+
+    <!--Scripts Needed-->
+    <!-- <script src="{% static 'constructor-app/js/assets/components/core/js/sidebar.main.init.js?v=v1.2.3' %}"></script> -->
+    <!-- <script 
+        src="{% static 'constructor-app/js/assets/components/core/js/sidebar.collapse.init.js?v=v1.2.3' %}"></script> -->
+    <!-- <script 
+        src="{% static 'constructor-app/js/assets/components/library/bootstrap/js/bootstrap.min.js?v=v1.2.3' %}"></script> -->
+    <!-- <script 
+        src="{% static 'constructor-app/js/assets/components/plugins/nicescroll/jquery.nicescroll.min.js?v=v1.2.3' %}"></!-->
+    {% block js %}
+    {% endblock %}
+</body>
+
+</html>

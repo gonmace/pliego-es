@@ -12,6 +12,7 @@ langchain-graph-retriever==0.8.0
 langchain-openai==0.3.13
 psycopg2-binary==2.9.10
 rich==14.0.0
+markdown==3.8
 
 langgraph==0.3.30
 django-crispy-forms==2.4
@@ -24,3 +25,5 @@ python-docx==1.1.2
 pandoc==2.4
 beautifulsoup4==4.13.4
 html2text>=2025.4.15
+
+django-multiupload-plus==1.0.1
