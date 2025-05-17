@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .forms import GenericoForm
-from .utils.langchain import generar_documento
+from .utils.langchain import generar_documento as generar_documento_antiguo
+from .langgraph.graph import generar_documento as generar_documento_grafo
 import markdown
 from django.utils.safestring import mark_safe
 
@@ -18,7 +19,29 @@ def esp_generica_view(request):
             archivos = request.FILES.getlist('archivos_md')
             adicionales = form.cleaned_data['adicionales']
             titulo = form.cleaned_data['titulo']
-            md_generado = generar_documento(archivos, adicionales, titulo)
+            
+            # # Leer el contenido de los archivos
+            especificaciones_tecnicas = []
+            for archivo in archivos:
+                try:
+                    contenido = archivo.read().decode('utf-8')
+                    especificaciones_tecnicas.append(contenido)
+                    archivo.seek(0)  # Resetear el puntero del archivo
+                except Exception as e:
+                    print(f"Error al leer el archivo: {e}")
+            
+            # Usar el nuevo sistema de grafo
+            try:
+                md_generado = generar_documento_grafo(
+                    titulo=titulo,
+                    especificaciones_tecnicas=especificaciones_tecnicas,
+                    adicionales=adicionales
+                )
+                
+            except Exception as e:
+                print(f"Error con el nuevo sistema de grafo: {e}")
+                # Fallback al sistema antiguo si hay error
+                # md_generado = generar_documento_antiguo(archivos, adicionales, titulo)
             
             # Procesar el markdown
             extensions = [
@@ -35,7 +58,6 @@ def esp_generica_view(request):
             request.session['md_generado'] = md_generado
             request.session['titulo'] = titulo
             
-            print(md_generado)
             return render(request, 'esp_generica.html', {'form': form, 'md_generado': md_generado_html})
     else:
         form = GenericoForm()
