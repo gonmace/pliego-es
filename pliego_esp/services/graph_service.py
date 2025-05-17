@@ -114,7 +114,6 @@ class PliegoEspService:
             run_input = Command(resume=input)
             
         final_response = None
-                
         # Primera invocación del workflow
         async for event in workflow.astream(run_input, config):
             clave = next(iter(event))
@@ -134,7 +133,7 @@ class PliegoEspService:
 
         # Obtener el costo total acumulado del callback_handler compartido
         token_cost = shared_callback_handler.total_cost
-        
+
         return {
             "type": "final",
             "content": final_response["especificacion_generada"],

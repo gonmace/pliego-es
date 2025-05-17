@@ -3,7 +3,7 @@ from pathlib import Path
 import os
 import json
 
-PLIEGO_BASE_PATH = Path(__file__).resolve().parent / "pliegos_base" / "pintado_de_piso_industrial[].md"
+PLIEGO_BASE_PATH = Path(__file__).resolve().parent / "pliegos_base" / "Piso de H°A°.md"
 
 def load_pliego_base():
     if os.path.exists(PLIEGO_BASE_PATH):
@@ -28,7 +28,7 @@ class PliegoForm(forms.Form):
                 'placeholder': 'Título del pliego'
             }
         ),
-        initial="Pintado de piso industrial"
+        initial="Piso de H°A° H30 e=20cm"
     )
     parametros_clave = forms.CharField(
         widget=forms.TextInput(
@@ -36,7 +36,7 @@ class PliegoForm(forms.Form):
                 'placeholder': 'Parámetros clave'
             }
         ),
-        initial="Acabado texturizado, Pintura de 3 colores, Empleo de compresor, Realizar revoque"
+        initial="30 MPa, 20 cm"
     )
     adicionales = forms.CharField(
         widget=forms.TextInput(
@@ -44,5 +44,5 @@ class PliegoForm(forms.Form):
                 'placeholder': 'Adicionales'
             }
         ),
-        initial="Retiro de recubrimientos antiguos únicamente con métodos mecánicos no deben usarse quimicos, colocación de barreras de protección para evitar choque de los montacargas"
+        initial="Sellado de juntas con sika"
     )

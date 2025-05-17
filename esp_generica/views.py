@@ -17,7 +17,7 @@ def esp_generica_view(request):
         form = GenericoForm(request.POST, request.FILES)
         if form.is_valid():
             archivos = request.FILES.getlist('archivos_md')
-            adicionales = form.cleaned_data['adicionales']
+            aclaraciones = form.cleaned_data['aclaraciones']
             titulo = form.cleaned_data['titulo']
             
             # # Leer el contenido de los archivos
@@ -35,7 +35,7 @@ def esp_generica_view(request):
                 md_generado = generar_documento_grafo(
                     titulo=titulo,
                     especificaciones_tecnicas=especificaciones_tecnicas,
-                    adicionales=adicionales
+                    aclaraciones=aclaraciones
                 )
                 
             except Exception as e:

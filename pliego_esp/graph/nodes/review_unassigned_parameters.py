@@ -65,7 +65,7 @@ async def review_unassigned_parameters(state: State, *, config: RunnableConfig) 
         valor_asignado = parametro.get("Valor Asignado", "").strip()
 
         if not parametro_nombre or not valor_asignado:
-            continue  # Evita evaluar parámetros incompletos
+            continue  
 
         evaluacion = await review_chain.ainvoke({
             "especificacion_generada": state["especificacion_generada"],

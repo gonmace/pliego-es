@@ -60,7 +60,7 @@ def pliego_especificaciones_view(request):
                 # Configurar el RunnableConfig
                 conversation_id = str(uuid.uuid4())
                 config = RunnableConfig(
-                    recursion_limit=10,
+                    recursion_limit=100,
                     configurable={
                         "thread_id": conversation_id,
                         "user": request.user.username
@@ -78,6 +78,12 @@ def pliego_especificaciones_view(request):
                         'action': response_data["action"],
                         'items': response_data['items'],
                         'config': response_data['config'],
+                    })
+                else:
+                    return JsonResponse({
+                        'content': response_data.get('content', ''),
+                        'token_cost': response_data.get('token_cost', 0),
+                        'conversation_id': response_data.get('conversation_id', '')
                     })
             
         else:

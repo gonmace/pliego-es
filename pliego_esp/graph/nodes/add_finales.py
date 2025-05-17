@@ -1,7 +1,7 @@
 from pliego_esp.graph.state import State
 from rich.console import Console
 from langchain_core.runnables import RunnableConfig
-
+import re
 console = Console()
 
 PARRAFO_FINAL_PROCEDIMIENTO = """
@@ -10,34 +10,29 @@ Los trabajos deben ser realizados por personal calificado y capacitado, siguiend
 > **Nota:** EMBOL S.A. se deslinda de cualquier responsabilidad asociada a la actividad de transporte y disposición de los residuos generados. La empresa contratista es responsable de llevar a cabo la actividad de manera segura y conforme a todas las normativas y regulaciones aplicables.
 """
 
+def agregar_parrafo_a_procedimiento(texto, parrafo):
+    # Buscar todas las secciones que comienzan con ### y sus posiciones
+    secciones = list(re.finditer(r"^### (.+?)\.\s*$", texto, flags=re.MULTILINE))
+    
+    for i, match in enumerate(secciones):
+        if match.group(1).strip().lower() == "procedimiento":
+            inicio = match.end()  # después de '### Procedimiento.'
+            fin = secciones[i + 1].start() if i + 1 < len(secciones) else len(texto)
+            contenido_original = texto[inicio:fin].rstrip()
+            nuevo_contenido = f"{contenido_original}\n{parrafo}\n"
+            return texto[:inicio] + nuevo_contenido + texto[fin:]
+
+    # Si no se encuentra la sección, devolver texto original
+    return texto
+
 async def add_finales(state: State, *, config: RunnableConfig) -> State:
     console.print("------ add_finales ------", style="bold cyan")
 
     especificacion = state.get("especificacion_generada", "")
     
-    # Buscar la sección de Procedimiento
-    if "## Procedimiento" in especificacion:
-        # Dividir el documento en secciones
-        secciones = especificacion.split("## Procedimiento")
-        if len(secciones) > 1:
-            # Agregar el párrafo final al final de la sección de Procedimiento
-            procedimiento = secciones[1].split("\n\n##")[0]  # Tomar solo la sección de Procedimiento
-            procedimiento_con_final = procedimiento.rstrip() + "\n\n" + PARRAFO_FINAL_PROCEDIMIENTO
-            
-            # Reconstruir el documento
-            especificacion_con_finales = (
-                secciones[0] + 
-                "## Procedimiento" + 
-                procedimiento_con_final + 
-                "\n\n##" + 
-                "\n\n##".join(secciones[1].split("\n\n##")[1:])
-            )
-            
-            return {
-                "especificacion_generada": especificacion_con_finales,
-                "token_cost": state.get("token_cost", 0)
-            }
+    especificacion_con_finales = agregar_parrafo_a_procedimiento(especificacion, PARRAFO_FINAL_PROCEDIMIENTO)
     
-    # Si no se encuentra la sección de Procedimiento, devolver el estado sin cambios
-    console.print("No se encontró la sección de Procedimiento", style="bold red")
-    return state
+    return {
+        "especificacion_generada": especificacion_con_finales
+    }
+    

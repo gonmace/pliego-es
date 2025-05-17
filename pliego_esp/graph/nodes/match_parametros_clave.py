@@ -49,14 +49,14 @@ async def match_parametros_clave(state: State, *, config: RunnableConfig) -> Sta
     
     tabla_actualizada = []
     parametros_usados = set()
-    
+
     for fila in state["parsed_parametros"]:
         
         chain = fila_prompt | llm | StrOutputParser()
         
         salida = await chain.ainvoke({
             "parametro": fila["Parámetro Técnico"],
-            "opciones_validas": fila["Opciones válidas"],
+            "opciones_validas": fila["Opciones Válidas"],
             "parametros_clave": state["parametros_clave"]
             })
         

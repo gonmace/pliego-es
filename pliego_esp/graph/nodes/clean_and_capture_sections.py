@@ -1,7 +1,6 @@
 # graph/nodes/inicio.py
 import re
 
-from langchain_core.messages import HumanMessage
 from pliego_esp.graph.state import State
 
 from rich.console import Console
@@ -11,7 +10,7 @@ async def clean_and_capture_sections(state: State) -> State:
     console.print("-----clean_and_capture_sections-----", style="italic white")
     
     seccion_PTE = re.search(
-        r"### Parámetros Técnicos Recomendados\s+((?:\|.*\n?)+)",
+        r"### Parámetros Técnicos\s+((?:\|.*\n?)+)",
         state["pliego_base"]
     )
     

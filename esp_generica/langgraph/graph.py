@@ -59,8 +59,9 @@ class MEH(BaseModel):
 class State(TypedDict):
     titulo: str
     especificaciones_tecnicas: List[str]
+    aclaraciones: str
+    
     especificacion_base: str
-    adicionales_input: str
     
     contenido: Content
     MEH: MEH
@@ -80,6 +81,8 @@ def fusionar_especificaciones(state: State) -> State:
 Tienes especificaciones técnicas de construcción que describen actividades similares  constructivas (por ejemplo, "losas de concreto", "piso de losa de HºAº de 15 cm", etc.). Tu tarea es fusionarlas en una **única especificación técnica consolidada**, siguiendo los estándares de redacción técnica para construcción.
 
 El titulo de la especificación fusionada debe ser: {titulo}
+
+{aclaraciones}
 ### Instrucciones:
 1. Revisa las especificaciones y comprende su propósito común.
 2. Combina toda la información útil y complementaria de ambas, sin omitir detalles técnicos importantes.
@@ -119,14 +122,19 @@ Una única especificación técnica consolidada, con estructura estandarizada, s
             
         except Exception as e:
             print(f"Error al leer el archivo: {e}")
-            
+    if len(state["aclaraciones"]) > 0:
+        aclaraciones = f"\n**### Aclaraciones:**\n{state['aclaraciones']}"
+    else:
+        aclaraciones = ""
+    
     llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
     
     chain = prompt | llm | StrOutputParser()
     
     response = chain.invoke({
         "especificaciones_tecnicas": especificaciones,
-        "titulo": state["titulo"]
+        "titulo": state["titulo"],
+        "aclaraciones": aclaraciones
     })
     
     state["especificacion_base"] = response
@@ -143,7 +151,7 @@ def generar_contenido(state: State) -> State:
     # Genera la descripción y el procedimiento
     
     prompt = ChatPromptTemplate.from_template("""
-A partir de la **especificación técnica proporcionada** al final, necesito generar la **Descripción** y el **Procedimiento** de la misma especificación, redactados de manera **genérica**, **totalmente reutilizable**, y en formato **Markdown (.md)**.
+A partir de la **especificación técnica** proporcionada al final, necesito generar la **Descripción** y el **Procedimiento** de la misma especificación, redactados de manera **genérica**, **totalmente reutilizable**, y en formato **Markdown (.md)**.
 
 ---
 
@@ -152,13 +160,14 @@ A partir de la **especificación técnica proporcionada** al final, necesito gen
 - Profesional, técnico y claro, para ser utilizado en especificaciones reales de obra pública o privada.  
 - Imita el estilo del ítem original si existe, pero adapta el contenido para ser **universalmente aplicable**.  
 - **No inventar detalles nuevos.**  
-- No incluir encabezados, ni títulos externos (solo el contenido textual).  
-- Utilizar **negrita** (doble asterisco `**`) para resaltar términos técnicos, materiales, unidades o acciones relevantes.  
+- No incluir encabezados, ni títulos externos (solo el contenido textual).
+- Usar unidades de medida técnicas apropiadas (no usar 0.05m, usar 5 cm).
 
 ---
 
 ### Reglas para la sección "Descripción"
 
+- Agregar los términos que se encuentren en el título de la especificación. **{titulo}**
 - Explicar **qué incluye la actividad** y **cuál es su propósito técnico**, sin mencionar valores específicos (espesor, cantidades, marcas, etc.).
 - Si el título contiene un material o tipo de producto (ej. hormigón, acero), referenciarlo en términos generales.
 - **No incluir valores numéricos concretos ni productos comerciales en esta sección.**
@@ -167,33 +176,29 @@ A partir de la **especificación técnica proporcionada** al final, necesito gen
 
 ### Reglas para la sección "Procedimiento"
 
+- Agregar los términos que se encuentren en el título de la especificación. **{titulo}**
 - Redactar en **varios párrafos técnicos secuenciales**, sin numeración de pasos.
 - Utilizar la información base como guía, pero reescribirla de manera genérica.
 - **No incluir valores específicos (como espesores, proporciones, cantidades) ni marcas comerciales.**
 - En lugar de valores o nombres comerciales, escribir en forma genérica (ej. *espesor establecido*, *aditivo impermeabilizante*).
-- Usar **negrita** para:
-  - **Acciones clave**  
-  - **Materiales y herramientas**  
-  - **Unidades de medida genéricas** (ej. **metros cuadrados**)  
-  - **Términos técnicos relevantes**  
 
 ---
 
 ### Reglas para "Parámetros Técnicos"
 
-- Todos los valores concretos (ej. **espesor: 5 cm**, **pendiente mínima**, **resistencia del material**) deben extraerse del texto base y colocarse en esta sección.
+- Todos los valores concretos (ej. espesores, pendientes, resistencia del material, colores, tipo de material, etc.) deben extraerse del texto base y colocarse en esta sección.
 - Si un parámetro no es obligatorio, puede ir acompañado de su valor por defecto sugerido.
-- Esta sección sirve para **separar los valores configurables** y permitir que el cuerpo de la especificación sea reutilizable.
+- Esta sección sirve para **separar los valores** de la especificación base y permitir que la especificación sea reutilizable mas adelante.
 
 ---
 
 ### Reglas para "Adicionales"
 
-- Toda mención a herramientas, métodos, recomendaciones o elementos que **puedan variar según el proyecto** o **no son estrictamente parte de la actividad principal**, deben ir como **Adicionales**.
+- Toda mención a actividades que se encuentren en la especificación base y que puedan realizarse como complemento (antes o después de la actividad principal),  deben ir como **Adicionales**.
 - Las actividades adicionales deben tener **nombre específico** y no deben llamarse "Otros".
-  - Ejemplos válidos: `Preparación de superficie`, `Aditivos`, `Curado del hormigón`, `Verificación de pendientes`.
 - Incluir una **descripción técnica y breve** de cada actividad complementaria.
 
+{aclaraciones}
 ---
 
 Debes proporcionar tu respuesta en formato estructurado según el modelo definido.
@@ -203,11 +208,18 @@ Debes proporcionar tu respuesta en formato estructurado según el modelo definid
 {especificacion_base}
 """)
     
+    if len(state["aclaraciones"]) > 0:
+        aclaraciones = f"\n**### Aclaraciones:**\n{state['aclaraciones']}"
+    else:
+        aclaraciones = ""
+    
     llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
     chain = prompt | llm.with_structured_output(Content)
     
     response = chain.invoke({
-        "especificacion_base": state["especificacion_base"]
+        "especificacion_base": state["especificacion_base"],
+        "aclaraciones": aclaraciones,
+        "titulo": state["titulo"]
     })
 
     state["contenido"] = response
@@ -242,6 +254,7 @@ En función de la **especificación técnica generada** y la **especificación t
 - **Herramientas**: [herramientas manuales o menores como palas, picostas, reglas metálicas,etc.].  
 - **EPP**: [Elementos de protección personal como casco, guantes, botas de seguridad, mascarilla, chaleco reflectante, etc.].
 
+{aclaraciones}
 ---
 
 Debes proporcionar tu respuesta en formato estructurado según el modelo definido.
@@ -259,9 +272,15 @@ Debes proporcionar tu respuesta en formato estructurado según el modelo definid
     llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
     chain = prompt | llm.with_structured_output(MEH)
     
+    if len(state["aclaraciones"]) > 0:
+        aclaraciones = f"\n**### Aclaraciones:**\n{state['aclaraciones']}"
+    else:
+        aclaraciones = ""
+    
     response = chain.invoke({
         "especificacion_generada": state["contenido"],
-        "especificacion_base": state["especificacion_base"]
+        "especificacion_base": state["especificacion_base"],
+        "aclaraciones": aclaraciones
     })
 
     state["MEH"] = response
@@ -403,13 +422,27 @@ def crear_grafo() -> Graph:
     return workflow.compile()
 
 # Función principal para ejecutar el grafo
-def generar_documento(titulo: str, especificaciones_tecnicas: List[str], adicionales: str = "") -> str:
+def generar_documento(titulo: str, especificaciones_tecnicas: List[str], aclaraciones: str = "") -> str:
     grafo = crear_grafo()
     
     estado_inicial = State(
         titulo=titulo,
         especificaciones_tecnicas=especificaciones_tecnicas,
-        adicionales=adicionales,
+        aclaraciones=aclaraciones,
+        especificacion_base="",
+        contenido=Content(
+            descripcion="",
+            procedimiento="",
+            parametros_tecnicos=[],
+            adicionales=[]
+        ),
+        MEH=MEH(
+            materiales="",
+            equipo="",
+            herramientas="",
+            EPP=""
+        ),
+        medicion_pago="",
         documento_final=""
     )
     
