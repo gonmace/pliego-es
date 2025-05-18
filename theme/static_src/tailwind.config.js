@@ -3,6 +3,8 @@ module.exports = {
         '../../esp_generica/*.{html,js,py}',
         '../../esp_generica/templates/*.{html,js,py}',
         '../../esp_generica/forms.py',
+        '../../embeddings/templates/*.{html,js,py}',
+        '../../embeddings/forms.py',
     ],
     safelist: [
         'bg-blue-600',

@@ -7,38 +7,95 @@
 {% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <div class="max-w-7xl mx-auto">
-        <div class="bg-white shadow-xl rounded-lg p-6">
-            <h2 class="font-bold mb-6">Procesar Archivos Markdown</h2>
-            <form method="post" enctype="multipart/form-data" class="text-black space-y-6">
-                {% csrf_token %}
-                {% crispy form %}
-            </form>
+<div class="container mx-auto px-4 py-8 bg-base-content">
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <h1 class="text-2xl font-bold mb-6">Gestión de Embeddings</h1>
+        
+        <!-- Formulario de carga -->
+        <form method="post" enctype="multipart/form-data" class="mb-8">
+            {% csrf_token %}
+            {% crispy form %}
+        </form>
 
-            {% if resultados %}
-            <div class="mt-8">
-                <div class="bg-gray-50 p-4 rounded-lg">
-                    <div class="prose prose-lg prose-slate max-w-none">
-                        {{ resultados|safe }}
-                    </div>
-                </div>
-                <form method="post" enctype="multipart/form-data" class="mt-4">
-                    {% csrf_token %}
-                    <input type="hidden" name="descargar" value="1">
-                    {% for archivo in form.archivos_md.value %}
-                        <input type="hidden" name="archivos_md" value="{{ archivo }}">
-                    {% endfor %}
-                    <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                        Descargar Resultados
+        <!-- Lista de embeddings -->
+        {% if embeddings %}
+        <div class="mt-8">
+            <h2 class="text-xl font-semibold mb-4">Embeddings Existentes</h2>
+            <form id="deleteForm" method="post" action="{% url 'embeddings:delete_embeddings' %}">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <button type="submit" class="btn btn-warning" id="deleteSelected">
+                        Eliminar Seleccionados
                     </button>
-                </form>
-            </div>
-            {% endif %}
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="table w-full">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <input type="checkbox" id="selectAll" class="form-checkbox h-5 w-5">
+                                </th>
+                                <th>Título</th>
+                                <th>Descripción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for embedding in embeddings %}
+                            <tr>
+                                <td>
+                                    <input type="checkbox" name="selected_embeddings" value="{{ embedding.id }}" class="form-checkbox h-5 w-5 embedding-checkbox">
+                                </td>
+                                <td>{{ embedding.titulo }}</td>
+                                <td>{{ embedding.descripcion }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </form>
         </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
 
 {% block js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const embeddingCheckboxes = document.querySelectorAll('.embedding-checkbox');
+    const deleteForm = document.getElementById('deleteForm');
+
+    // Función para seleccionar/deseleccionar todos los checkboxes
+    selectAllCheckbox.addEventListener('change', function() {
+
+        embeddingCheckboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+    });
+
+    // Actualizar el checkbox "Seleccionar todos" cuando se cambian los checkboxes individuales
+    embeddingCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const allChecked = Array.from(embeddingCheckboxes).every(cb => cb.checked);
+            selectAllCheckbox.checked = allChecked;
+        });
+    });
+
+    // Confirmar antes de eliminar
+    deleteForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const selectedCount = document.querySelectorAll('.embedding-checkbox:checked').length;
+        
+        if (selectedCount === 0) {
+            alert('Por favor, seleccione al menos un embedding para eliminar.');
+            return;
+        }
+
+        if (confirm(`¿Está seguro que desea eliminar ${selectedCount} embedding(s)?`)) {
+            this.submit();
+        }
+    });
+});
+</script>
 {% endblock %}

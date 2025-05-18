@@ -22,8 +22,6 @@
     --color-green-500: oklch(72.3% 0.219 149.579);
     --color-green-600: oklch(62.7% 0.194 149.214);
     --color-teal-600: oklch(60% 0.118 184.704);
-    --color-blue-50: oklch(97% 0.014 254.604);
-    --color-blue-100: oklch(93.2% 0.032 255.585);
     --color-blue-400: oklch(70.7% 0.165 254.624);
     --color-blue-500: oklch(62.3% 0.214 259.815);
     --color-blue-600: oklch(54.6% 0.245 262.881);
@@ -2862,15 +2860,6 @@
       --btn-fg: color-mix(in oklch, var(--color-base-content) 20%, #0000);
     }
   }
-  .hero-content {
-    isolation: isolate;
-    display: flex;
-    max-width: 80rem;
-    align-items: center;
-    justify-content: center;
-    gap: calc(0.25rem * 4);
-    padding: calc(0.25rem * 4);
-  }
   .textarea {
     border: var(--border) solid #0000;
     min-height: calc(0.25rem * 20);
@@ -3079,17 +3068,6 @@
   }
   .col-span-6 {
     grid-column: span 6 / span 6;
-  }
-  .hero {
-    display: grid;
-    width: 100%;
-    place-items: center;
-    background-size: cover;
-    background-position: center;
-  }
-  .hero > * {
-    grid-column-start: 1;
-    grid-row-start: 1;
   }
   .modal-box {
     grid-column-start: 1;
@@ -5786,6 +5764,9 @@
   .bg-base-300 {
     background-color: var(--color-base-300);
   }
+  .bg-base-content {
+    background-color: var(--color-base-content);
+  }
   .bg-black {
     background-color: var(--color-black);
   }
@@ -6646,10 +6627,6 @@
     --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   }
-  .shadow-2xl {
-    --tw-shadow: 0 25px 50px -12px var(--tw-shadow-color, rgb(0 0 0 / 0.25));
-    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-  }
   .shadow-\[0_2px_8px_rgba\(0\,0\,0\,0\.08\)\] {
     --tw-shadow: 0 2px 8px var(--tw-shadow-color, rgba(0,0,0,0.08));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
@@ -6996,36 +6973,6 @@
   .group-focus\:underline:is(:where(.group):focus *) {
     text-decoration-line: underline;
   }
-  .file\:mr-4::file-selector-button {
-    margin-right: calc(var(--spacing) * 4);
-  }
-  .file\:rounded-full::file-selector-button {
-    border-radius: calc(infinity * 1px);
-  }
-  .file\:border-0::file-selector-button {
-    border-style: var(--tw-border-style);
-    border-width: 0px;
-  }
-  .file\:bg-blue-50::file-selector-button {
-    background-color: var(--color-blue-50);
-  }
-  .file\:px-4::file-selector-button {
-    padding-inline: calc(var(--spacing) * 4);
-  }
-  .file\:py-2::file-selector-button {
-    padding-block: calc(var(--spacing) * 2);
-  }
-  .file\:text-sm::file-selector-button {
-    font-size: var(--text-sm);
-    line-height: var(--tw-leading, var(--text-sm--line-height));
-  }
-  .file\:font-semibold::file-selector-button {
-    --tw-font-weight: var(--font-weight-semibold);
-    font-weight: var(--font-weight-semibold);
-  }
-  .file\:text-blue-700::file-selector-button {
-    color: var(--color-blue-700);
-  }
   .last\:border-b-0:last-child {
     border-bottom-style: var(--tw-border-style);
     border-bottom-width: 0px;
@@ -7269,11 +7216,6 @@
     .hover\:shadow-xl:hover {
       --tw-shadow: 0 20px 25px -5px var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 8px 10px -6px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
       box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-    }
-  }
-  @media (hover: hover) {
-    .hover\:file\:bg-blue-100:hover::file-selector-button {
-      background-color: var(--color-blue-100);
     }
   }
   .focus\:z-10:focus {
@@ -8514,11 +8456,6 @@
   @media (width >= 64rem) {
     .lg\:flex-row {
       flex-direction: row;
-    }
-  }
-  @media (width >= 64rem) {
-    .lg\:flex-row-reverse {
-      flex-direction: row-reverse;
     }
   }
   @media (width >= 64rem) {
