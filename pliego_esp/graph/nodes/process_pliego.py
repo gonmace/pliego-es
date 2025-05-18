@@ -18,8 +18,8 @@ async def process_pliego(state: State, *, config: RunnableConfig) -> State:
 
     configuration = Configuration.from_runnable_config(config)
     llm = ChatOpenAI(
-        model=configuration.chat_model,
-        temperature=0.5,
+        model="gpt-4o",
+        temperature=0.4,
         callbacks=[shared_callback_handler]
     )
 
@@ -53,26 +53,23 @@ Adaptar la especificación genérica al nuevo ítem indicado, incorporando únic
 - Mencionar materiales clave como hormigón, mallas, selladores o aditivos si aplican, redactados de forma técnica y natural.
 - **No incluir pasos constructivos, procedimientos ni acciones específicas.**
 
-### Materiales, herramientas y equipo
+### Materiales, Herramientas y Equipo.
 - Incluir exclusivamente los materiales, herramientas, equipos y EPP requeridos, según los parámetros técnicos disponibles o sus valores por defecto.
 - **Integrar los Materiales, herramientas ó equipos que requiera el ítem en esta sección, no agregar una sección adicional.**
 
-### Procedimiento
-- Redactar en párrafos, sin numeración ni viñetas.
-- Describir el proceso constructivo incorporando:
-  - Los parámetros técnicos relevantes.
-  - Los adicionales, **solo si modifican o complementan el procedimiento**.
-- Omitir los adicionales que no alteran el desarrollo del procedimiento.
-- Resaltar con **negrita** las acciones clave del proceso (ej. **Hormigonado**, **Limpieza**, **Verificación**, etc.).
+### Procedimiento.
+Redacta el procedimiento en párrafos continuos (sin numeración ni viñetas), describiendo el proceso constructivo paso a paso. 
+- Incorpora los **parámetros técnicos relevantes** en el flujo del texto.
+- Incluye los **adicionales** solo si **modifican** o **complementan** el proceso.
+- IMPORTANTE: Aplica negrilla en **acciones clave**, **términos técnicos**, **herramientas y materiales**, y **unidades de medida**.
+- No utilices la palabra “procedimiento” dentro del contenido.
+- Omite cualquier adicional que no altere el desarrollo constructivo.
 
-### Medición y Forma de Pago
-Redactar tres párrafos consecutivos, uno por cada aspecto:
-
-1. **Medición**: indicar la unidad de medida (**metros cuadrados (m²)**) y cómo se cuantificará.
-2. **Verificación**: detallar que el control será realizado por **EMBOL S.A.**, con una breve descripción del método de validación.
-3. **Pago**: establecer condiciones para el pago, mencionando criterios de aceptación o penalizaciones si corresponde.
-
-- Usar **negrita** únicamente en términos clave como **verificación**, **metros cuadrados**, **multas**, etc.
+### Medición y Forma de Pago.
+Redactar dos párrafos consecutivos, uno por cada aspecto:
+- **Medición y Verificación**: indicar la unidad de medida (**metros cuadrados (m²)**) y cómo se cuantificará. Mencionar que el control será realizado por **EMBOL S.A.**, con una breve descripción del método de validación.
+- **Pago**: establecer condiciones para el pago, mencionando criterios de aceptación o penalizaciones si corresponde. Además, indicar si está sujeto a condiciones, avances o verificaciones técnicas.
+- Usar **negrita** en términos clave como: **verificación**, **metros cuadrados**, **multas**, etc.
 
 ---
 

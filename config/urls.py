@@ -13,7 +13,8 @@ urlpatterns = [
     path("logout/", LogoutView.as_view(), name="logout"),
     path('pliego/', include('pliego_esp.urls')),
     path('prepare-doc/', include('prep_doc_gen.urls')),
-    path('esp-generica/', include('esp_generica.urls'))
+    path('esp-generica/', include('esp_generica.urls')),
+    path('embeddings/', include('embeddings.urls'))
 ]
 
 if settings.DEBUG:

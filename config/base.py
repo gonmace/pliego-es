@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'pliego_esp.apps.PliegoEspConfig',
     'prep_doc_gen',
     'esp_generica',
+    'embeddings',
 
 ]
 
