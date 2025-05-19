@@ -43,18 +43,21 @@
 }
 @layer components {
   .prose ul {
-    @apply !pl-6 !text-xl;
+    @apply !pl-6 !text-2xl;
   }
   .prose h2 {
-    @apply !py-4 !font-bold !text-blue-700 !text-3xl;
+    @apply !font-bold !text-blue-800 !text-xl;
   }
   .prose h3 {
-    @apply !py-2 !font-bold !text-blue-700 !text-2xl;
+    @apply !font-bold !text-blue-800 !text-lg;
   }
   .prose h4 {
-    @apply !font-bold !text-black !text-2xl;
+    @apply !font-bold !text-black !text-xl;
   }
   .prose p {
-    @apply !py-2 !text-xl;
+    @apply !text-base;
+  }
+  .prose li {
+    @apply !text-base;
   }
 }

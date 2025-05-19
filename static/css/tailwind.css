@@ -3128,6 +3128,14 @@
     margin-block: calc(0.25rem * -2);
     margin-inline-end: calc(0.25rem * -3);
   }
+  .input-xs {
+    --size: calc(var(--size-field, 0.25rem) * 6);
+    font-size: 0.6875rem;
+  }
+  .input-xs[type="number"]::-webkit-inner-spin-button {
+    margin-block: calc(0.25rem * -1);
+    margin-inline-end: calc(0.25rem * -3);
+  }
   .my-2 {
     margin-block: calc(var(--spacing) * 2);
   }
@@ -4936,6 +4944,9 @@
   .w-5 {
     width: calc(var(--spacing) * 5);
   }
+  .w-5\/6 {
+    width: calc(5/6 * 100%);
+  }
   .w-6 {
     width: calc(var(--spacing) * 6);
   }
@@ -5173,6 +5184,12 @@
   }
   .resize\! {
     resize: both !important;
+  }
+  .list-inside {
+    list-style-position: inside;
+  }
+  .list-disc {
+    list-style-type: disc;
   }
   .form-select {
     appearance: none;
@@ -6053,6 +6070,12 @@
   .px-10 {
     padding-inline: calc(var(--spacing) * 10);
   }
+  .px-16 {
+    padding-inline: calc(var(--spacing) * 16);
+  }
+  .px-20 {
+    padding-inline: calc(var(--spacing) * 20);
+  }
   .py-0 {
     padding-block: calc(var(--spacing) * 0);
   }
@@ -6103,6 +6126,9 @@
   }
   .pt-5 {
     padding-top: calc(var(--spacing) * 5);
+  }
+  .pt-6 {
+    padding-top: calc(var(--spacing) * 6);
   }
   .pt-10 {
     padding-top: calc(var(--spacing) * 10);
@@ -6296,6 +6322,10 @@
   .checkbox-info {
     color: var(--color-info-content);
     --input-color: var(--color-info);
+  }
+  .checkbox-primary {
+    color: var(--color-primary-content);
+    --input-color: var(--color-primary);
   }
   .\!text-black {
     color: var(--color-black) !important;
@@ -6884,6 +6914,11 @@
   @media (hover: hover) {
     .hover\:bg-base-200:hover {
       background-color: var(--color-base-200);
+    }
+  }
+  @media (hover: hover) {
+    .hover\:bg-base-300:hover {
+      background-color: var(--color-base-300);
     }
   }
   @media (hover: hover) {
@@ -8546,36 +8581,37 @@
 @layer components {
   .prose ul {
     padding-left: calc(var(--spacing) * 6) !important;
-    font-size: var(--text-xl) !important;
-    line-height: var(--tw-leading, var(--text-xl--line-height)) !important;
+    font-size: var(--text-2xl) !important;
+    line-height: var(--tw-leading, var(--text-2xl--line-height)) !important;
   }
   .prose h2 {
-    padding-block: calc(var(--spacing) * 4) !important;
-    font-size: var(--text-3xl) !important;
-    line-height: var(--tw-leading, var(--text-3xl--line-height)) !important;
+    font-size: var(--text-xl) !important;
+    line-height: var(--tw-leading, var(--text-xl--line-height)) !important;
     --tw-font-weight: var(--font-weight-bold) !important;
     font-weight: var(--font-weight-bold) !important;
-    color: var(--color-blue-700) !important;
+    color: var(--color-blue-800) !important;
   }
   .prose h3 {
-    padding-block: calc(var(--spacing) * 2) !important;
-    font-size: var(--text-2xl) !important;
-    line-height: var(--tw-leading, var(--text-2xl--line-height)) !important;
+    font-size: var(--text-lg) !important;
+    line-height: var(--tw-leading, var(--text-lg--line-height)) !important;
     --tw-font-weight: var(--font-weight-bold) !important;
     font-weight: var(--font-weight-bold) !important;
-    color: var(--color-blue-700) !important;
+    color: var(--color-blue-800) !important;
   }
   .prose h4 {
-    font-size: var(--text-2xl) !important;
-    line-height: var(--tw-leading, var(--text-2xl--line-height)) !important;
+    font-size: var(--text-xl) !important;
+    line-height: var(--tw-leading, var(--text-xl--line-height)) !important;
     --tw-font-weight: var(--font-weight-bold) !important;
     font-weight: var(--font-weight-bold) !important;
     color: var(--color-black) !important;
   }
   .prose p {
-    padding-block: calc(var(--spacing) * 2) !important;
-    font-size: var(--text-xl) !important;
-    line-height: var(--tw-leading, var(--text-xl--line-height)) !important;
+    font-size: var(--text-base) !important;
+    line-height: var(--tw-leading, var(--text-base--line-height)) !important;
+  }
+  .prose li {
+    font-size: var(--text-base) !important;
+    line-height: var(--tw-leading, var(--text-base--line-height)) !important;
   }
 }
 @layer base {

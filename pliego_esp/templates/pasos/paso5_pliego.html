@@ -2,23 +2,23 @@
 
 
 <div class="flex flex-col items-center justify-center mt-6">
-  <div class="card w-full max-w-4xl bg-base-100 shadow-xl">
-    <div class="card-body">
+  <div class="card w-full max-w-5xl bg-base-100 shadow-xl">
+    
       <!-- <div class="flex flex-row items-center justify-between">
         <h2 class="card-title text-xl font-bold">{{ paso1_data.titulo_final }}</h2>
       </div> -->
 
-      <div id="resultContainer" class="mt-8 mx-auto p-8 rounded-lg shadow" style="display: none;">
+      <div id="resultContainer" class="mt-8 mx-auto rounded-lg shadow" style="display: none;">
         <div class="p-4 rounded-md">
-            <article id="response-content" class="prose lg:prose-xl">
+            <article id="response-content" class="prose prose-slate prose-lg max-w-5xl px-20 pt-6">
             </article>
         </div>
 
-        <div class="mt-4 text-sm text-gray-600">
+        <div class="mt-4 text-sm text-gray-600 hidden">
             <p>Costo de tokens: <span id="tokenCost">-</span></p>
             <p class="mt-1">ID de conversación: <span id="conversationId">-</span></p>
         </div>
-    </div>
+    
 
       <!-- Botones de navegación -->
       <div class="card-actions justify-end mt-6">

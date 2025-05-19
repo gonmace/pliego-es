@@ -465,9 +465,19 @@ def generar_pliego(request):
                     'items': response_data['items'],
                     'config': response_data['config'],
                 })
-            else:
+            else:            
+                extensions = [
+                    'markdown.extensions.extra',
+                    'markdown.extensions.codehilite',
+                    # 'markdown.extensions.tables',
+                    # 'markdown.extensions.nl2br',
+                    'markdown.extensions.sane_lists'
+                ]
+                md_generado_html = markdown.markdown(
+                    response_data.get('content', ''), output_format='html', extensions=extensions)
+
                 return JsonResponse({
-                    'content': response_data.get('content', ''),
+                    'content': md_generado_html,
                     'token_cost': response_data.get('token_cost', 0),
                     'conversation_id': response_data.get('conversation_id', '')
                 })
@@ -495,11 +505,14 @@ def generar_pliego(request):
                 'markdown.extensions.codehilite',
                 # 'markdown.extensions.tables',
                 # 'markdown.extensions.nl2br',
-                # 'markdown.extensions.sane_lists'
+                'markdown.extensions.sane_lists'
             ]
             md_generado_html = markdown.markdown(
                 response_data.get('content', ''), output_format='html', extensions=extensions)
-                        
+
+            console.print("Respuesta del servidor", style="bold green")
+            console.print(md_generado_html, style="bold red")
+            
             return JsonResponse({
                 'content': md_generado_html,
                 'token_cost': response_data.get('token_cost', 0),
