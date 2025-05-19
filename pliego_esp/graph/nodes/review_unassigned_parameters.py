@@ -60,12 +60,14 @@ async def review_unassigned_parameters(state: State, *, config: RunnableConfig) 
     evaluaciones = []
     cost = 0
 
-    for parametro in state["other_parametros"]:
-        parametro_nombre = parametro.get("Parámetro Técnico", "").strip()
-        valor_asignado = parametro.get("Valor Asignado", "").strip()
-
-        if not parametro_nombre or not valor_asignado:
-            continue  
+    parametros_clave = state.get("parametros_clave", [])
+    # Filtra parámetros clave con recomendación no vacía
+    parametros_filtrados = [p for p in parametros_clave if not p.get("recomendacion")]
+    
+    console.print(parametros_filtrados, style="red")
+    for parametro in parametros_filtrados:
+        parametro_nombre = parametro.get("nombre", "").strip()
+        valor_asignado = parametro.get("valor", "").strip()
 
         evaluacion = await review_chain.ainvoke({
             "especificacion_generada": state["especificacion_generada"],

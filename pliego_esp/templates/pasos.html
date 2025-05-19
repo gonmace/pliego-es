@@ -7,6 +7,7 @@
 
 {% block css %}
   {% tailwind_css %}
+  <!-- <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script> -->
 {% endblock %}
 
 {% block title %}
@@ -34,10 +35,6 @@
   {% include "pasos/paso4_adicionales.html" %}
 {% elif paso_actual == 5 %}
   {% include "pasos/paso5_pliego.html" %}
-<!-- <div class="text-center">
-  <p class="text-green-600 font-semibold text-xl mb-4">¡Formulario completo!</p>
-  <a href="?paso=1" class="btn btn-outline">Volver al inicio</a>
-</div> -->
 
 {% endif %}
 

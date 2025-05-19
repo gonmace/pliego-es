@@ -5,6 +5,8 @@ from langchain_core.prompts import ChatPromptTemplate
 from pliego_esp.graph.configuration import Configuration
 from langchain_core.runnables import RunnableConfig
 from pliego_esp.graph.callbacks import shared_callback_handler
+import asyncio
+from functools import partial
 
 from typing import Literal
 
@@ -40,6 +42,17 @@ class ReviewOtherAdicionales(BaseModel):
     comentario: str = Field(description="Una única oración breve y objetiva que indique si la actividad adicional es complementaria y aplicable técnicamente. Aclarar que debe ser una relación técnica, no de otra naturaleza.")
     corresponde: Literal["Sí", "No", "Parcialmente"] = Field(description="Indica si la actividad adicional corresponde (Sí / No / Parcialmente)")
 
+async def _process_adicional(review_chain, adicional, especificacion_generada):
+    try:
+        evaluacion = await review_chain.ainvoke({
+            "especificacion_generada": especificacion_generada,
+            "descripcion_adicional": adicional.get("descripcion", "")
+        })
+        return evaluacion.model_dump()
+    except Exception as e:
+        console.print(f"Error procesando adicional: {str(e)}", style="bold red")
+        return None
+
 async def review_other_adicionales(state: State, *, config: RunnableConfig) -> State:
     console.print("------ review_other_adicionales ------", style="bold green")
 
@@ -54,27 +67,28 @@ async def review_other_adicionales(state: State, *, config: RunnableConfig) -> S
         callbacks=[shared_callback_handler]
     )
 
-    # Usar with_structured_output en lugar de StrOutputParser
     review_chain = prompt_template | llm.with_structured_output(ReviewOtherAdicionales)
 
-    evaluaciones = []
-    cost = 0
+    adicionales = state.get("adicionales", [])
+    adicionales_filtrados = [a for a in adicionales if a.get("nuevo")]
     
-    console.print(state["other_adicionales"], style="green")
+    console.print(adicionales_filtrados, style="green")
     
-    for adicional in state["other_adicionales"]:
-        
-        evaluacion = await review_chain.ainvoke({
-            "especificacion_generada": state["especificacion_generada"],
-            "descripcion_adicional": adicional.descripcion
-        })
-        
-        console.print(f"Costo parcial después de procesar '{adicional.descripcion}': ${shared_callback_handler.total_cost:.6f}", style="green")
-        
-        evaluaciones.append(
-            evaluacion.model_dump()
+    # Crear tareas para procesar cada adicional
+    tasks = [
+        _process_adicional(
+            review_chain,
+            adicional,
+            state["especificacion_generada"]
         )
-        cost += shared_callback_handler.total_cost
+        for adicional in adicionales_filtrados
+    ]
+    
+    # Ejecutar todas las tareas concurrentemente
+    evaluaciones = await asyncio.gather(*tasks)
+    
+    # Filtrar resultados None
+    evaluaciones = [e for e in evaluaciones if e is not None]
     
     console.print(evaluaciones, style="bold green")    
     costo_nodo = shared_callback_handler.total_cost - costo_inicial

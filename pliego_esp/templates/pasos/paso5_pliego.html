@@ -1,13 +1,24 @@
 {% load static crispy_forms_tags tailwind_tags pliego_filters %}
 
+
 <div class="flex flex-col items-center justify-center mt-6">
   <div class="card w-full max-w-4xl bg-base-100 shadow-xl">
     <div class="card-body">
-      <div class="flex flex-row items-center justify-between">
+      <!-- <div class="flex flex-row items-center justify-between">
         <h2 class="card-title text-xl font-bold">{{ paso1_data.titulo_final }}</h2>
-      </div>
+      </div> -->
 
+      <div id="resultContainer" class="mt-8 mx-auto p-8 rounded-lg shadow" style="display: none;">
+        <div class="p-4 rounded-md">
+            <article id="response-content" class="prose lg:prose-xl">
+            </article>
+        </div>
 
+        <div class="mt-4 text-sm text-gray-600">
+            <p>Costo de tokens: <span id="tokenCost">-</span></p>
+            <p class="mt-1">ID de conversación: <span id="conversationId">-</span></p>
+        </div>
+    </div>
 
       <!-- Botones de navegación -->
       <div class="card-actions justify-end mt-6">
@@ -18,7 +29,28 @@
   </div>
 </div>
 
+<!-- Overlay de carga -->
+<div id="loadingOverlay" class="loading-overlay">
+  <div class="text-center">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Procesando su solicitud...</div>
+  </div>
+</div>
 
+<!-- Modal de confirmación -->
+<dialog id="modal_parametros" class="modal">
+  <div class="modal-box">
+      <h3 class="text-lg font-bold"></h3>
+      <p class="py-4"></p>
+      <p class="py-4"></p>
+      <div class="modal-action">
+          <form method="dialog">
+              <button id="modalButtonYes" class="btn">Aceptar</button>
+              <button id="modalButtonNo" class="btn">Cancelar</button>
+          </form>
+      </div>
+  </div>
+</dialog>
 
 <script>
   // Función para obtener el token CSRF
@@ -37,7 +69,109 @@
     return cookieValue;
   }
 
-  // Realizar la petición al cargar la página
+  // Función para mostrar el modal
+  async function modal_parametros(data) {
+    return new Promise((resolve) => {
+      const modal = document.getElementById('modal_parametros');
+      const modalTitle = modal.getElementsByTagName('h3')[0];
+      const modalContent = modal.getElementsByTagName('p')[0];
+      const modalPregunta = modal.getElementsByTagName('p')[1];
+      const modalButtonYes = document.getElementById('modalButtonYes');
+      const modalButtonNo = document.getElementById('modalButtonNo');
+
+      // Configurar el contenido del modal
+      modalTitle.textContent = data.titulo;
+      modalContent.textContent = data.comentario;
+      modalPregunta.textContent = data.pregunta;
+
+      // Función para cerrar el modal y resolver la promesa
+      const closeModalAndResolve = (result) => {
+        modal.close();
+        // Añadir un pequeño retraso antes de resolver
+        setTimeout(() => {
+          resolve(result);
+        }, 300); // 300ms de retraso
+      };
+
+      // Configurar los manejadores de eventos para los botones
+      modalButtonYes.onclick = () => closeModalAndResolve(true);
+      modalButtonNo.onclick = () => closeModalAndResolve(false);
+
+      // Asegurarse de que el modal anterior esté cerrado
+      if (modal.open) {
+        modal.close();
+      }
+
+      // Pequeño retraso antes de mostrar el nuevo modal
+      setTimeout(() => {
+        modal.showModal();
+      }, 100);
+    });
+  }
+
+  // Función para procesar la respuesta
+  async function processResponse(responseData) {
+    if (responseData.type === "__interrupt__") {
+      // Procesar los modales en secuencia
+      for (const item of responseData.items) {
+        const respuesta = await modal_parametros(item);
+        item.agregar = respuesta;
+      }
+
+      // Enviar los items de parametros evaluados al backend
+      const newFormData = new FormData();
+      newFormData.append('request_type', JSON.stringify(responseData.type));
+      newFormData.append('items', JSON.stringify(responseData.items));
+      newFormData.append('config', JSON.stringify(responseData.config));
+      newFormData.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+
+      const newResponse = await fetch('/pliego/generar-pliego/', {
+        method: 'POST',
+        body: newFormData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      });
+
+      const newData = await newResponse.json();
+      return processResponse(newData); // Recursivamente procesar la nueva respuesta
+    } else {
+      // Si no es una interrupción, mostrar el resultado final
+      document.getElementById('response-content').innerHTML = responseData.content;
+      document.getElementById('resultContainer').style.display = 'block';
+      document.getElementById('tokenCost').textContent = responseData.token_cost;
+      document.getElementById('conversationId').textContent = responseData.conversation_id;
+      return responseData;
+    }
+  }
+
+  // Función para generar el pliego
+  async function generarPliego() {
+    try {
+      const formData = new FormData();
+      formData.append('request_type', 'inicio');
+
+      const response = await fetch('/pliego/generar-pliego/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error HTTP: ${response.status}`);
+      }
+
+      const data = await response.json();
+      await processResponse(data);
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Ha ocurrido un error al procesar su solicitud. Por favor, inténtelo de nuevo.');
+    }
+  }
+
+  // Inicializar cuando el DOM esté listo
   document.addEventListener('DOMContentLoaded', async function () {
     try {
       const response = await fetch('/pliego/nuevo-pliego/', {
@@ -52,36 +186,25 @@
       });
 
       if (!response.ok) {
-        throw new Error('Error en la solicitud');
+        throw new Error(`Error HTTP: ${response.status}`);
       }
+
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new TypeError("La respuesta no es JSON válido");
+      }
+
       const resultado = await response.json();
       console.log('Respuesta del servidor:', resultado);
-      actualizarUI(resultado);
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  
-    try {
-      const formData = new FormData();
-      formData.append('request_type', 'inicio');
 
-      const response = await fetch('/pliego/generar-pliego/', {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Error en la solicitud');
+      if (resultado.success) {
+        await generarPliego();
+      } else {
+        throw new Error(resultado.message || 'Error desconocido');
       }
-      const resultado = await response.json();
-      console.log('Respuesta del servidor:', resultado);
-      actualizarUI(resultado);
     } catch (error) {
       console.error('Error:', error);
+      alert('Error al procesar el paso 5: ' + error.message);
     }
-
   });
 </script>

@@ -72,10 +72,11 @@ function crearParametroHTML(parametro, index) {
     <tr>
       <td class="py-1">
         <input type="text" 
-               class="input input-bordered input-xs w-full" 
+               class="input input-bordered input-xs w-full bg-gray-100" 
                name="nombre_${index}" 
                value="${parametro.nombre || ''}"
-               placeholder="Nombre del parámetro">
+               placeholder="Nombre del parámetro"
+               readonly>
       </td>
       <td class="py-1">
         <ul class="list-disc list-inside">
@@ -152,9 +153,11 @@ function guardarParametros() {
     if (!input.name.includes('nuevo')) {
       const index = input.name.split('_')[1];
       const nombreInput = form.querySelector(`input[name="nombre_${index}"]`);
+      const recomendacionElement = input.closest('tr').querySelector('ul li');
       if (nombreInput) {
         parametros.push({
           nombre: nombreInput.value,
+          recomendacion: recomendacionElement ? recomendacionElement.textContent : '',
           valor: input.value
         });
       }
@@ -168,7 +171,8 @@ function guardarParametros() {
     if (nombreInput && nombreInput.value.trim() !== '') {
       parametros.push({
         nombre: nombreInput.value,
-        valor: input.value
+        valor: input.value,
+        recomendacion: ''
       });
     }
   });

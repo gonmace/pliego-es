@@ -44,14 +44,14 @@ async def create_workflow(memory_saver: MemorySaver) -> CompiledStateGraph:
     # # Agregar los nodos al workflow con el callback_handler compartido
     workflow.add_node("clean_and_capture_sections", clean_and_capture_sections)
     
-    # # Primer flujo paralelo
-    workflow.add_node("parse_adicionales", parse_adicionales)
-    workflow.add_node("match_adicionales", match_adicionales)
+    # # # Primer flujo paralelo
+    # workflow.add_node("parse_adicionales", parse_adicionales)
+    # workflow.add_node("match_adicionales", match_adicionales)
     
-    # # Segundo flujo paralelo
-    workflow.add_node("parse_parametros", parse_parametros)
-    workflow.add_node("match_parametros_clave", match_parametros_clave)
-    workflow.add_node("unassigned_parameters", unassigned_parameters)
+    # # # Segundo flujo paralelo
+    # workflow.add_node("parse_parametros", parse_parametros)
+    # workflow.add_node("match_parametros_clave", match_parametros_clave)
+    # workflow.add_node("unassigned_parameters", unassigned_parameters)
 
     # # Tercer flujo convergente
     workflow.add_node("process_pliego", process_pliego)
@@ -66,26 +66,30 @@ async def create_workflow(memory_saver: MemorySaver) -> CompiledStateGraph:
     workflow.set_entry_point("clean_and_capture_sections")
     
     # # Primer flujo paralelo
-    workflow.add_edge("clean_and_capture_sections", "parse_adicionales")
-    workflow.add_edge("parse_adicionales", "match_adicionales")
-    
+    # workflow.add_edge("clean_and_capture_sections", "parse_adicionales")
+    # workflow.add_edge("parse_adicionales", "match_adicionales")
+
     # Segundo flujo paralelo
-    workflow.add_edge("clean_and_capture_sections", "parse_parametros")  
-    workflow.add_edge("parse_parametros", "match_parametros_clave")
-    workflow.add_edge("match_parametros_clave", "unassigned_parameters")
+    # workflow.add_edge("clean_and_capture_sections", "parse_parametros")  
+    # workflow.add_edge("parse_parametros", "match_parametros_clave")
+    # workflow.add_edge("match_parametros_clave", "unassigned_parameters")
     
     # Convergencia de flujos
-    workflow.add_edge(
-        ["unassigned_parameters", "match_adicionales"], 
-        "process_pliego")
+    # workflow.add_edge(
+    #     ["unassigned_parameters", "match_adicionales"], 
+    #     "process_pliego")
     
     # Flujo final
+    workflow.add_edge("clean_and_capture_sections", "process_pliego")
     workflow.add_edge("process_pliego", "review_unassigned_parameters")
-    
-    # workflow.set_entry_point("review_unassigned_parameters")
     workflow.add_edge("review_unassigned_parameters", "add_unassigned_parameters")
     workflow.add_edge("add_unassigned_parameters", "review_other_adicionales")
     workflow.add_edge("review_other_adicionales", "add_other_adicionales")
+    # workflow.add_edge("add_unassigned_parameters", "add_other_adicionales")
+    # workflow.set_entry_point("review_unassigned_parameters")
+    # workflow.add_edge("review_unassigned_parameters", "add_unassigned_parameters")
+    # workflow.add_edge("add_unassigned_parameters", "review_other_adicionales")
+    # workflow.add_edge("review_other_adicionales", "add_other_adicionales")
     workflow.add_edge("add_other_adicionales", "add_finales")
     workflow.add_edge("add_finales", END)
     

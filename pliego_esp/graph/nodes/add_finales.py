@@ -11,17 +11,24 @@ Los trabajos deben ser realizados por personal calificado y capacitado, siguiend
 """
 
 def agregar_parrafo_a_procedimiento(texto, parrafo):
-    # Buscar todas las secciones que comienzan con ### y sus posiciones
-    secciones = list(re.finditer(r"^### (.+?)\.\s*$", texto, flags=re.MULTILINE))
+    
+    # Buscar todas las secciones que comienzan con ## o ### y sus posiciones
+    secciones = list(re.finditer(r"^#{2,3} (.+?)(?:\.|\n)", texto, flags=re.MULTILINE))
+    
     
     for i, match in enumerate(secciones):
+    
         if match.group(1).strip().lower() == "procedimiento":
-            inicio = match.end()  # después de '### Procedimiento.'
+    
+            inicio = match.end()  # después de '## Procedimiento.'
             fin = secciones[i + 1].start() if i + 1 < len(secciones) else len(texto)
             contenido_original = texto[inicio:fin].rstrip()
-            nuevo_contenido = f"{contenido_original}\n{parrafo}\n"
+    
+            nuevo_contenido = f"{contenido_original}\n\n{parrafo}\n"
+    
             return texto[:inicio] + nuevo_contenido + texto[fin:]
 
+    
     # Si no se encuentra la sección, devolver texto original
     return texto
 

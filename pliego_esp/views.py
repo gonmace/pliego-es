@@ -13,7 +13,7 @@ from django.template import loader
 from django.views.decorators.csrf import csrf_exempt
 import openai
 from django.conf import settings
-# import markdown
+import markdown
 
 from pliego_esp.forms import PliegoForm
 # from pliego_esp.graph import ttest_node
@@ -322,7 +322,7 @@ def nuevo_pliego_view(request):
                     
                     request.session['paso3_data'] = {
                         'parametros': parametros_con_valor,
-                
+                        'recomendaciones': [param.get('recomendacion', '') for param in parametros_con_valor]
                     }
                     
                     console.print("Parámetros guardados correctamente", style="bold green")
@@ -381,7 +381,11 @@ def nuevo_pliego_view(request):
                     })
             elif paso == 5:
                 print("Procesando paso 5", file=sys.stderr)
-                
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Paso 5 procesado correctamente',
+                    'paso': paso
+                })
 
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
@@ -467,4 +471,37 @@ def generar_pliego(request):
                     'token_cost': response_data.get('token_cost', 0),
                     'conversation_id': response_data.get('conversation_id', '')
                 })
-    return JsonResponse({'success': True, 'message': 'Pliego generado correctamente'})
+        else:
+            resume = json.loads(request.POST.get('items'))
+            config = json.loads(request.POST.get('config'))
+            
+            response_data = async_to_sync(PliegoEspService.process_pliego)(
+                input=resume,
+                config=config,
+                resume_data=True
+            )
+            
+            if response_data["type"] == "__interrupt__":
+                return JsonResponse({
+                    'type': response_data["type"],
+                    'action': response_data["action"],
+                    'items': response_data['items'],
+                    'config': response_data['config'],
+                })
+
+                        # Procesar el markdown
+            extensions = [
+                'markdown.extensions.extra',
+                'markdown.extensions.codehilite',
+                # 'markdown.extensions.tables',
+                # 'markdown.extensions.nl2br',
+                # 'markdown.extensions.sane_lists'
+            ]
+            md_generado_html = markdown.markdown(
+                response_data.get('content', ''), output_format='html', extensions=extensions)
+                        
+            return JsonResponse({
+                'content': md_generado_html,
+                'token_cost': response_data.get('token_cost', 0),
+                'conversation_id': response_data.get('conversation_id', '')
+            })

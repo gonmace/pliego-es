@@ -109,6 +109,7 @@ function agregarAdicional() {
               <input type="checkbox" class="checkbox checkbox-primary" 
                      data-nombre="${nombre}"
                      data-descripcion="${descripcion}"
+                     data-nuevo="true"
                      checked />
             </label>
           </div>
@@ -139,7 +140,8 @@ function actualizarUI(data) {
                 <span class="label-text mr-2">Seleccionar</span>
                 <input type="checkbox" class="checkbox checkbox-primary" 
                        data-nombre="${adicional.nombre}"
-                       data-descripcion="${adicional.descripcion}" />
+                       data-descripcion="${adicional.descripcion}"
+                       data-nuevo="false" />
               </label>
             </div>
           </div>
@@ -162,7 +164,8 @@ async function guardarAdicionales() {
   const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
   const adicionalesSeleccionados = Array.from(checkboxes).map(checkbox => ({
     nombre: checkbox.dataset.nombre,
-    descripcion: checkbox.dataset.descripcion
+    descripcion: checkbox.dataset.descripcion,
+    nuevo: checkbox.dataset.nuevo === 'true'
   }));
 
   try {

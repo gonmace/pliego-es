@@ -9,6 +9,13 @@ from langchain_core.messages import HumanMessage
 
 console = Console()
 
+def limpiar_bloque_markdown(texto):
+    if texto.strip().startswith("```markdown"):
+        texto = texto.strip()[len("```markdown"):].strip()
+    if texto.endswith("```"):
+        texto = texto[:texto.rfind("```")].strip()
+    return texto
+
 async def process_pliego(state: State, *, config: RunnableConfig) -> State:
     console.print("------ process_pliego ------", style="bold white")
 
@@ -58,12 +65,12 @@ Adaptar la especificación genérica al nuevo ítem indicado, incorporando únic
 - **Integrar los Materiales, herramientas ó equipos que requiera el ítem en esta sección, no agregar una sección adicional.**
 
 ### Procedimiento.
-Redacta el procedimiento en párrafos continuos (sin numeración ni viñetas), describiendo el proceso constructivo paso a paso. 
+Redacta el procedimiento en varios párrafos (sin numeración ni viñetas), describiendo el proceso constructivo paso a paso y con detalle de acuerdo a la especificación genérica. 
 - Incorpora los **parámetros técnicos relevantes** en el flujo del texto.
 - Incluye los **adicionales** solo si **modifican** o **complementan** el proceso.
 - IMPORTANTE: Aplica negrilla en **acciones clave**, **términos técnicos**, **herramientas y materiales**, y **unidades de medida**.
-- No utilices la palabra “procedimiento” dentro del contenido.
-- Omite cualquier adicional que no altere el desarrollo constructivo.
+- No utilices la palabra "procedimiento" dentro del contenido.
+- Omite cualquier adicional que altere el desarrollo constructivo.
 
 ### Medición y Forma de Pago.
 Redactar dos párrafos consecutivos, uno por cada aspecto:
@@ -76,6 +83,7 @@ Redactar dos párrafos consecutivos, uno por cada aspecto:
 ## Estilo y restricciones
 
 - Redacción técnica, precisa, profesional y sin ambigüedades.
+- **Mantener la jerarquia de los titulos de la especificacion generica**, es decir, el título de la con ## y las secciones con ###.
 - **No modificar** los títulos ni el orden de las secciones.
 - **No incluir**:
   - Listas, numeraciones, encabezados adicionales ni explicaciones fuera de contexto.
@@ -90,23 +98,36 @@ El resultado debe ser una especificación técnica **clara, profesional y lista 
 
 {especificacion_base}
 """)
-
-
-    # Preparar los datos para el prompt
-    parametros_clave = "\n".join([f"- {param}" for param in state.get("parametros_clave", [])])
-    adicionales_finales = "\n".join([f"- {a}" for a in state.get("adicionales_finales", [])])
     
+    parametros_clave = state.get("parametros_clave", [])
+    # Filtra parámetros clave con recomendación no vacía
+    parametros_filtrados = [p for p in parametros_clave if p.get("recomendacion")]
+    # Generación de líneas para el prompt
+    lineas_parametros = [f"- {p['nombre']}: {p['valor']}" for p in parametros_filtrados]
+    # Unir en un solo string si lo necesitas como bloque de texto
+    texto_parametros = "\n".join(lineas_parametros)
+    
+    adicionales = state.get("adicionales", [])
+    # Filtra adicionales donde 'nuevo' es False
+    adicionales_filtrados = [a for a in adicionales if not a.get("nuevo")]
+    # Formatear cada adicional en el formato deseado
+    lineas_adicionales = [f"- {a['nombre']}: {a['descripcion']}" for a in adicionales_filtrados]
+    # Unir en un solo string si lo necesitas como bloque de texto
+    texto_adicionales = "\n".join(lineas_adicionales)
+
     # Generar la especificación
     prompt = prompt_template.format_prompt(
         titulo=state.get("titulo", ""),
-        parametros_clave=parametros_clave,
-        adicionales_finales=adicionales_finales,
+        parametros_clave=texto_parametros,
+        adicionales_finales=texto_adicionales,
         especificacion_base=state.get("pliego_base", "")
     ).to_messages()
 
     especificacion_generada = await llm.ainvoke(prompt)
+    
+    resultado_limpio = limpiar_bloque_markdown(especificacion_generada.content)
 
-    console.print(especificacion_generada.content, style="white")
+    console.print(resultado_limpio, style="white")
     
     costo_nodo = shared_callback_handler.total_cost - costo_inicial
     console.print(f"Costo total del nodo process_pliego: ${costo_nodo:.6f}", style="bold white")
@@ -115,6 +136,6 @@ El resultado debe ser una especificación técnica **clara, profesional y lista 
     console.print(20*"-", style="bold white")
 
     return {
-        "especificacion_generada": especificacion_generada.content,
+        "especificacion_generada": resultado_limpio,
         "token_cost": shared_callback_handler.total_cost
     }
