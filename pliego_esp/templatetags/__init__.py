@@ -1,0 +1,1 @@
+# Este archivo hace que el directorio templatetags sea un paquete Python 

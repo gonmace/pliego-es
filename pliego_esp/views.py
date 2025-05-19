@@ -1,4 +1,5 @@
 # views.py
+import sys
 from django.shortcuts import render, redirect
 from asgiref.sync import async_to_sync, sync_to_async
 from langchain_core.runnables import RunnableConfig
@@ -10,11 +11,15 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
 from django.template import loader
 from django.views.decorators.csrf import csrf_exempt
+import openai
+from django.conf import settings
 # import markdown
 
 from pliego_esp.forms import PliegoForm
 # from pliego_esp.graph import ttest_node
 from pliego_esp.services.graph_service import PliegoEspService
+from pliego_esp.utils.mejorar_titulo import mejorar_titulo_especificacion
+from pliego_esp.utils.similitud_titulos import calcular_similitud_titulos
 
 from rich.console import Console
 console = Console()
@@ -114,3 +119,247 @@ def pliego_especificaciones_view(request):
         form = PliegoForm()
     
     return render(request, "pliego_especificaciones.html", {"form": form})
+
+@csrf_exempt
+def nuevo_pliego_view(request):
+    pasos = [
+        {"numero": 1, "nombre": "Nombre Actividad"},
+        {"numero": 2, "nombre": "Especificación Técnica Base"},
+        {"numero": 3, "nombre": "Parámetros"},
+        {"numero": 4, "nombre": "Actividades Adicionales"},
+    ]
+    paso_actual = int(request.GET.get('paso', 1))
+
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            paso = data.get('paso', 1)
+
+            if paso == 1:
+                print("Procesando paso 1", file=sys.stderr)
+                # Obtener datos del paso 1
+                titulo_original = data.get('titulo_original', '')
+                titulo_sugerido = data.get('titulo_sugerido', '')
+                titulo_final = data.get('titulo_final', '')
+                
+                # Guardar en la sesión
+                request.session['paso1_data'] = {
+                    'titulo_original': titulo_original,
+                    'titulo_sugerido': titulo_sugerido,
+                    'titulo_final': titulo_final,
+                    'sugerencia_aceptada': titulo_final == titulo_sugerido
+                }
+                
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Datos del paso 1 guardados correctamente',
+                    'paso': paso + 1
+                })
+            elif paso == 2:
+                print("Procesando paso 2", file=sys.stderr)
+                # Calcular similitud entre títulos
+                paso1_data = request.session.get('paso1_data', {})
+                titulo_original = paso1_data.get('titulo_original', '')
+                titulo_sugerido = paso1_data.get('titulo_sugerido', '')
+                
+                resultado_similitud = calcular_similitud_titulos(titulo_original, titulo_sugerido)
+                
+                if resultado_similitud['success']:
+                    # Encontrar el documento con mejor score
+                    mejor_score = max(resultado_similitud['estadisticas']['mejor_score_original'], 
+                                    resultado_similitud['estadisticas']['mejor_score_sugerido'])
+                    
+                    mejor_documento = resultado_similitud['ranking'][0]['document']
+                    nombre_archivo = resultado_similitud['ranking'][0]['nombre_archivo']
+                    
+                    if mejor_documento:
+                        request.session['paso2_data'] = {
+                            'mejor_documento': mejor_documento,
+                            'nombre_archivo': nombre_archivo,
+                            'mejor_score': mejor_score
+                        }
+                    
+                    return JsonResponse({
+                        'success': True,
+                        'message': 'Análisis de similitud completado',
+                        'ranking': resultado_similitud['ranking'],
+                        'estadisticas': resultado_similitud['estadisticas']
+                    })
+                else:
+                    return JsonResponse({
+                        'success': False,
+                        'error': resultado_similitud.get('error', 'Error desconocido')
+                    }, status=500)
+            
+            elif paso == 3:
+                print("Procesando paso 3", file=sys.stderr)
+                
+                # Obtener el nombre del archivo base
+                archivo_base = request.session.get('paso2_data', {}).get('nombre_archivo', '')
+                ruta_archivo = os.path.join(settings.MEDIA_ROOT, 'Markdowns', archivo_base)
+                
+                # Leer el contenido del archivo
+                try:
+                    with open(ruta_archivo, 'r', encoding='utf-8') as file:
+                        contenido = file.read()
+                        console.print("Contenido del archivo:", style="bold green")
+                        console.print(contenido)
+                        
+                        # Extraer parámetros técnicos y adicionales
+                        parametros = extraer_parametros_tecnicos(contenido)
+                        adicionales = extraer_adicionales(contenido)
+                        
+                        console.print("\nParámetros técnicos extraídos:", style="bold yellow")
+                        console.print(parametros)
+                        console.print("\nAdicionales extraídos:", style="bold yellow")
+                        console.print(adicionales)
+                        
+                        return JsonResponse({
+                            'success': True,
+                            'message': 'Parámetros extraídos correctamente',
+                            'parametros_tecnicos': parametros,
+                            'adicionales': adicionales
+                        })
+                        
+                        # # Guardar el contenido y los datos extraídos en la sesión
+                        # request.session['paso3_data'] = {
+                        #     'contenido': contenido,
+                        #     'archivo_base': archivo_base,
+                        #     'parametros_tecnicos': parametros,
+                        #     'adicionales': adicionales
+                        # }
+                except Exception as e:
+                    console.print(f"Error al leer el archivo: {str(e)}", style="bold red")
+                    return JsonResponse({
+                        'success': False,
+                        'error': f'Error al leer el archivo: {str(e)}'
+                    }, status=500)
+
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Datos del paso 3 procesados correctamente',
+                    'archivo_base': archivo_base,
+                    'parametros_tecnicos': parametros,
+                    'adicionales': adicionales,
+                    'paso': paso + 1
+                })
+
+            # else:
+            #     # Para otros pasos, mantener la lógica existente
+            #     especificacion = data.get('especificacion', '')
+                
+            #     if not especificacion:
+            #         return JsonResponse({'error': 'La especificación está vacía'}, status=400)
+                
+            #     return JsonResponse({
+            #         'success': True,
+            #         'message': 'Especificación guardada correctamente',
+            #         'paso': paso
+            #     })
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+    # Para GET requests, incluir los datos del paso 1 y similitud si existen
+    paso1_data = request.session.get('paso1_data', {})
+    paso2_data = request.session.get('paso2_data', {})
+    
+    
+    return render(request, 'pasos.html', {
+        'pasos': pasos,
+        'paso_actual': paso_actual,
+        'paso1_data': paso1_data,
+        'paso2_data': paso2_data
+    })
+
+@csrf_exempt
+def mejorar_titulo(request):
+    if request.method == 'POST':
+        try:
+            # Decodificar el body como UTF-8
+            body = request.body.decode('utf-8')
+            print(f"Body recibido: {body}")
+            
+            data = json.loads(body)
+            titulo_especificacion = data.get('titulo_especificacion', '')
+            
+            if not titulo_especificacion:
+                return JsonResponse({'error': 'La especificación está vacía'}, status=400)
+            
+            resultado = mejorar_titulo_especificacion(titulo_especificacion)
+            
+            if resultado['success']:
+                return JsonResponse({
+                    'success': True,
+                    'titulo_especificacion_mejorado': resultado['titulo_especificacion_mejorado']
+                })
+            else:
+                return JsonResponse({'error': resultado['error']}, status=500)
+            
+        except Exception as e:
+            print(f"Error: {str(e)}")
+            return JsonResponse({'error': str(e)}, status=500)
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+def extraer_parametros_tecnicos(contenido):
+    """Extrae los parámetros técnicos de un documento Markdown."""
+    import re
+    
+    # Buscar la sección de parámetros técnicos
+    patron = r"### Parámetros Técnicos\n\n(.*?)(?=\n\n###|\Z)"
+    match = re.search(patron, contenido, re.DOTALL)
+    
+    if not match:
+        return []
+    
+    # Extraer la tabla
+    tabla = match.group(1)
+    lineas = tabla.strip().split('\n')
+    
+    # Procesar la tabla
+    parametros = []
+    for linea in lineas[2:]:  # Saltar las líneas de encabezado y separador
+        if linea.strip():
+            # Dividir por el carácter | y limpiar espacios
+            columnas = [col.strip() for col in linea.split('|') if col.strip()]
+            if len(columnas) >= 2:
+                parametro = {
+                    'nombre': columnas[0],
+                    'opciones': columnas[1].split(', ') if len(columnas) > 1 else [],
+                    'valor_defecto': columnas[2] if len(columnas) > 2 else None
+                }
+                parametros.append(parametro)
+    
+    return parametros
+
+def extraer_adicionales(contenido):
+    """Extrae los adicionales de un documento Markdown."""
+    import re
+    
+    # Buscar la sección de adicionales
+    patron = r"### Adicionales\n\n(.*?)(?=\n\n###|\Z)"
+    match = re.search(patron, contenido, re.DOTALL)
+    
+    if not match:
+        return []
+    
+    # Extraer la lista de adicionales
+    adicionales_texto = match.group(1)
+    lineas = adicionales_texto.strip().split('\n')
+    
+    # Procesar los adicionales
+    adicionales = []
+    for linea in lineas:
+        if linea.strip():
+            # Extraer el texto entre ** si existe
+            match = re.search(r'\*\*(.*?)\*\*:\s*(.*)', linea)
+            if match:
+                nombre = match.group(1).strip()
+                descripcion = match.group(2).strip()
+                adicionales.append({
+                    'nombre': nombre,
+                    'descripcion': descripcion
+                })
+    
+    return adicionales

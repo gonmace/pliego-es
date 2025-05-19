@@ -6,7 +6,7 @@ from multiupload_plus.fields import MultiFileField
 class EmbeddingsForm(forms.Form):
     archivos_md = MultiFileField(
         min_num=1,
-        max_num=10,
+        max_num=20,
         max_file_size=1024*1024*5,  # 5MB
         label="Archivos Markdown"
     )

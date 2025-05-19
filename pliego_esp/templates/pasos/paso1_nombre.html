@@ -1,0 +1,156 @@
+{% load static crispy_forms_tags tailwind_tags %}
+
+<div class="flex flex-col items-center justify-center mt-6">
+  <div class="card w-full max-w-4xl bg-base-100 shadow-xl">
+    <div class="card-body flex flex-row items-center gap-4">
+      <div class="flex-1">
+        <h2 class="card-title text-xl font-bold">Nombre de la Actividad</h2>
+        <p class="text-base-content/70">Ingresa el nombre de la actividad (especificación)</p>
+      </div>
+      
+      <form id="especificacionForm" class="flex-1 flex items-center gap-4">
+        <input type="hidden" name="paso" value="2">
+        <div class="form-control flex-1">
+          <input 
+            type="text" 
+            name="llegada" 
+            id="especificacionInput"
+            class="input input-bordered w-full" 
+            placeholder="Ej.: Piso de Hormigón Armado H30 e=20 cm"
+            required
+          >
+        </div>
+        
+        <button type="submit" class="btn btn-primary whitespace-nowrap">
+          <span class="normal-text">Continuar</span>
+          <span class="loading loading-spinner loading-sm hidden"></span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Card para mostrar la sugerencia -->
+  <div id="sugerenciaCard" class="card w-full max-w-4xl bg-base-100 shadow-xl mt-4 hidden">
+    <div class="card-body">
+      <h3 class="card-title text-lg font-semibold">Sugerencia de Mejora del título para la actividad:</h3>
+      <h3 id="sugerenciaTexto" class="text-blue-600 text-base font-bold italic"></h3>
+      <div class="card-actions justify-end mt-4">
+        <button class="btn btn-primary" onclick="manejarSugerencia('aceptar')">Usar esta sugerencia</button>
+        <button class="btn btn-secondary" onclick="manejarSugerencia('descartar')">Descartar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('especificacionForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const form = this;
+  const submitBtn = form.querySelector('button[type="submit"]');
+  const normalText = submitBtn.querySelector('.normal-text');
+  const loadingSpinner = submitBtn.querySelector('.loading-spinner');
+  const input = document.getElementById('especificacionInput');
+  const sugerenciaCard = document.getElementById('sugerenciaCard');
+  const sugerenciaTexto = document.getElementById('sugerenciaTexto');
+  
+  try {
+    // Mostrar loading
+    normalText.classList.add('hidden');
+    loadingSpinner.classList.remove('hidden');
+    submitBtn.disabled = true;
+    
+    // Obtener los datos del formulario
+    const formData = new FormData(form);
+    const data = {
+      "titulo_especificacion": input.value,
+      "paso": formData.get('paso')
+    };
+    
+    // Realizar la petición AJAX
+    const response = await fetch('/pliego/api/mejorar-titulo/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: JSON.stringify(data)
+    });
+    
+    if (!response.ok) {
+      throw new Error('Error en la solicitud');
+    }
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      // Mostrar la sugerencia
+      sugerenciaTexto.textContent = result.titulo_especificacion_mejorado;
+      sugerenciaCard.classList.remove('hidden');
+    } else {
+      throw new Error(result.error || 'Error desconocido');
+    }
+    
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Hubo un error al procesar la solicitud');
+  } finally {
+    // Restaurar el botón
+    normalText.classList.remove('hidden');
+    loadingSpinner.classList.add('hidden');
+    submitBtn.disabled = false;
+  }
+});
+
+async function manejarSugerencia(accion) {
+  const tituloOriginal = document.getElementById('especificacionInput').value;
+  const tituloSugerido = document.getElementById('sugerenciaTexto').textContent;
+  
+  try {
+    const response = await fetch('/pliego/nuevo-pliego/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: JSON.stringify({
+        paso: 1,
+        titulo_original: tituloOriginal,
+        titulo_sugerido: tituloSugerido,
+        titulo_final: accion === 'aceptar' ? tituloSugerido : tituloOriginal
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('Error en la solicitud');
+    }
+
+    const result = await response.json();
+    
+    if (result.success) {
+      window.location.href = '?paso=2';
+    } else {
+      throw new Error(result.error || 'Error desconocido');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Hubo un error al procesar la solicitud');
+  }
+}
+
+// Función para obtener el token CSRF
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+</script>

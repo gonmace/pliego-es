@@ -1,0 +1,151 @@
+{% load static crispy_forms_tags tailwind_tags pliego_filters %}
+
+<div class="flex flex-col items-center justify-center mt-6">
+  <div class="card w-full max-w-4xl bg-base-100 shadow-xl">
+    <div class="card-body">
+      <div class="flex flex-row items-center justify-between">
+        <h2 class="card-title text-xl font-bold">Parámetros Técnicos</h2>
+        <h3 class="card-title text-lg font-bold text-blue-600">{{ paso1_data.titulo_final }}</h3>
+      </div>
+
+      <!-- Formulario de parámetros -->
+      <div class="mt-6">
+        <form id="parametrosForm" class="space-y-4">
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">Parámetros Técnicos</span>
+            </label>
+            <div id="parametrosContainer" class="space-y-4">
+              <!-- Los parámetros se cargarán aquí dinámicamente -->
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Botones de navegación -->
+      <div class="card-actions justify-end mt-6">
+        <button onclick="window.location.href='?paso=2'" class="btn btn-outline">Anterior</button>
+        <button onclick="guardarParametros()" class="btn btn-primary">Siguiente</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Función para obtener el token CSRF
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+// Función para crear el HTML de un parámetro
+function crearParametroHTML(parametro, index) {
+  return `
+    <div class="card bg-base-200 p-4">
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text font-bold">${parametro.nombre}</span>
+        </label>
+        <select class="select select-bordered w-full" name="parametro_${index}">
+          ${parametro.opciones.map(opcion => 
+            `<option value="${opcion}" ${opcion === parametro.valor_defecto ? 'selected' : ''}>${opcion}</option>`
+          ).join('')}
+        </select>
+      </div>
+    </div>
+  `;
+}
+
+// Función para actualizar la UI con los parámetros
+function actualizarUI(resultado) {
+  const parametrosContainer = document.getElementById('parametrosContainer');
+  
+  if (resultado.success && resultado.parametros_tecnicos) {
+    const html = resultado.parametros_tecnicos.map((parametro, index) => 
+      crearParametroHTML(parametro, index)
+    ).join('');
+    
+    parametrosContainer.innerHTML = html;
+  } else {
+    parametrosContainer.innerHTML = `
+      <div class="alert alert-error">
+        <span>Error al cargar los parámetros: ${resultado.error || 'Error desconocido'}</span>
+      </div>`;
+  }
+}
+
+// Función para guardar los parámetros
+function guardarParametros() {
+  const form = document.getElementById('parametrosForm');
+  const parametros = {};
+  
+  // Recopilar los valores seleccionados
+  form.querySelectorAll('select').forEach((select, index) => {
+    parametros[`parametro_${index}`] = select.value;
+  });
+  
+  // Enviar los datos al servidor
+  fetch('/pliego/nuevo-pliego/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCookie('csrftoken')
+    },
+    body: JSON.stringify({
+      paso: 3,
+      parametros: parametros
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      window.location.href = '?paso=4';
+    } else {
+      console.error('Error:', data.error);
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+}
+
+// Realizar la petición al cargar la página
+document.addEventListener('DOMContentLoaded', async function() {
+  try {
+    const response = await fetch('/pliego/nuevo-pliego/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: JSON.stringify({
+        paso: 3
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('Error en la solicitud');
+    }
+
+    const resultado = await response.json();
+    console.log('Respuesta del servidor:', resultado);
+    actualizarUI(resultado);
+  } catch (error) {
+    console.error('Error:', error);
+    document.getElementById('parametrosContainer').innerHTML = `
+      <div class="alert alert-error">
+        <span>Error al procesar la solicitud: ${error.message}</span>
+      </div>`;
+  }
+});
+</script>

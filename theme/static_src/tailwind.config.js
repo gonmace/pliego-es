@@ -1,5 +1,6 @@
 module.exports = {
     content: [
+        '../../templates/*.{html,js,py}',
         '../../esp_generica/*.{html,js,py}',
         '../../esp_generica/templates/*.{html,js,py}',
         '../../esp_generica/forms.py',

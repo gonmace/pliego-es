@@ -28,7 +28,7 @@
     <!-- <script src="{% static 'constructor-app/js/modules/main.js' %}"></script> -->
 </head>
 
-<body>
+<body class="{% block body_class %}{% endblock %} min-h-screen">
     <!--Navbar-->
     <!-- <div class="navbar navbar-fixed-top navbar-primary main" role="navigation">
         <div class="navbar-header pull-left">

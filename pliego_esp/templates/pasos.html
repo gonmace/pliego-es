@@ -1,0 +1,61 @@
+{% extends "base_constructor-app.html" %}
+{% load static crispy_forms_tags tailwind_tags %}
+
+{% block meta %}
+
+{% endblock %}
+
+{% block css %}
+  {% tailwind_css %}
+{% endblock %}
+
+{% block title %}
+{% endblock %}
+
+{% block body_class %}bg-neutral{% endblock %}
+
+{% block content %}
+<ul class="steps w-full mt-4 text-neutral-content">
+  {% for paso in pasos %}
+  <li class="step {% if paso.numero <= paso_actual %}step-primary{% endif %}">
+    {{ paso.nombre }}
+  </li>
+  {% endfor %}
+</ul>
+
+<!-- Contenido del paso -->
+{% if paso_actual == 1 %}
+  {% include "pasos/paso1_nombre.html" %}
+{% elif paso_actual == 2 %}
+  {% include "pasos/paso2_esp_base.html" %}
+{% elif paso_actual == 3 %}
+  {% include "pasos/paso3_parametros.html" %}
+{% elif paso_actual == 4 %}
+<form method="get" action=".">
+  <input type="hidden" name="paso" value="5">
+  <label class="block mb-4">
+    <span class="text-gray-700">Nombre del propietario:</span>
+    <input type="text" name="propietario" class="input input-bordered w-full">
+  </label>
+  <button class="btn btn-primary">Siguiente</button>
+</form>
+{% elif paso_actual == 5 %}
+<form method="get" action=".">
+  <input type="hidden" name="paso" value="6">
+  <label class="block mb-4">
+    <span class="text-gray-700">Descripción del sitio:</span>
+    <input type="text" name="sitio" class="input input-bordered w-full">
+  </label>
+  <button class="btn btn-primary">Siguiente</button>
+</form>
+{% elif paso_actual == 6 %}
+<div class="text-center">
+  <p class="text-green-600 font-semibold text-xl mb-4">¡Formulario completo!</p>
+  <a href="?paso=1" class="btn btn-outline">Volver al inicio</a>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block js %}
+
+{% endblock %}

@@ -3,9 +3,12 @@ import os
 import numpy as np
 from typing import List, Dict
 from langchain_openai import OpenAIEmbeddings
-from langchain_community.vectorstores import Chroma
+from langchain_chroma import Chroma
 from langchain_core.documents import Document
 from django.conf import settings
+
+from rich.console import Console
+console = Console()
 
 # Definir la ruta base para la base de datos vectorial
 VECTOR_DB_PATH = os.path.join(settings.BASE_DIR, 'chroma_db')
@@ -20,7 +23,7 @@ def listar_embeddings() -> List[Dict]:
     try:
         # Verificar si existe el directorio de la base de datos
         if not os.path.exists(VECTOR_DB_PATH):
-            print(f"El directorio {VECTOR_DB_PATH} no existe")
+            console.print(f"[yellow]El directorio {VECTOR_DB_PATH} no existe[/yellow]")
             return []
             
         # Inicializar embeddings
@@ -38,30 +41,31 @@ def listar_embeddings() -> List[Dict]:
         docs = vectorstore.get()
         
         if not docs or not docs['ids']:
-            print("No se encontraron documentos en la base de datos")
+            console.print("[yellow]No se encontraron documentos en la base de datos[/yellow]")
             return []
             
-        print(f"Documentos encontrados: {len(docs['ids'])}")  # Debug log
+        console.print(f"[green]Documentos encontrados: {len(docs['ids'])}[/green]")
         
         # Formatear resultados
         resultados = []
         for i, doc in enumerate(docs['ids']):
             try:
+                metadata = docs['metadatas'][i]
                 resultados.append({
                     'id': doc,
-                    'titulo': docs['metadatas'][i]['titulo'],
-                    'descripcion': docs['metadatas'][i]['descripcion'],
-                    'nombre_archivo': docs['metadatas'][i]['nombre_archivo']
+                    'titulo': metadata.get('titulo', 'Sin título'),
+                    'descripcion': metadata.get('descripcion', 'Sin descripción'),
+                    'nombre_archivo': metadata.get('nombre_archivo', 'Sin nombre de archivo')
                 })
             except Exception as e:
-                print(f"Error al procesar documento {i}: {str(e)}")
+                console.print(f"[red]Error al procesar documento {i}: {str(e)}[/red]")
                 continue
         
-        print(f"Resultados formateados: {len(resultados)}")  # Debug log
+        console.print(f"[green]Resultados formateados: {len(resultados)}[/green]")
         return resultados
         
     except Exception as e:
-        print(f"Error al listar embeddings: {str(e)}")
+        console.print(f"[red]Error al listar embeddings: {str(e)}[/red]")
         return []
 
 def borrar_embedding(embedding_id: str) -> bool:
@@ -91,7 +95,7 @@ def borrar_embedding(embedding_id: str) -> bool:
         
         return True
     except Exception as e:
-        print(f"Error al borrar embedding: {str(e)}")
+        console.print(f"[red]Error al borrar embedding: {str(e)}[/red]")
         return False
 
 def procesar_embeddings(json_path: str) -> str:
@@ -104,43 +108,57 @@ def procesar_embeddings(json_path: str) -> str:
     Returns:
         str: Ruta a la base de datos de Chroma
     """
-    # Inicializar el modelo de embeddings
-    embeddings = OpenAIEmbeddings(
-        model="text-embedding-ada-002"
-    )
-    
-    # Cargar datos del JSON
-    with open(json_path, 'r', encoding='utf-8') as f:
-        datos = json.load(f)
-    
-    # Preparar documentos para ChromaDB
-    documentos: List[Document] = []
-    for item in datos:
-        # Crear documento con el texto para embedding y metadatos
-        doc = Document(
-            page_content=item['texto_para_embedding'],
-            metadata={
-                'titulo': item['titulo'],
-                'descripcion': item['descripcion'],
-                'nombre_archivo': item['nombre_archivo']
-            }
+    try:
+        # Inicializar el modelo de embeddings
+        embeddings = OpenAIEmbeddings(
+            model="text-embedding-ada-002"
         )
-        documentos.append(doc)
-    
-    # Crear directorio para la base de datos si no existe
-    os.makedirs(VECTOR_DB_PATH, exist_ok=True)
-    
-    # Crear y persistir la base de datos de vectores
-    vectorstore = Chroma.from_documents(
-        documents=documentos,
-        embedding=embeddings,
-        persist_directory=VECTOR_DB_PATH
-    )
-    
-    # Persistir la base de datos
-    vectorstore.persist()
-    
-    return VECTOR_DB_PATH
+        
+        # Cargar datos del JSON
+        with open(json_path, 'r', encoding='utf-8') as f:
+            datos = json.load(f)
+        
+        # Preparar documentos para ChromaDB
+        documentos: List[Document] = []
+        for item in datos:
+            # Validar que los campos requeridos existan
+            if not all(key in item for key in ['texto_para_embedding', 'titulo', 'nombre_archivo']):
+                console.print(f"[red]Error: Faltan campos requeridos en el documento: {item}[/red]")
+                continue
+                
+            # Crear documento con el texto para embedding y metadatos
+            doc = Document(
+                page_content=item['texto_para_embedding'],
+                metadata={
+                    'titulo': item['titulo'],
+                    'nombre_archivo': item['nombre_archivo'],
+                    'descripcion': item.get('descripcion', '')  # Campo opcional
+                }
+            )
+            documentos.append(doc)
+        
+        if not documentos:
+            console.print("[red]No se pudieron procesar documentos válidos[/red]")
+            return ""
+            
+        console.print(f"[green]Procesando {len(documentos)} documentos...[/green]")
+        
+        # Crear directorio para la base de datos si no existe
+        os.makedirs(VECTOR_DB_PATH, exist_ok=True)
+        
+        # Crear la base de datos de vectores (la persistencia es automática)
+        vectorstore = Chroma.from_documents(
+            documents=documentos,
+            embedding=embeddings,
+            persist_directory=VECTOR_DB_PATH
+        )
+        
+        console.print("[green]Embeddings creados exitosamente[/green]")
+        return VECTOR_DB_PATH
+        
+    except Exception as e:
+        console.print(f"[red]Error al procesar embeddings: {str(e)}[/red]")
+        return ""
 
 def buscar_similares(query: str, n_results: int = 5) -> List[Dict]:
     """
@@ -236,5 +254,5 @@ def obtener_vector_embedding(embedding_id: str) -> Dict:
         }
         
     except Exception as e:
-        print(f"Error al obtener vector: {str(e)}")
+        console.print(f"[red]Error al obtener vector: {str(e)}[/red]")
         return {'error': str(e)} 

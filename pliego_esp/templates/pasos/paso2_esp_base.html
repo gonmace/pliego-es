@@ -1,0 +1,160 @@
+{% load static crispy_forms_tags tailwind_tags pliego_filters %}
+
+<div class="flex flex-col items-center justify-center mt-6">
+  <div class="card w-full max-w-4xl bg-base-100 shadow-xl">
+    <div class="card-body">
+      <div class="flex flex-row items-center justify-between ">
+        <h2 class="card-title text-xl font-bold">Especificación Técnica Base</h2>
+        <h3 class="card-title text-lg font-bold text-blue-600">{{ paso1_data.titulo_final }}</h3>
+      </div>
+      
+      <!-- Resultados de similitud -->
+      <div id="resultadosSimilitud">
+        <div class="flex justify-center">
+          <span class="loading loading-spinner loading-lg"></span>
+        </div>
+      </div>
+
+      <!-- Nota de recomendación -->
+      <div class="alert alert-info mt-4">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <span>Es recomendable que la Similitud sea mayor a 80%</span>
+      </div>
+
+      <!-- Botones de navegación -->
+      <div class="card-actions justify-end mt-6">
+        <button onclick="window.location.href='?paso=1'" class="btn btn-outline">Anterior</button>
+        <button onclick="window.location.href='?paso=3'" class="btn btn-primary">Siguiente</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Función para obtener el token CSRF
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+// Función para actualizar la UI con los resultados
+function actualizarUI(resultado) {
+  const resultadosDiv = document.getElementById('resultadosSimilitud');
+  
+  if (resultado.success) {
+    // Encontrar el documento con el mejor score
+    const mejorScore = Math.max(resultado.estadisticas.mejor_score_original, resultado.estadisticas.mejor_score_sugerido);
+    const mejorDocumento = resultado.ranking.find(item => 
+      Math.max(item.score_original, item.score_sugerido) === mejorScore
+    );
+
+    let html = `
+      <div class="card bg-base-200 mb-6">
+        <div class="card-body">
+          <div class="flex items-center justify-between">
+            <div class="stat">
+              <div class="stat-title">Similitud</div>
+              <div class="stat-value text-primary">
+                ${(mejorScore * 100).toFixed(1)}%
+              </div>
+            </div>
+            <div class="stat">
+              <div class="stat-title font-bold">Especificación Técnica base:</div>
+              <div class="stat-value text-lg">
+                ${mejorDocumento ? mejorDocumento.document : 'No se encontraron en documento genérico para la especificación'}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+
+    resultadosDiv.innerHTML = html;
+
+    // Guardar el nombre del documento en la sesión
+    if (mejorDocumento) {
+      fetch('/pliego/nuevo-pliego/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+          paso: 2,
+          documento_base: mejorDocumento.document
+        })
+      });
+    }
+  } else {
+    resultadosDiv.innerHTML = `
+      <div class="alert alert-error">
+        <span>Error al calcular la similitud: ${resultado.error}</span>
+      </div>`;
+  }
+}
+
+// Función para guardar y avanzar
+function guardarYAvanzar() {
+  const mejorDocumento = document.querySelector('.stat-value.text-lg').textContent.trim();
+  
+  fetch('/pliego/nuevo-pliego/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCookie('csrftoken')
+    },
+    body: JSON.stringify({
+      paso: 2,
+      documento_base: mejorDocumento
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      window.location.href = '?paso=3';
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+}
+
+// Realizar la petición al cargar la página
+document.addEventListener('DOMContentLoaded', async function() {
+  try {
+    const response = await fetch('/pliego/nuevo-pliego/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: JSON.stringify({
+        paso: 2
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('Error en la solicitud');
+    }
+
+    const resultado = await response.json();
+    console.log('Respuesta del servidor:', resultado); // Para debugging
+    actualizarUI(resultado);
+  } catch (error) {
+    console.error('Error:', error);
+    document.getElementById('resultadosSimilitud').innerHTML = `
+      <div class="alert alert-error">
+        <span>Error al procesar la solicitud: ${error.message}</span>
+      </div>`;
+  }
+});
+</script>

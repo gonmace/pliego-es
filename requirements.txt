@@ -26,4 +26,4 @@ pandoc==2.4
 beautifulsoup4==4.13.4
 html2text>=2025.4.15
 
-django-multiupload-plus==1.0.1
+scipy==1.15.3
