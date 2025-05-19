@@ -11,13 +11,31 @@
       <!-- Formulario de parámetros -->
       <div class="mt-6">
         <form id="parametrosForm" class="space-y-4">
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text">Parámetros Técnicos</span>
-            </label>
-            <div id="parametrosContainer" class="space-y-4">
-              <!-- Los parámetros se cargarán aquí dinámicamente -->
-            </div>
+          <div class="overflow-x-auto">
+            <table class="table table-zebra w-full table-compact">
+              <thead>
+                <tr class="bg-neutral text-white">
+                  <th>Parámetro Técnico</th>
+                  <th>Recomendación</th>
+                  <th class="text-center">Valor Asignado</th>
+                </tr>
+              </thead>
+              <tbody id="parametrosContainer">
+                <!-- Los parámetros se cargarán aquí dinámicamente -->
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="3" class="text-center py-2">
+                    <button type="button" onclick="agregarNuevaFila()" class="btn btn-sm btn-outline">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                      </svg>
+                      Agregar Parámetro
+                    </button>
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
           </div>
         </form>
       </div>
@@ -51,19 +69,55 @@ function getCookie(name) {
 // Función para crear el HTML de un parámetro
 function crearParametroHTML(parametro, index) {
   return `
-    <div class="card bg-base-200 p-4">
-      <div class="form-control">
-        <label class="label">
-          <span class="label-text font-bold">${parametro.nombre}</span>
-        </label>
-        <select class="select select-bordered w-full" name="parametro_${index}">
+    <tr>
+      <td class="py-1">
+        <input type="text" 
+               class="input input-bordered input-xs w-full" 
+               name="nombre_${index}" 
+               value="${parametro.nombre || ''}"
+               placeholder="Nombre del parámetro">
+      </td>
+      <td class="py-1">
+        <ul class="list-disc list-inside">
           ${parametro.opciones.map(opcion => 
-            `<option value="${opcion}" ${opcion === parametro.valor_defecto ? 'selected' : ''}>${opcion}</option>`
+            `<li class="text-sm">${opcion}</li>`
           ).join('')}
-        </select>
-      </div>
-    </div>
+        </ul>
+      </td>
+      <td class="py-1">
+        <input type="text" 
+               class="input input-bordered input-xs w-full" 
+               name="parametro_${index}" 
+               value="${parametro.valor_defecto || ''}"
+               placeholder="Ingrese valor">
+      </td>
+    </tr>
   `;
+}
+
+// Función para agregar una nueva fila
+function agregarNuevaFila() {
+  const parametrosContainer = document.getElementById('parametrosContainer');
+  const nuevaFila = `
+    <tr>
+      <td class="py-1">
+        <input type="text" 
+               class="input input-bordered input-xs w-full" 
+               name="nombre_nuevo_${parametrosContainer.children.length}" 
+               placeholder="Nombre del parámetro">
+      </td>
+      <td class="py-1">
+        <span class="text-sm text-gray-500">-</span>
+      </td>
+      <td class="py-1">
+        <input type="text" 
+               class="input input-bordered input-xs w-full" 
+               name="parametro_nuevo_${parametrosContainer.children.length}" 
+               placeholder="Ingrese valor">
+      </td>
+    </tr>
+  `;
+  parametrosContainer.insertAdjacentHTML('beforeend', nuevaFila);
 }
 
 // Función para actualizar la UI con los parámetros
@@ -78,20 +132,45 @@ function actualizarUI(resultado) {
     parametrosContainer.innerHTML = html;
   } else {
     parametrosContainer.innerHTML = `
-      <div class="alert alert-error">
-        <span>Error al cargar los parámetros: ${resultado.error || 'Error desconocido'}</span>
-      </div>`;
+      <tr>
+        <td colspan="3">
+          <div class="alert alert-error">
+            <span>Error al cargar los parámetros: ${resultado.error || 'Error desconocido'}</span>
+          </div>
+        </td>
+      </tr>`;
   }
 }
 
 // Función para guardar los parámetros
 function guardarParametros() {
   const form = document.getElementById('parametrosForm');
-  const parametros = {};
+  const parametros = [];
   
-  // Recopilar los valores seleccionados
-  form.querySelectorAll('select').forEach((select, index) => {
-    parametros[`parametro_${index}`] = select.value;
+  // Recopilar los valores de los parámetros originales
+  form.querySelectorAll('input[name^="parametro_"]').forEach((input) => {
+    if (!input.name.includes('nuevo')) {
+      const index = input.name.split('_')[1];
+      const nombreInput = form.querySelector(`input[name="nombre_${index}"]`);
+      if (nombreInput) {
+        parametros.push({
+          nombre: nombreInput.value,
+          valor: input.value
+        });
+      }
+    }
+  });
+
+  // Recopilar los valores de los nuevos parámetros
+  form.querySelectorAll('input[name^="parametro_nuevo_"]').forEach((input) => {
+    const index = input.name.split('_').pop();
+    const nombreInput = form.querySelector(`input[name="nombre_nuevo_${index}"]`);
+    if (nombreInput && nombreInput.value.trim() !== '') {
+      parametros.push({
+        nombre: nombreInput.value,
+        valor: input.value
+      });
+    }
   });
   
   // Enviar los datos al servidor
@@ -111,11 +190,30 @@ function guardarParametros() {
     if (data.success) {
       window.location.href = '?paso=4';
     } else {
-      console.error('Error:', data.error);
+      const parametrosContainer = document.getElementById('parametrosContainer');
+      parametrosContainer.insertAdjacentHTML('beforeend', `
+        <tr>
+          <td colspan="3">
+            <div class="alert alert-error">
+              <span>Error al guardar los parámetros: ${data.error || 'Error desconocido'}</span>
+            </div>
+          </td>
+        </tr>
+      `);
     }
   })
   .catch(error => {
     console.error('Error:', error);
+    const parametrosContainer = document.getElementById('parametrosContainer');
+    parametrosContainer.insertAdjacentHTML('beforeend', `
+      <tr>
+        <td colspan="3">
+          <div class="alert alert-error">
+            <span>Error al procesar la solicitud: ${error.message}</span>
+          </div>
+        </td>
+      </tr>
+    `);
   });
 }
 
@@ -143,9 +241,13 @@ document.addEventListener('DOMContentLoaded', async function() {
   } catch (error) {
     console.error('Error:', error);
     document.getElementById('parametrosContainer').innerHTML = `
-      <div class="alert alert-error">
-        <span>Error al procesar la solicitud: ${error.message}</span>
-      </div>`;
+      <tr>
+        <td colspan="3">
+          <div class="alert alert-error">
+            <span>Error al procesar la solicitud: ${error.message}</span>
+          </div>
+        </td>
+      </tr>`;
   }
 });
 </script>

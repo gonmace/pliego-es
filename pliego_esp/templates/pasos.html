@@ -31,28 +31,15 @@
 {% elif paso_actual == 3 %}
   {% include "pasos/paso3_parametros.html" %}
 {% elif paso_actual == 4 %}
-<form method="get" action=".">
-  <input type="hidden" name="paso" value="5">
-  <label class="block mb-4">
-    <span class="text-gray-700">Nombre del propietario:</span>
-    <input type="text" name="propietario" class="input input-bordered w-full">
-  </label>
-  <button class="btn btn-primary">Siguiente</button>
-</form>
+  {% include "pasos/paso4_adicionales.html" %}
 {% elif paso_actual == 5 %}
-<form method="get" action=".">
-  <input type="hidden" name="paso" value="6">
-  <label class="block mb-4">
-    <span class="text-gray-700">Descripción del sitio:</span>
-    <input type="text" name="sitio" class="input input-bordered w-full">
-  </label>
-  <button class="btn btn-primary">Siguiente</button>
-</form>
-{% elif paso_actual == 6 %}
+
 <div class="text-center">
   <p class="text-green-600 font-semibold text-xl mb-4">¡Formulario completo!</p>
   <a href="?paso=1" class="btn btn-outline">Volver al inicio</a>
 </div>
+{% elif paso_actual == 6 %}
+
 {% endif %}
 {% endblock %}
 

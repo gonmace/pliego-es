@@ -125,8 +125,9 @@ def nuevo_pliego_view(request):
     pasos = [
         {"numero": 1, "nombre": "Nombre Actividad"},
         {"numero": 2, "nombre": "Especificación Técnica Base"},
-        {"numero": 3, "nombre": "Parámetros"},
+        {"numero": 3, "nombre": "Parámetros Técnicos"},
         {"numero": 4, "nombre": "Actividades Adicionales"},
+        {"numero": 5, "nombre": "Generar Pliego"},
     ]
     paso_actual = int(request.GET.get('paso', 1))
 
@@ -194,68 +195,98 @@ def nuevo_pliego_view(request):
             elif paso == 3:
                 print("Procesando paso 3", file=sys.stderr)
                 
-                # Obtener el nombre del archivo base
-                archivo_base = request.session.get('paso2_data', {}).get('nombre_archivo', '')
-                ruta_archivo = os.path.join(settings.MEDIA_ROOT, 'Markdowns', archivo_base)
-                
-                # Leer el contenido del archivo
-                try:
-                    with open(ruta_archivo, 'r', encoding='utf-8') as file:
-                        contenido = file.read()
-                        console.print("Contenido del archivo:", style="bold green")
-                        console.print(contenido)
-                        
-                        # Extraer parámetros técnicos y adicionales
-                        parametros = extraer_parametros_tecnicos(contenido)
-                        adicionales = extraer_adicionales(contenido)
-                        
-                        console.print("\nParámetros técnicos extraídos:", style="bold yellow")
-                        console.print(parametros)
-                        console.print("\nAdicionales extraídos:", style="bold yellow")
-                        console.print(adicionales)
-                        
+                # Si es una solicitud GET o si no hay parámetros en el request, cargar la tabla
+                if request.method == 'GET' or not data.get('parametros'):
+                    # Obtener el nombre del archivo base
+                    archivo_base = request.session.get('paso2_data', {}).get('nombre_archivo', '')
+                    ruta_archivo = os.path.join(settings.MEDIA_ROOT, 'Markdowns', archivo_base)
+                    
+                    # Leer el contenido del archivo
+                    try:
+                        with open(ruta_archivo, 'r', encoding='utf-8') as file:
+                            contenido = file.read()
+                            
+                            # Extraer parámetros técnico
+                            parametros = extraer_parametros_tecnicos(contenido)
+                            
+                            return JsonResponse({
+                                'success': True,
+                                'message': 'Parámetros extraídos correctamente',
+                                'parametros_tecnicos': parametros,
+                            })
+                    except Exception as e:
+                        console.print(f"Error al leer el archivo: {str(e)}", style="bold red")
                         return JsonResponse({
-                            'success': True,
-                            'message': 'Parámetros extraídos correctamente',
-                            'parametros_tecnicos': parametros,
-                            'adicionales': adicionales
-                        })
-                        
-                        # # Guardar el contenido y los datos extraídos en la sesión
-                        # request.session['paso3_data'] = {
-                        #     'contenido': contenido,
-                        #     'archivo_base': archivo_base,
-                        #     'parametros_tecnicos': parametros,
-                        #     'adicionales': adicionales
-                        # }
-                except Exception as e:
-                    console.print(f"Error al leer el archivo: {str(e)}", style="bold red")
+                            'success': False,
+                            'error': f'Error al leer el archivo: {str(e)}'
+                        }, status=500)
+                
+                # Si hay parámetros en el request, guardarlos en la sesión
+                else:
+                    parametros = data.get('parametros', [])
+                    
+                    parametros_con_valor = [param for param in parametros if param.get('valor')]
+                    
+                    request.session['paso3_data'] = {
+                        'parametros': parametros_con_valor,
+                
+                    }
+                    
+                    console.print("Parámetros guardados correctamente", style="bold green")
+                    console.print(parametros_con_valor)
+                
                     return JsonResponse({
-                        'success': False,
-                        'error': f'Error al leer el archivo: {str(e)}'
-                    }, status=500)
-
-                return JsonResponse({
-                    'success': True,
-                    'message': 'Datos del paso 3 procesados correctamente',
-                    'archivo_base': archivo_base,
-                    'parametros_tecnicos': parametros,
-                    'adicionales': adicionales,
-                    'paso': paso + 1
-                })
-
-            # else:
-            #     # Para otros pasos, mantener la lógica existente
-            #     especificacion = data.get('especificacion', '')
+                        'success': True,
+                        'message': 'Parámetros guardados correctamente',
+                        'paso': paso + 1,
+                        'parametros': parametros_con_valor
+                    })
+            elif paso == 4:
+                print("Procesando paso 4", file=sys.stderr)
                 
-            #     if not especificacion:
-            #         return JsonResponse({'error': 'La especificación está vacía'}, status=400)
+                # Si es una solicitud GET o si no hay adicionales en el request, cargar la tabla
+                if request.method == 'GET' or not data.get('adicionales'):
+                    # Obtener el nombre del archivo base
+                    archivo_base = request.session.get('paso2_data', {}).get('nombre_archivo', '')
+                    ruta_archivo = os.path.join(settings.MEDIA_ROOT, 'Markdowns', archivo_base)
+                    
+                    # Leer el contenido del archivo
+                    try:
+                        with open(ruta_archivo, 'r', encoding='utf-8') as file:
+                            contenido = file.read()
+                            
+                            # Extraer adicionales
+                            adicionales = extraer_adicionales(contenido)
+                            
+                            return JsonResponse({
+                                'success': True,
+                                'message': 'Adicionales extraídos correctamente',
+                                'adicionales': adicionales,
+                            })
+                    except Exception as e:
+                        console.print(f"Error al leer el archivo: {str(e)}", style="bold red")
+                        return JsonResponse({
+                            'success': False,
+                            'error': f'Error al leer el archivo: {str(e)}'
+                        }, status=500)
                 
-            #     return JsonResponse({
-            #         'success': True,
-            #         'message': 'Especificación guardada correctamente',
-            #         'paso': paso
-            #     })
+                # Si hay adicionales en el request, guardarlos en la sesión
+                else:
+                    adicionales = data.get('adicionales', [])
+                    request.session['paso4_data'] = {
+                        'adicionales': adicionales
+                    }
+                    
+                    console.print("Adicionales guardados correctamente", style="bold green")
+                    console.print(adicionales)
+                    
+                    return JsonResponse({
+                        'success': True,
+                        'message': 'Adicionales guardados correctamente',
+                        'paso': paso + 1,
+                        'adicionales': adicionales
+                    })
+                
 
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
@@ -263,13 +294,14 @@ def nuevo_pliego_view(request):
     # Para GET requests, incluir los datos del paso 1 y similitud si existen
     paso1_data = request.session.get('paso1_data', {})
     paso2_data = request.session.get('paso2_data', {})
-    
+    paso3_data = request.session.get('paso3_data', {})
     
     return render(request, 'pasos.html', {
         'pasos': pasos,
         'paso_actual': paso_actual,
         'paso1_data': paso1_data,
-        'paso2_data': paso2_data
+        'paso2_data': paso2_data,
+        'paso3_data': paso3_data
     })
 
 @csrf_exempt
