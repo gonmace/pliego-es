@@ -120,6 +120,99 @@ def pliego_especificaciones_view(request):
     
     return render(request, "pliego_especificaciones.html", {"form": form})
 
+
+@csrf_exempt
+def mejorar_titulo(request):
+    if request.method == 'POST':
+        try:
+            # Decodificar el body como UTF-8
+            body = request.body.decode('utf-8')
+            print(f"Body recibido: {body}")
+            
+            data = json.loads(body)
+            titulo_especificacion = data.get('titulo_especificacion', '')
+            
+            if not titulo_especificacion:
+                return JsonResponse({'error': 'La especificación está vacía'}, status=400)
+            
+            resultado = mejorar_titulo_especificacion(titulo_especificacion)
+            
+            if resultado['success']:
+                return JsonResponse({
+                    'success': True,
+                    'titulo_especificacion_mejorado': resultado['titulo_especificacion_mejorado']
+                })
+            else:
+                return JsonResponse({'error': resultado['error']}, status=500)
+            
+        except Exception as e:
+            print(f"Error: {str(e)}")
+            return JsonResponse({'error': str(e)}, status=500)
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+def extraer_parametros_tecnicos(contenido):
+    """Extrae los parámetros técnicos de un documento Markdown."""
+    import re
+    
+    # Buscar la sección de parámetros técnicos
+    patron = r"### Parámetros Técnicos\n\n(.*?)(?=\n\n###|\Z)"
+    match = re.search(patron, contenido, re.DOTALL)
+    
+    if not match:
+        return []
+    
+    # Extraer la tabla
+    tabla = match.group(1)
+    lineas = tabla.strip().split('\n')
+    
+    # Procesar la tabla
+    parametros = []
+    for linea in lineas[2:]:  # Saltar las líneas de encabezado y separador
+        if linea.strip():
+            # Dividir por el carácter | y limpiar espacios
+            columnas = [col.strip() for col in linea.split('|') if col.strip()]
+            if len(columnas) >= 2:
+                parametro = {
+                    'nombre': columnas[0],
+                    'opciones': columnas[1].split(', ') if len(columnas) > 1 else [],
+                    'valor_defecto': columnas[2] if len(columnas) > 2 else None
+                }
+                parametros.append(parametro)
+    
+    return parametros
+
+def extraer_adicionales(contenido):
+    """Extrae los adicionales de un documento Markdown."""
+    import re
+    
+    # Buscar la sección de adicionales
+    patron = r"### Adicionales\n\n(.*?)(?=\n\n###|\Z)"
+    match = re.search(patron, contenido, re.DOTALL)
+    
+    if not match:
+        return []
+    
+    # Extraer la lista de adicionales
+    adicionales_texto = match.group(1)
+    lineas = adicionales_texto.strip().split('\n')
+    
+    # Procesar los adicionales
+    adicionales = []
+    for linea in lineas:
+        if linea.strip():
+            # Extraer el texto entre ** si existe
+            match = re.search(r'\*\*(.*?)\*\*:\s*(.*)', linea)
+            if match:
+                nombre = match.group(1).strip()
+                descripcion = match.group(2).strip()
+                adicionales.append({
+                    'nombre': nombre,
+                    'descripcion': descripcion
+                })
+    
+    return adicionales
+
 @csrf_exempt
 def nuevo_pliego_view(request):
     pasos = [
@@ -286,6 +379,8 @@ def nuevo_pliego_view(request):
                         'paso': paso + 1,
                         'adicionales': adicionales
                     })
+            elif paso == 5:
+                print("Procesando paso 5", file=sys.stderr)
                 
 
         except Exception as e:
@@ -295,103 +390,81 @@ def nuevo_pliego_view(request):
     paso1_data = request.session.get('paso1_data', {})
     paso2_data = request.session.get('paso2_data', {})
     paso3_data = request.session.get('paso3_data', {})
+    paso4_data = request.session.get('paso4_data', {})
     
     return render(request, 'pasos.html', {
         'pasos': pasos,
         'paso_actual': paso_actual,
         'paso1_data': paso1_data,
         'paso2_data': paso2_data,
-        'paso3_data': paso3_data
+        'paso3_data': paso3_data,
+        'paso4_data': paso4_data
     })
 
 @csrf_exempt
-def mejorar_titulo(request):
-    if request.method == 'POST':
-        try:
-            # Decodificar el body como UTF-8
-            body = request.body.decode('utf-8')
-            print(f"Body recibido: {body}")
+def generar_pliego(request):
+    if request.method == "POST":
+        request_type = request.POST.get('request_type')
+        if request_type == "inicio":
+            console.print("Generando pliego", style="bold green")
+            archivo_base = request.session.get('paso2_data', {}).get('nombre_archivo', '')
+            ruta_archivo = os.path.join(settings.MEDIA_ROOT, 'Markdowns', archivo_base)
             
-            data = json.loads(body)
-            titulo_especificacion = data.get('titulo_especificacion', '')
-            
-            if not titulo_especificacion:
-                return JsonResponse({'error': 'La especificación está vacía'}, status=400)
-            
-            resultado = mejorar_titulo_especificacion(titulo_especificacion)
-            
-            if resultado['success']:
+            contenido_pliego = ""
+            try:
+                with open(ruta_archivo, 'r', encoding='utf-8') as file:
+                    contenido_pliego = file.read()
+                    
+            except Exception as e:
+                console.print(f"Error al leer el archivo: {str(e)}", style="bold red")
                 return JsonResponse({
-                    'success': True,
-                    'titulo_especificacion_mejorado': resultado['titulo_especificacion_mejorado']
+                    'success': False,
+                    'error': f'Error al leer el archivo: {str(e)}'
+                }, status=500)
+            
+            titulo_pliego = request.session.get('paso1_data', {}).get('titulo_final', '')
+            parametros_tecnicos = request.session.get('paso3_data', {}).get('parametros', [])
+            adicionales = request.session.get('paso4_data', {}).get('adicionales', [])
+            
+            # console.print(titulo_pliego, style="bold green")
+            # console.print(parametros_tecnicos, style="bold green")
+            # console.print(adicionales, style="bold green")
+            # console.print(contenido_pliego, style="bold red")
+            
+            especificacion = {
+                "pliego_base": contenido_pliego,
+                "titulo": titulo_pliego,
+                "parametros_clave": parametros_tecnicos,
+                "adicionales": adicionales
+            }
+            
+            # Configurar el RunnableConfig
+            conversation_id = str(uuid.uuid4())
+            config = RunnableConfig(
+                recursion_limit=100,
+                configurable={
+                    "thread_id": conversation_id,
+                    "user": request.user.username
+                    }
+                )
+            
+            # Procesamos el mensaje usando el servicio de forma asíncrona
+            response_data = async_to_sync(PliegoEspService.process_pliego)(
+                input=especificacion,
+                config=config
+                )
+
+            if response_data["type"] == "__interrupt__":
+                return JsonResponse({
+                    'type': response_data["type"],
+                    'action': response_data["action"],
+                    'items': response_data['items'],
+                    'config': response_data['config'],
                 })
             else:
-                return JsonResponse({'error': resultado['error']}, status=500)
-            
-        except Exception as e:
-            print(f"Error: {str(e)}")
-            return JsonResponse({'error': str(e)}, status=500)
-    
-    return JsonResponse({'error': 'Método no permitido'}, status=405)
-
-def extraer_parametros_tecnicos(contenido):
-    """Extrae los parámetros técnicos de un documento Markdown."""
-    import re
-    
-    # Buscar la sección de parámetros técnicos
-    patron = r"### Parámetros Técnicos\n\n(.*?)(?=\n\n###|\Z)"
-    match = re.search(patron, contenido, re.DOTALL)
-    
-    if not match:
-        return []
-    
-    # Extraer la tabla
-    tabla = match.group(1)
-    lineas = tabla.strip().split('\n')
-    
-    # Procesar la tabla
-    parametros = []
-    for linea in lineas[2:]:  # Saltar las líneas de encabezado y separador
-        if linea.strip():
-            # Dividir por el carácter | y limpiar espacios
-            columnas = [col.strip() for col in linea.split('|') if col.strip()]
-            if len(columnas) >= 2:
-                parametro = {
-                    'nombre': columnas[0],
-                    'opciones': columnas[1].split(', ') if len(columnas) > 1 else [],
-                    'valor_defecto': columnas[2] if len(columnas) > 2 else None
-                }
-                parametros.append(parametro)
-    
-    return parametros
-
-def extraer_adicionales(contenido):
-    """Extrae los adicionales de un documento Markdown."""
-    import re
-    
-    # Buscar la sección de adicionales
-    patron = r"### Adicionales\n\n(.*?)(?=\n\n###|\Z)"
-    match = re.search(patron, contenido, re.DOTALL)
-    
-    if not match:
-        return []
-    
-    # Extraer la lista de adicionales
-    adicionales_texto = match.group(1)
-    lineas = adicionales_texto.strip().split('\n')
-    
-    # Procesar los adicionales
-    adicionales = []
-    for linea in lineas:
-        if linea.strip():
-            # Extraer el texto entre ** si existe
-            match = re.search(r'\*\*(.*?)\*\*:\s*(.*)', linea)
-            if match:
-                nombre = match.group(1).strip()
-                descripcion = match.group(2).strip()
-                adicionales.append({
-                    'nombre': nombre,
-                    'descripcion': descripcion
+                return JsonResponse({
+                    'content': response_data.get('content', ''),
+                    'token_cost': response_data.get('token_cost', 0),
+                    'conversation_id': response_data.get('conversation_id', '')
                 })
-    
-    return adicionales
+    return JsonResponse({'success': True, 'message': 'Pliego generado correctamente'})

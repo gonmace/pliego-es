@@ -1,0 +1,87 @@
+{% load static crispy_forms_tags tailwind_tags pliego_filters %}
+
+<div class="flex flex-col items-center justify-center mt-6">
+  <div class="card w-full max-w-4xl bg-base-100 shadow-xl">
+    <div class="card-body">
+      <div class="flex flex-row items-center justify-between">
+        <h2 class="card-title text-xl font-bold">{{ paso1_data.titulo_final }}</h2>
+      </div>
+
+
+
+      <!-- Botones de navegación -->
+      <div class="card-actions justify-end mt-6">
+        <button onclick="window.location.href='?paso=3'" class="btn btn-outline">Anterior</button>
+        <button onclick="guardarAdicionales()" class="btn btn-primary">Siguiente</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<script>
+  // Función para obtener el token CSRF
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  // Realizar la petición al cargar la página
+  document.addEventListener('DOMContentLoaded', async function () {
+    try {
+      const response = await fetch('/pliego/nuevo-pliego/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+          paso: 5
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Error en la solicitud');
+      }
+      const resultado = await response.json();
+      console.log('Respuesta del servidor:', resultado);
+      actualizarUI(resultado);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  
+    try {
+      const formData = new FormData();
+      formData.append('request_type', 'inicio');
+
+      const response = await fetch('/pliego/generar-pliego/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Error en la solicitud');
+      }
+      const resultado = await response.json();
+      console.log('Respuesta del servidor:', resultado);
+      actualizarUI(resultado);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+
+  });
+</script>

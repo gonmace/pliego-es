@@ -33,14 +33,14 @@
 {% elif paso_actual == 4 %}
   {% include "pasos/paso4_adicionales.html" %}
 {% elif paso_actual == 5 %}
-
-<div class="text-center">
+  {% include "pasos/paso5_pliego.html" %}
+<!-- <div class="text-center">
   <p class="text-green-600 font-semibold text-xl mb-4">¡Formulario completo!</p>
   <a href="?paso=1" class="btn btn-outline">Volver al inicio</a>
-</div>
-{% elif paso_actual == 6 %}
+</div> -->
 
 {% endif %}
+
 {% endblock %}
 
 {% block js %}
