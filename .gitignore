@@ -20,3 +20,4 @@ chromadb/
 pliegos_base/
 .cursor/
 .langgraph_api/
+chroma_db/
