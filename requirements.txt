@@ -29,4 +29,4 @@ html2text>=2025.4.15
 scipy==1.15.3
 gunicorn
 django-redis
-multiupload_plus
+django-multiupload-plus
