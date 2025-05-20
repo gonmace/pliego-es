@@ -10,13 +10,6 @@ services:
     networks:
       - pliego_network
 
-  pliego-redis:
-    image: redis:alpine
-    container_name: pliego-redis
-    restart: unless-stopped
-    networks:
-      - pliego_network
-
   pliego-django:
     build:
       context: .
@@ -24,8 +17,6 @@ services:
     container_name: pliego-django
     restart: unless-stopped
     command: ./entrypoint.sh
-    environment:
-      DJANGO_SETTINGS_MODULE: config.prod
     volumes:
       - ./staticfiles:/app/staticfiles
       - ./media:/app/media
@@ -35,7 +26,6 @@ services:
       - .env
     depends_on:
       - pliego-db
-      - pliego-redis
     networks:
       - pliego_network
 
