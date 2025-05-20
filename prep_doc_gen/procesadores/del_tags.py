@@ -4,6 +4,9 @@ from bs4 import BeautifulSoup
 
 def eliminar_tags_html(ruta_entrada, tags_a_eliminar):
     try:
+        print(f"Procesando archivo: {ruta_entrada}")
+        print(f"Tags a eliminar: {tags_a_eliminar}")
+        
         with open(ruta_entrada, "r", encoding="utf-8") as file:
             html_content = file.read()
 
@@ -11,13 +14,24 @@ def eliminar_tags_html(ruta_entrada, tags_a_eliminar):
 
         # Eliminar los tags indicados
         for tag in tags_a_eliminar:
-            for elemento in soup.find_all(tag):
+            elementos = soup.find_all(tag)
+            print(f"Eliminando {len(elementos)} elementos del tag '{tag}'")
+            for elemento in elementos:
                 elemento.decompose()
 
-        # Preparar nombre de salida: mismo nombre, precedido por "12_"
-        directorio, nombre_archivo = os.path.split(ruta_entrada)
-        nuevo_nombre = "12_" + nombre_archivo
-        ruta_salida = os.path.join(directorio, nuevo_nombre)
+        # Preparar nombre de salida: mismo nombre, precedido por "13_"
+        nombre_archivo = os.path.basename(ruta_entrada)
+        nuevo_nombre = "13_" + nombre_archivo
+        print(f"Nuevo nombre del archivo: {nuevo_nombre}")
+        
+        # El directorio output debe estar dentro del directorio temp
+        output_dir = os.path.join(os.path.dirname(ruta_entrada), 'output')
+        print(f"Directorio de salida: {output_dir}")
+        os.makedirs(output_dir, exist_ok=True)
+        
+        # Guardar en el directorio output
+        ruta_salida = os.path.join(output_dir, nuevo_nombre)
+        print(f"Ruta completa de salida: {ruta_salida}")
 
         # Guardar el HTML modificado
         with open(ruta_salida, "w", encoding="utf-8") as file:
@@ -25,12 +39,19 @@ def eliminar_tags_html(ruta_entrada, tags_a_eliminar):
 
         print(f"✅ Tags eliminados: {', '.join(tags_a_eliminar)}")
         print(f"📁 Archivo guardado como: {ruta_salida}")
-    except FileNotFoundError:
+        print(f"¿El archivo existe? {os.path.exists(ruta_salida)}")
+        
+        # Retornar solo el nombre del archivo
+        return nuevo_nombre
+        
+    except FileNotFoundError as e:
         print(f"❌ Archivo no encontrado: {ruta_entrada}")
+        print(f"Error detallado: {str(e)}")
+        raise
     except Exception as e:
         print(f"❌ Error al procesar el archivo: {e}")
-    
-    return ruta_salida
+        print(f"Error detallado: {str(e)}")
+        raise
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:

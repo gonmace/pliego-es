@@ -9,8 +9,6 @@ from langchain_core.runnables import RunnableConfig
 from pliego_esp.graph.callbacks import shared_callback_handler
 from langgraph.types import interrupt
 
-from pydantic import BaseModel, Field
-
 console = Console()
 
 prompt_template = ChatPromptTemplate.from_template("""

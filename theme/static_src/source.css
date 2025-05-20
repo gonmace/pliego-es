@@ -40,6 +40,9 @@
   body {
     font-family: 'Nunito', sans-serif;
   }
+  select {
+    @apply !bg-neutral text-white;
+  }
 }
 @layer components {
   .prose ul {

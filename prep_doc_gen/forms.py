@@ -44,7 +44,7 @@ class HTMLTagForm(forms.Form):
         ],
         initial='h2',
         widget=forms.Select(attrs={
-            "class": "form-select w-full",
+            "class": "select w-full",
             "placeholder": "Selecciona la etiqueta para dividir"
         })
     )

@@ -32,6 +32,22 @@
       </div>
     </div>
   </div>
+
+<!-- Modal de confirmación -->
+<dialog id="modal_parametros" class="modal">
+  <div class="modal-box">
+      <h3 class="text-lg font-bold"></h3>
+      <p class="py-4"></p>
+      <p class="py-4"></p>
+      <div class="modal-action">
+          <form method="dialog">
+              <button id="modalButtonYes" class="btn">Aceptar</button>
+              <button id="modalButtonNo" class="btn">Cancelar</button>
+          </form>
+      </div>
+  </div>
+</dialog>
+
   <div class="flex flex-col items-center mt-6">
     <ul class="steps w-full mt-4 text-neutral-content">
       {% for paso in pasos %}

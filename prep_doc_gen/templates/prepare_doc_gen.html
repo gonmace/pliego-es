@@ -3,6 +3,7 @@
 {% load static crispy_forms_tags tailwind_tags %}
 
 {% block meta %}
+    {% csrf_token %}
 {% endblock %}
 
 {% block css %}
@@ -13,29 +14,79 @@
 Pliego de Especificaciones
 {% endblock %}
 
-{% block body_class %}{% endblock %}
+{% block body_class %}bg-neutral{% endblock %}
 
 {% block content %}
+
 <div class="min-h-screen py-6 sm:py-8 md:py-12 px-4 sm:px-6 lg:px-8">
+
+    <!-- Modal for titles -->
+    <div id="titles_modal" class="z-50 hidden fixed inset-0 bg-gray-600 bg-opacity-0 overflow-y-auto h-full w-full">
+        <div class="relative top-0 mx-auto p-0 w-full h-full">
+            <div class="relative bg-white w-full h-full overflow-y-auto">
+                <!-- Modal header -->
+                <div class="flex justify-between items-center p-4 border-b">
+                    <h3 class="font-bold text-xl">Títulos encontrados (<span id="tag_type"></span>)</h3>
+                    <button id="closeModal" class="text-black close-modal text-3xl font-bold hover:text-gray-700">&times;</button>
+                </div>
+
+                <!-- Loading spinner -->
+                <div id="loading_spinner" class="hidden flex justify-center items-center py-8">
+                    <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500"></div>
+                </div>
+
+                <!-- Modal content -->
+                <div id="titles_content" class="hidden p-4">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full table-auto">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="w-12 px-4 py-2 text-left text-sm font-semibold text-gray-600">#</th>
+                                    <th class="w-[45%] px-4 py-2 text-left text-sm font-semibold text-gray-600">Título Original</th>
+                                    <th class="w-[45%] px-4 py-2 text-left text-sm font-semibold text-gray-600">Título Mejorado</th>
+                                    <th class="w-20 px-4 py-2 text-center text-sm font-semibold text-gray-600">Seleccionar</th>
+                                </tr>
+                            </thead>
+                            <tbody id="titles_table" class="bg-white divide-y divide-gray-200">
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Modal footer -->
+                    <div class="flex justify-end gap-2 mt-4">
+                        <button id="apply_changes" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                            Aplicar Cambios
+                        </button>
+                        <button class="close-modal bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                            Cerrar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="max-w-7xl mx-auto">
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
             {% include "components/card.html" with icon="icons/document.html" title="Encabezado y pie de página" color="blue-600" description="Elimina el encabezado y pie de página de tu documento (10_*.docx)" form=form_eliminar form_type="eliminar"  button_text="Procesar Documento" %}
 
-            {% include "components/card.html" with icon="icons/convert.html" title="Convertir Formato" color="green-600" description="Convierte tu documento docx, doc a html (11_*.hmtl)" form=form_convertir form_type="convertir" button_text="Convertir a HTML" %}
+            {% include "components/card.html" with icon="icons/convert.html" title="Convertir Formato" color="green-600" description="Convierte tu documento docx, doc a html (11_*.html)" form=form_convertir form_type="convertir" button_text="Convertir a HTML" %}
 
-            {% include "components/card.html" with icon="icons/tags.html" title="Eliminar elementos" color="red-600" description="Elimina elementos (tags) de tu documento html (12_*.html)" form=form_etiquetas form_type="etiquetas" button_text="Eliminar elementos" %}
+            {% include "components/card.html" with icon="icons/evaluate.html" title="Evaluar títulos" color="yellow-600" description="Evalúa y analiza los títulos de tu documento (12_*.html)" form=form_titulos form_type="titulos" button_text="Evaluar títulos" %}
 
-            {% include "components/card.html" with icon="icons/tags2.html" title="Eliminar < p > dentro de < li >" color="purple-600" description="Elimina las etiquetas p que se encuentran dentro de elementos li (13_*.html)" form=form_lip form_type="lip" button_text="Eliminar < p >" %}
+            {% include "components/card.html" with icon="icons/tags.html" title="Eliminar elementos" color="red-600" description="Elimina elementos (tags) de tu documento html (13_*.html)" form=form_etiquetas form_type="etiquetas" button_text="Eliminar elementos" %}
 
-            {% include "components/card.html" with icon="icons/format.html" title="Formatear Encabezados y Listas" color="indigo-600" description="Formatea los encabezados h1-h5 y elementos li en tu documento html (14_*.html)" form=form_format form_type="format" button_text="Formatear Documento" %}
+            {% include "components/card.html" with icon="icons/tags2.html" title="Eliminar < p > dentro de < li >" color="purple-600" description="Elimina las etiquetas p que se encuentran dentro de elementos li (14_*.html)" form=form_lip form_type="lip" button_text="Eliminar < p >" %}
+
+            {% include "components/card.html" with icon="icons/format.html" title="Formatear Encabezados y Listas" color="indigo-600" description="Formatea los encabezados h1-h5 y elementos li en tu documento html (15_*.html)" form=form_format form_type="format" button_text="Formatear Documento" %}
 
             {% include "components/card.html" with icon="icons/partir.html" title="Dividir en Markdown" color="teal-600" description="Divide tu documento HTML en archivos Markdown usando la etiqueta que elijas (h1-h5) y los comprime en ZIP (15_*.zip)" form=form_split form_type="split" button_text="Dividir y Comprimir" %}
-        </div>
 
+        </div>
     </div>
 </div>
+
 {% endblock %}
 
 {% block js %}
@@ -47,39 +98,207 @@ Pliego de Especificaciones
         return `${(kb / 1024).toFixed(2)} MB`;
     }
 
-    document.querySelectorAll("form").forEach((form) => {
-        const dropZone = form.querySelector(".drop-zone");
-        const fileInput = form.querySelector("input[type='file']");
-        const dropText = form.querySelector(".drop-text");
-    
-        if (!dropZone || !fileInput || !dropText) return;
-    
-        dropZone.addEventListener("click", () => fileInput.click());
-    
-        dropZone.addEventListener("dragover", (e) => {
-            e.preventDefault();
-            dropZone.classList.add("bg-gray-100");
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('titles_modal');
+        const closeButtons = document.querySelectorAll('.close-modal');
+        let currentData = null; // Variable para almacenar los datos actuales
+        let originalFileName = null; // Variable para almacenar el nombre del archivo original
+        let originalFilePath = null; // Variable para almacenar la ruta del archivo original
+        
+        // Function to toggle modal
+        function toggleModal() {
+            modal.classList.toggle('hidden');
+        }
+
+        // Close modal when clicking close button
+        closeButtons.forEach(button => {
+            button.addEventListener('click', toggleModal);
         });
-    
-        dropZone.addEventListener("dragleave", () => {
-            dropZone.classList.remove("bg-gray-100");
-        });
-    
-        dropZone.addEventListener("drop", (e) => {
-            e.preventDefault();
-            dropZone.classList.remove("bg-gray-100");
-            fileInput.files = e.dataTransfer.files;
-            const archivo = fileInput.files[0];
-            if (archivo) {
-                dropText.textContent = `📄 ${archivo.name} (${formatSize(archivo.size)})`;
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                toggleModal();
             }
         });
-    
-        fileInput.addEventListener("change", () => {
-            const archivo = fileInput.files[0];
-            if (archivo) {
-                dropText.textContent = `📄 ${archivo.name} (${formatSize(archivo.size)})`;
+
+        // Find the form for titles
+        const titulosForm = document.getElementById('form-titulos');
+
+        if (titulosForm) {
+            titulosForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                formData.append('submit_titulos', '');
+                
+                // Show modal and spinner
+                modal.classList.remove('hidden');
+                document.getElementById('loading_spinner').classList.remove('hidden');
+                document.getElementById('titles_content').classList.add('hidden');
+                
+                try {
+                    const response = await fetch(window.location.href, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    currentData = data; // Guardar los datos para uso posterior
+                    originalFileName = data.original_filename; // Guardar el nombre del archivo
+                    originalFilePath = data.original_filepath; // Guardar la ruta del archivo
+                    
+                    // Hide spinner
+                    document.getElementById('loading_spinner').classList.add('hidden');
+                    
+                    if (data.success && data.resultados && data.resultados.length > 0) {
+                        // Show content
+                        document.getElementById('titles_content').classList.remove('hidden');
+                        
+                        // Clear and fill table
+                        const tbody = document.getElementById('titles_table');
+                        tbody.innerHTML = '';
+                        
+                        data.resultados.forEach((resultado, index) => {
+                            const row = document.createElement('tr');
+                            row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+                            row.innerHTML = `
+                                <td class="px-4 py-2 text-sm text-gray-900">${index + 1}</td>
+                                <td class="px-4 py-2 text-sm text-gray-900">${resultado.original}</td>
+                                <td class="px-4 py-2">
+                                    <input type="text" 
+                                           class="w-full px-2 py-1 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                                           value="${resultado.mejorado}"
+                                           data-original-value="${resultado.mejorado}">
+                                </td>
+                                <td class="px-4 py-2 text-center">
+                                    <input type="checkbox" 
+                                           class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500" 
+                                           checked 
+                                           data-index="${index}">
+                                </td>
+                            `;
+                            tbody.appendChild(row);
+                        });
+                        
+                        // Update tag type
+                        document.getElementById('tag_type').textContent = data.tag;
+                    } else {
+                        alert('No se encontraron títulos en el documento para la etiqueta seleccionada.');
+                        toggleModal();
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error al procesar los títulos. Por favor intente nuevamente.');
+                    toggleModal();
+                }
+            });
+        }
+
+        // Handle apply changes button
+        document.getElementById('apply_changes').addEventListener('click', async function() {
+            if (!currentData || !currentData.resultados) {
+                console.error('No hay datos disponibles');
+                return;
             }
+
+            const rows = document.querySelectorAll('#titles_table tr');
+            const finalTitles = [];
+            
+            rows.forEach((row, index) => {
+                const checkbox = row.querySelector('input[type="checkbox"]');
+                const improvedInput = row.querySelector('input[type="text"]');
+                const originalTitle = currentData.resultados[index].original;
+                
+                // Agregar el título (mejorado si está seleccionado, original si no)
+                finalTitles.push(checkbox.checked ? improvedInput.value : originalTitle);
+            });
+
+            try {
+                const response = await fetch(window.location.href, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify({
+                        action: 'final_titles',
+                        file_type: 'titulos',
+                        titles: finalTitles,
+                        original_filename: originalFileName,
+                        original_filepath: originalFilePath,
+                        tag: currentData.tag
+                    })
+                });
+
+                const result = await response.json();
+                console.log('Respuesta del servidor:', result);
+
+                if (result.success && result.download_url) {
+                    // Crear un enlace temporal para la descarga
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = result.download_url;
+                    downloadLink.style.display = 'none';
+                    document.body.appendChild(downloadLink);
+                    
+                    // Iniciar la descarga
+                    downloadLink.click();
+                    
+                    // Limpiar el enlace temporal
+                    document.body.removeChild(downloadLink);
+                    
+                    // Cerrar el modal después de iniciar la descarga
+                    setTimeout(() => {
+                        toggleModal();
+                    }, 100);
+                } else {
+                    throw new Error(result.error || 'Error al procesar el archivo');
+                }
+            } catch (error) {
+                console.error('Error detallado:', error);
+                alert('Error al enviar la lista al servidor: ' + error.message);
+            }
+        });
+
+        document.querySelectorAll("form").forEach((form) => {
+            const dropZone = form.querySelector(".drop-zone");
+            const fileInput = form.querySelector("input[type='file']");
+            const dropText = form.querySelector(".drop-text");
+        
+            if (!dropZone || !fileInput || !dropText) return;
+        
+            dropZone.addEventListener("click", () => fileInput.click());
+        
+            dropZone.addEventListener("dragover", (e) => {
+                e.preventDefault();
+                dropZone.classList.add("bg-gray-100");
+            });
+        
+            dropZone.addEventListener("dragleave", () => {
+                dropZone.classList.remove("bg-gray-100");
+            });
+        
+            dropZone.addEventListener("drop", (e) => {
+                e.preventDefault();
+                dropZone.classList.remove("bg-gray-100");
+                fileInput.files = e.dataTransfer.files;
+                const archivo = fileInput.files[0];
+                if (archivo) {
+                    dropText.textContent = `📄 ${archivo.name} (${formatSize(archivo.size)})`;
+                }
+            });
+        
+            fileInput.addEventListener("change", () => {
+                const archivo = fileInput.files[0];
+                if (archivo) {
+                    dropText.textContent = `📄 ${archivo.name} (${formatSize(archivo.size)})`;
+                }
+            });
         });
     });
 </script>

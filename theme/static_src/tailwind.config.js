@@ -36,5 +36,7 @@ module.exports = {
         'text-teal-600',
         'input',
         'bg-yellow-500',
+        'bg-yellow-600',
+        'text-yellow-600',
     ],
 }
