@@ -1,11 +1,12 @@
 <!-- prepare_doc_gen.html -->
 {% extends "base_chat.html" %}
-{% load static crispy_forms_tags %}
+{% load static crispy_forms_tags tailwind_tags %}
 
 {% block meta %}
 {% endblock %}
 
 {% block css %}
+  {% tailwind_css %}
 {% endblock %}
 
 {% block title %}

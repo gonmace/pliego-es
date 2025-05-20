@@ -2,7 +2,6 @@
 from asgiref.sync import async_to_sync
 
 from langgraph.checkpoint.memory import MemorySaver
-from langgraph.graph import StateGraph
 from langgraph.graph.state import CompiledStateGraph
 
 from pliego_esp.graph.graph import create_workflow

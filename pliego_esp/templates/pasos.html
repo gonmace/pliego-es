@@ -15,7 +15,7 @@
 {% endblock %}
 
 {% block body_class %}
-  bg-neutral
+  
 {% endblock %}
 
 {% block content %}
@@ -25,14 +25,14 @@
       <!-- Izquierda -->
       <div class="flex items-center space-x-4">
         <!-- Botón de menú -->
-        <button class="text-white focus:outline-none"><i class="fas fa-arrow-left text-xl"></i></button>
+        <a href="https://hotpink-mongoose-920011.hostingersite.com/app/main" class="text-white focus:outline-none"><i class="fas fa-arrow-left text-xl"></i></a>
 
         <!-- Marca -->
         <a href="main" class="text-lg font-semibold tracking-wide">GDAR</a>
       </div>
     </div>
   </div>
-  <div class="flex flex-col items-center mt-6 min-h-screen">
+  <div class="flex flex-col items-center mt-6">
     <ul class="steps w-full mt-4 text-neutral-content">
       {% for paso in pasos %}
         <li class="step {% if paso.numero <= paso_actual %}step-primary{% endif %}">{{ paso.nombre }}</li>

@@ -41,7 +41,8 @@ Uses gunicorn + Redis.
 2. Build the images and run the containers:
 
     ```sh
-    scp -P 38 -r chromadb ma..@ip_del_servidor:/home/magoreal/Django/chat-legal
+    scp -P 38 -r chroma_db magoreal@173.212.248.84:/home/magoreal/Django/pliego-es
+    scp -P 38 -r media magoreal@173.212.248.84:/home/magoreal/Django/pliego-es
     docker-compose up -d --build
     docker compose exec pliego-django python manage.py collectstatic --settings=config.prod
     docker compose exec pliego-django python manage.py migrate --settings=config.prod

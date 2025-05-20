@@ -1,16 +1,16 @@
 {% load static crispy_forms_tags tailwind_tags %}
 
 <div class="flex flex-col items-center justify-center mt-6">
-  <div class="card w-full max-w-4xl bg-base-100 shadow-xl">
-    <div class="card-body flex flex-row items-center gap-4">
-      <div class="flex-1">
+  <div class="card max-w-4xl bg-base-100 shadow-xl">
+    <div class="card-body flex flex-col items-center gap-4">
+      
         <h2 class="card-title text-xl font-bold">Nombre de la Actividad</h2>
         <p class="text-base-content/70">Ingresa el nombre de la actividad (especificación)</p>
-      </div>
       
-      <form id="especificacionForm" class="flex-1 flex items-center gap-4">
+      
+      <form id="especificacionForm" class="items-center gap-4">
         <input type="hidden" name="paso" value="2">
-        <div class="form-control flex-1">
+        
           <input 
             type="text" 
             name="llegada" 
@@ -19,9 +19,8 @@
             placeholder="Ej.: Piso de Hormigón Armado H30 e=20 cm"
             required
           >
-        </div>
         
-        <button type="submit" class="btn btn-primary whitespace-nowrap">
+        <button type="submit" class="btn btn-primary w-full mt-8">
           <span class="normal-text">Continuar</span>
           <span class="loading loading-spinner loading-sm hidden"></span>
         </button>

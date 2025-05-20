@@ -1,22 +1,20 @@
 # views.py
 import sys
-from django.shortcuts import render, redirect
-from asgiref.sync import async_to_sync, sync_to_async
+from django.shortcuts import render
+from asgiref.sync import async_to_sync
 from langchain_core.runnables import RunnableConfig
 import uuid
 import os
 import json
 from pathlib import Path
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, JsonResponse
-from django.template import loader
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import openai
 from django.conf import settings
 import markdown
 
 from pliego_esp.forms import PliegoForm
-# from pliego_esp.graph import ttest_node
 from pliego_esp.services.graph_service import PliegoEspService
 from pliego_esp.utils.mejorar_titulo import mejorar_titulo_especificacion
 from pliego_esp.utils.similitud_titulos import calcular_similitud_titulos
@@ -220,7 +218,7 @@ def nuevo_pliego_view(request):
         {"numero": 2, "nombre": "Especificación Técnica Base"},
         {"numero": 3, "nombre": "Parámetros Técnicos"},
         {"numero": 4, "nombre": "Actividades Adicionales"},
-        {"numero": 5, "nombre": "Generar Pliego"},
+        {"numero": 5, "nombre": "Especificación"},
     ]
     paso_actual = int(request.GET.get('paso', 1))
 

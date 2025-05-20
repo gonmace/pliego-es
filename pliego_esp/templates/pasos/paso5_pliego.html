@@ -21,38 +21,31 @@
     
 
       <!-- Botones de navegación -->
-      <div class="card-actions justify-end mt-6">
-        <button onclick="window.location.href='?paso=3'" class="btn btn-outline">Anterior</button>
-        <button onclick="guardarAdicionales()" class="btn btn-primary">Siguiente</button>
+      <div class="card-actions justify-end m-6">
+        <button onclick="window.location.href='/pliego/nuevo-pliego/?paso=1'" class="btn btn-outline">Generar Nuevo</button>
+        <button onclick="guardarAdicionales()" class="btn btn-primary">Guradar</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Overlay de carga -->
-<div id="loadingOverlay" class="loading-overlay">
-  <div class="text-center">
-      <div class="loading-spinner"></div>
-      <div class="loading-text">Procesando su solicitud...</div>
+<!-- Spinner de carga -->
+<div id="loadingSpinner" class="fixed inset-0 backdrop-blur-sm bg-base-300/10 flex items-center justify-center z-50" style="display: none;">
+  <div class="flex flex-col items-center gap-4">
+    <span class="loading loading-spinner loading-lg text-primary"></span>
+    <p class="text-lg font-medium text-white">Procesando su solicitud...</p>
   </div>
 </div>
 
-<!-- Modal de confirmación -->
-<dialog id="modal_parametros" class="modal">
-  <div class="modal-box">
-      <h3 class="text-lg font-bold"></h3>
-      <p class="py-4"></p>
-      <p class="py-4"></p>
-      <div class="modal-action">
-          <form method="dialog">
-              <button id="modalButtonYes" class="btn">Aceptar</button>
-              <button id="modalButtonNo" class="btn">Cancelar</button>
-          </form>
-      </div>
-  </div>
-</dialog>
+
 
 <script>
+  // Función para mostrar/ocultar el spinner
+  function toggleSpinner(show) {
+    const spinner = document.getElementById('loadingSpinner');
+    spinner.style.display = show ? 'flex' : 'none';
+  }
+
   // Función para obtener el token CSRF
   function getCookie(name) {
     let cookieValue = null;
@@ -141,6 +134,7 @@
       document.getElementById('resultContainer').style.display = 'block';
       document.getElementById('tokenCost').textContent = responseData.token_cost;
       document.getElementById('conversationId').textContent = responseData.conversation_id;
+      toggleSpinner(false);
       return responseData;
     }
   }
@@ -148,6 +142,7 @@
   // Función para generar el pliego
   async function generarPliego() {
     try {
+      toggleSpinner(true);
       const formData = new FormData();
       formData.append('request_type', 'inicio');
 
@@ -167,6 +162,7 @@
       await processResponse(data);
     } catch (error) {
       console.error('Error:', error);
+      toggleSpinner(false);
       alert('Ha ocurrido un error al procesar su solicitud. Por favor, inténtelo de nuevo.');
     }
   }
@@ -174,6 +170,7 @@
   // Inicializar cuando el DOM esté listo
   document.addEventListener('DOMContentLoaded', async function () {
     try {
+      toggleSpinner(true);
       const response = await fetch('/pliego/nuevo-pliego/', {
         method: 'POST',
         headers: {
@@ -204,6 +201,7 @@
       }
     } catch (error) {
       console.error('Error:', error);
+      toggleSpinner(false);
       alert('Error al procesar el paso 5: ' + error.message);
     }
   });

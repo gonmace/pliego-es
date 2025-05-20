@@ -9,6 +9,9 @@ module.exports = {
         '../../embeddings/templates/**/*.html',
         '../../embeddings/forms.py',
         '../../pliego_esp/templates/pasos.html',
+        '../../prep_doc_gen/templates/**/*.html',
+        '../../prep_doc_gen/templates/*.html',
+        '../../prep_doc_gen/forms.py',
     ],
     theme: {
         extend: {},
