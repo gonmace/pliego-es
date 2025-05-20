@@ -50,8 +50,8 @@ Uses gunicorn + Redis.
 
     Test it out at [http://localhost:8003](http://localhost:8003).
 
-cp nginx.conf /etc/nginx/sites-available/chatlegal.c4all.org
-ln -s /etc/nginx/sites-available/chatlegal.c4all.org /etc/nginx/sites-enabled/
+cp nginx.conf /etc/nginx/sites-available/pliego.magoreal.com
+ln -s /etc/nginx/sites-available/pliego.magoreal.com /etc/nginx/sites-enabled/
 
 
 
