@@ -4,7 +4,7 @@ import os
 
 DEBUG = os.getenv('DJANGO_DEBUG', default=False)
 
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', default='').split(',')
+ALLOWED_HOSTS = [host.strip() for host in os.getenv('DJANGO_ALLOWED_HOSTS', '').split(',') if host.strip()]
 
 INSTALLED_APPS += [
 
