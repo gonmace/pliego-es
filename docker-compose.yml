@@ -26,6 +26,7 @@ services:
       - .env
     depends_on:
       - pliego-db
+      - pliego-redis
     networks:
       - pliego_network
 
