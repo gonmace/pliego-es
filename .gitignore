@@ -8,6 +8,7 @@ __pycache__/
 # Ignorar archivos de configuración de editor
 .vscode/
 staticfiles
+media
 ArchivosBase
 .vscode/
 .env
