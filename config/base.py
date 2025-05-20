@@ -172,3 +172,5 @@ CORS_ALLOW_CREDENTIALS = True
 LOGIN_URL = 'login'  # nombre de la URL de login
 LOGIN_REDIRECT_URL = '/chat/legal/'  # a dónde redirigir después del login
 LOGOUT_REDIRECT_URL = '/login/'  # a dónde redirigir después del logout
+
+ALLOWED_HOSTS = ['pliego.magoreal.com']
