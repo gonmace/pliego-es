@@ -1,11 +1,22 @@
+/** @type {import('tailwindcss').Config} */
 module.exports = {
     content: [
-        '../../templates/*.{html,js,py}',
-        '../../esp_generica/*.{html,js,py}',
-        '../../esp_generica/templates/*.{html,js,py}',
+        '../../pliego_esp/templates/**/*.html',
+        '../../pliego_esp/templates/*.html',
+        '../../pliego_esp/forms.py',
+        '../../esp_generica/templates/**/*.html',
         '../../esp_generica/forms.py',
-        '../../embeddings/templates/*.{html,js,py}',
+        '../../embeddings/templates/**/*.html',
         '../../embeddings/forms.py',
+        '../../pliego_esp/templates/pasos.html',
+    ],
+    theme: {
+        extend: {},
+    },
+    plugins: [
+        require('@tailwindcss/forms'),
+        require('@tailwindcss/typography'),
+        require('@tailwindcss/aspect-ratio'),
     ],
     safelist: [
         'bg-blue-600',
@@ -20,7 +31,6 @@ module.exports = {
         'text-purple-600',
         'text-indigo-600',
         'text-teal-600',
-
         'input',
         'bg-yellow-500',
     ],

@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-@source "../../../**/*.{html,py,js}";
+/* @source "../../..*.{html,py,js}"; */
 
 @plugin "@tailwindcss/forms";
 @plugin "@tailwindcss/typography";

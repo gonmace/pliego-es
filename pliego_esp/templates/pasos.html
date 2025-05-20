@@ -1,4 +1,4 @@
-{% extends "base_constructor-app.html" %}
+{% extends 'base_constructor-app.html' %}
 {% load static crispy_forms_tags tailwind_tags %}
 
 {% block meta %}
@@ -7,36 +7,50 @@
 
 {% block css %}
   {% tailwind_css %}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
 {% endblock %}
 
 {% block title %}
+
 {% endblock %}
 
-{% block body_class %}bg-neutral{% endblock %}
+{% block body_class %}
+  bg-neutral
+{% endblock %}
 
 {% block content %}
-<ul class="steps w-full mt-4 text-neutral-content">
-  {% for paso in pasos %}
-  <li class="step {% if paso.numero <= paso_actual %}step-primary{% endif %}">
-    {{ paso.nombre }}
-  </li>
-  {% endfor %}
-</ul>
+  <!-- Navbar -->
+  <div class="bg-primary text-white shadow z-50">
+    <div class="flex items-center justify-between px-4 py-2">
+      <!-- Izquierda -->
+      <div class="flex items-center space-x-4">
+        <!-- Botón de menú -->
+        <button class="text-white focus:outline-none"><i class="fas fa-arrow-left text-xl"></i></button>
 
-<!-- Contenido del paso -->
-{% if paso_actual == 1 %}
-  {% include "pasos/paso1_nombre.html" %}
-{% elif paso_actual == 2 %}
-  {% include "pasos/paso2_esp_base.html" %}
-{% elif paso_actual == 3 %}
-  {% include "pasos/paso3_parametros.html" %}
-{% elif paso_actual == 4 %}
-  {% include "pasos/paso4_adicionales.html" %}
-{% elif paso_actual == 5 %}
-  {% include "pasos/paso5_pliego.html" %}
+        <!-- Marca -->
+        <a href="main" class="text-lg font-semibold tracking-wide">GDAR</a>
+      </div>
+    </div>
+  </div>
+  <div class="flex flex-col items-center mt-6 min-h-screen">
+    <ul class="steps w-full mt-4 text-neutral-content">
+      {% for paso in pasos %}
+        <li class="step {% if paso.numero <= paso_actual %}step-primary{% endif %}">{{ paso.nombre }}</li>
+    {% endfor %}
+  </ul>
 
-{% endif %}
-
+  <!-- Contenido del paso -->
+  {% if paso_actual == 1 %}
+    {% include 'pasos/paso1_nombre.html' %}
+  {% elif paso_actual == 2 %}
+    {% include 'pasos/paso2_esp_base.html' %}
+  {% elif paso_actual == 3 %}
+    {% include 'pasos/paso3_parametros.html' %}
+  {% elif paso_actual == 4 %}
+    {% include 'pasos/paso4_adicionales.html' %}
+  {% elif paso_actual == 5 %}
+    {% include 'pasos/paso5_pliego.html' %}
+  {% endif %}
 {% endblock %}
 
 {% block js %}

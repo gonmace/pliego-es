@@ -43,9 +43,9 @@ Uses gunicorn + Redis.
     ```sh
     scp -P 38 -r chromadb ma..@ip_del_servidor:/home/magoreal/Django/chat-legal
     docker-compose up -d --build
-    docker-compose exec django python manage.py collectstatic --settings=config.prod
-    docker-compose exec django python manage.py migrate --settings=config.prod
-    docker-compose exec django python manage.py createsuperuser --settings=config.prod
+    docker compose exec pliego-django python manage.py collectstatic --settings=config.prod
+    docker compose exec pliego-django python manage.py migrate --settings=config.prod
+    docker compose exec pliego-django python manage.py createsuperuser --settings=config.prod
     ```
 
     Test it out at [http://localhost:8003](http://localhost:8003).

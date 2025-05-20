@@ -27,7 +27,7 @@ DATABASES = {
     },
     'chromadb': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'chromadb',
+        'NAME': BASE_DIR / 'chroma_db',
     }
 }
 
