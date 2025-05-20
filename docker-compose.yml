@@ -1,27 +1,27 @@
 services:
-  chat-legal-db:
+  pliego-db:
     image: postgres:15-alpine
-    container_name: chat-legal-db
+    container_name: pliego-db
     restart: unless-stopped
     env_file:
       - .env
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     networks:
-      - chat_legal_network
+      - pliego_network
 
-  chat-legal-redis:
+  pliego-redis:
     image: redis:alpine
-    container_name: chat-legal-redis
+    container_name: pliego-redis
     restart: unless-stopped
     networks:
-      - chat_legal_network
+      - pliego_network
 
-  chat-legal-django:
+  pliego-django:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: chat-legal-django
+    container_name: pliego-django
     restart: unless-stopped
     command: ./entrypoint.sh
     volumes:
@@ -32,14 +32,14 @@ services:
     env_file:
       - .env
     depends_on:
-      - chat-legal-db
-      - chat-legal-redis
+      - pliego-db
+      - pliego-redis
     networks:
-      - chat_legal_network
+      - pliego_network
 
 volumes:
   postgres_data:
 
 networks:
-  chat_legal_network:
+  pliego_network:
     driver: bridge
