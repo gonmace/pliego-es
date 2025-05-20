@@ -52,4 +52,4 @@ CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND')
 
 CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', default='').split(',')
 
-CSRF_TRUSTED_ORIGINS = ['https://chatlegal.c4all.org']
+CSRF_TRUSTED_ORIGINS = ['https://pliego.magoreal.com']
