@@ -10,6 +10,13 @@ services:
     networks:
       - pliego_network
 
+  pliego-redis:
+    image: redis:alpine
+    container_name: pliego-redis
+    restart: unless-stopped
+    networks:
+      - pliego_network
+
   pliego-django:
     build:
       context: .
