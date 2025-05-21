@@ -55,7 +55,8 @@ def listar_embeddings() -> List[Dict]:
                     'id': doc,
                     'titulo': metadata.get('titulo', 'Sin título'),
                     'descripcion': metadata.get('descripcion', 'Sin descripción'),
-                    'nombre_archivo': metadata.get('nombre_archivo', 'Sin nombre de archivo')
+                    'nombre_archivo': metadata.get('nombre_archivo', 'Sin nombre de archivo'),
+                    'categoria': metadata.get('categoria', 'Sin categoría')
                 })
             except Exception as e:
                 console.print(f"[red]Error al procesar documento {i}: {str(e)}[/red]")
@@ -132,7 +133,8 @@ def procesar_embeddings(json_path: str) -> str:
                 metadata={
                     'titulo': item['titulo'],
                     'nombre_archivo': item['nombre_archivo'],
-                    'descripcion': item.get('descripcion', '')  # Campo opcional
+                    'descripcion': item.get('descripcion', ''),
+                    'categoria': item.get('categoria', '')
                 }
             )
             documentos.append(doc)

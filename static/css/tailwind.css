@@ -981,6 +981,115 @@
     --step-bg: var(--color-error);
     --step-fg: var(--color-error-content);
   }
+  .\!select {
+    border: var(--border) solid #0000 !important;
+    position: relative !important;
+    display: inline-flex !important;
+    flex-shrink: 1 !important;
+    appearance: none !important;
+    align-items: center !important;
+    gap: calc(0.25rem * 1.5) !important;
+    background-color: var(--color-base-100) !important;
+    padding-inline-start: calc(0.25rem * 4) !important;
+    padding-inline-end: calc(0.25rem * 7) !important;
+    vertical-align: middle !important;
+    width: clamp(3rem, 20rem, 100%) !important;
+    height: var(--size) !important;
+    font-size: 0.875rem !important;
+    border-start-start-radius: var(--join-ss, var(--radius-field)) !important;
+    border-start-end-radius: var(--join-se, var(--radius-field)) !important;
+    border-end-start-radius: var(--join-es, var(--radius-field)) !important;
+    border-end-end-radius: var(--join-ee, var(--radius-field)) !important;
+    background-image: linear-gradient(45deg, #0000 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, #0000 50%) !important;
+    background-position: calc(100% - 20px) calc(1px + 50%), calc(100% - 16.1px) calc(1px + 50%) !important;
+    background-size: 4px 4px, 4px 4px !important;
+    background-repeat: no-repeat !important;
+    text-overflow: ellipsis !important;
+    box-shadow: 0 1px var(--input-color) inset, 0 -1px oklch(100% 0 0 / calc(var(--depth) * 0.1)) inset !important;
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .\!select {
+      box-shadow: 0 1px color-mix(in oklab, var(--input-color) calc(var(--depth) * 10%), #0000) inset, 0 -1px oklch(100% 0 0 / calc(var(--depth) * 0.1)) inset !important;
+    }
+  }
+  .\!select {
+    border-color: var(--input-color) !important;
+    --input-color: var(--color-base-content) !important;
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .\!select {
+      --input-color: color-mix(in oklab, var(--color-base-content) 20%, #0000) !important;
+    }
+  }
+  .\!select {
+    --size: calc(var(--size-field, 0.25rem) * 10) !important;
+  }
+  [dir="rtl"] .\!select {
+    background-position: calc(0% + 12px) calc(1px + 50%), calc(0% + 16px) calc(1px + 50%) !important;
+  }
+  .\!select select {
+    margin-inline-start: calc(0.25rem * -4) !important;
+    margin-inline-end: calc(0.25rem * -7) !important;
+    width: calc(100% + 2.75rem) !important;
+    appearance: none !important;
+    padding-inline-start: calc(0.25rem * 4) !important;
+    padding-inline-end: calc(0.25rem * 7) !important;
+    height: calc(100% - 2px) !important;
+    background: inherit !important;
+    border-radius: inherit !important;
+    border-style: none !important;
+  }
+  .\!select select:focus, .\!select select:focus-within {
+    --tw-outline-style: none !important;
+    outline-style: none !important;
+  }
+  @media (forced-colors: active) {
+    .\!select select:focus, .\!select select:focus-within {
+      outline: 2px solid transparent !important;
+      outline-offset: 2px !important;
+    }
+  }
+  .\!select select:not(:last-child) {
+    margin-inline-end: calc(0.25rem * -5.5) !important;
+    background-image: none !important;
+  }
+  .\!select:focus, .\!select:focus-within {
+    --input-color: var(--color-base-content) !important;
+    box-shadow: 0 1px var(--input-color) !important;
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .\!select:focus, .\!select:focus-within {
+      box-shadow: 0 1px color-mix(in oklab, var(--input-color) calc(var(--depth) * 10%), #0000) !important;
+    }
+  }
+  .\!select:focus, .\!select:focus-within {
+    outline: 2px solid var(--input-color) !important;
+    outline-offset: 2px !important;
+    isolation: isolate !important;
+    z-index: 1 !important;
+  }
+  .\!select:has(> select[disabled]), .\!select:is(:disabled, [disabled]) {
+    cursor: not-allowed !important;
+    border-color: var(--color-base-200) !important;
+    background-color: var(--color-base-200) !important;
+    color: var(--color-base-content) !important;
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .\!select:has(> select[disabled]), .\!select:is(:disabled, [disabled]) {
+      color: color-mix(in oklab, var(--color-base-content) 40%, transparent) !important;
+    }
+  }
+  .\!select:has(> select[disabled])::placeholder, .\!select:is(:disabled, [disabled])::placeholder {
+    color: var(--color-base-content) !important;
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .\!select:has(> select[disabled])::placeholder, .\!select:is(:disabled, [disabled])::placeholder {
+      color: color-mix(in oklab, var(--color-base-content) 20%, transparent) !important;
+    }
+  }
+  .\!select:has(> select[disabled]) > select[disabled] {
+    cursor: not-allowed !important;
+  }
   .select {
     border: var(--border) solid #0000;
     position: relative;
@@ -1586,6 +1695,12 @@
   .input-xs[type="number"]::-webkit-inner-spin-button {
     margin-block: calc(0.25rem * -1);
     margin-inline-end: calc(0.25rem * -3);
+  }
+  .\!my-4 {
+    margin-block: calc(var(--spacing) * 4) !important;
+  }
+  .my-4 {
+    margin-block: calc(var(--spacing) * 4);
   }
   .label {
     display: inline-flex;
@@ -3725,6 +3840,10 @@
     font-size: var(--text-xl);
     line-height: var(--tw-leading, var(--text-xl--line-height));
   }
+  .\!select-lg {
+    --size: calc(var(--size-field, 0.25rem) * 12) !important;
+    font-size: 1.125rem !important;
+  }
   .font-bold {
     --tw-font-weight: var(--font-weight-bold);
     font-weight: var(--font-weight-bold);
@@ -3966,6 +4085,9 @@
   .btn-warning {
     --btn-color: var(--color-warning);
     --btn-fg: var(--color-warning-content);
+  }
+  .\!select-primary, .\!select-primary:focus, .\!select-primary:focus-within {
+    --input-color: var(--color-primary) !important;
   }
   @media (hover: hover) {
     .hover\:bg-base-300:hover {

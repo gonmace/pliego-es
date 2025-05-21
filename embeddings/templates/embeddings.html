@@ -12,7 +12,7 @@
         <h1 class="text-2xl font-bold mb-6">Gestión de Embeddings</h1>
         
         <!-- Formulario de carga -->
-        <form method="post" enctype="multipart/form-data" class="mb-8">
+        <form method="post" enctype="multipart/form-data" class="mb-8 flex flex-col gap-4">
             {% csrf_token %}
             {% crispy form %}
         </form>
@@ -47,6 +47,7 @@
                                 </td>
                                 <td>{{ embedding.titulo }}</td>
                                 <td>{{ embedding.descripcion }}</td>
+                                <td>{{ embedding.categoria }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>

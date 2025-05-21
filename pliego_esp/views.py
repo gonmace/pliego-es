@@ -262,12 +262,14 @@ def nuevo_pliego_view(request):
                     
                     mejor_documento = resultado_similitud['ranking'][0]['document']
                     nombre_archivo = resultado_similitud['ranking'][0]['nombre_archivo']
+                    categoria = resultado_similitud['ranking'][0]['categoria']
                     
                     if mejor_documento:
                         request.session['paso2_data'] = {
                             'mejor_documento': mejor_documento,
                             'nombre_archivo': nombre_archivo,
-                            'mejor_score': mejor_score
+                            'mejor_score': mejor_score,
+                            'categoria': categoria
                         }
                     
                     return JsonResponse({
@@ -289,7 +291,8 @@ def nuevo_pliego_view(request):
                 if request.method == 'GET' or not data.get('parametros'):
                     # Obtener el nombre del archivo base
                     archivo_base = request.session.get('paso2_data', {}).get('nombre_archivo', '')
-                    ruta_archivo = os.path.join(settings.MEDIA_ROOT, 'Markdowns', archivo_base)
+                    categoria = request.session.get('paso2_data', {}).get('categoria', '')
+                    ruta_archivo = os.path.join(settings.MEDIA_ROOT, 'Markdowns', categoria, archivo_base)
                     
                     # Leer el contenido del archivo
                     try:
@@ -338,7 +341,8 @@ def nuevo_pliego_view(request):
                 if request.method == 'GET' or not data.get('adicionales'):
                     # Obtener el nombre del archivo base
                     archivo_base = request.session.get('paso2_data', {}).get('nombre_archivo', '')
-                    ruta_archivo = os.path.join(settings.MEDIA_ROOT, 'Markdowns', archivo_base)
+                    categoria = request.session.get('paso2_data', {}).get('categoria', '')
+                    ruta_archivo = os.path.join(settings.MEDIA_ROOT, 'Markdowns', categoria, archivo_base)
                     
                     # Leer el contenido del archivo
                     try:
@@ -409,7 +413,8 @@ def generar_pliego(request):
         if request_type == "inicio":
             console.print("Generando pliego", style="bold green")
             archivo_base = request.session.get('paso2_data', {}).get('nombre_archivo', '')
-            ruta_archivo = os.path.join(settings.MEDIA_ROOT, 'Markdowns', archivo_base)
+            categoria = request.session.get('paso2_data', {}).get('categoria', '')
+            ruta_archivo = os.path.join(settings.MEDIA_ROOT, 'Markdowns', categoria, archivo_base)
             
             contenido_pliego = ""
             try:

@@ -49,9 +49,9 @@ def embeddings_view(request):
                     'form': form,
                     'embeddings': embeddings
                 })
-
+            categoria = form.cleaned_data['categoria']
             datos_estructurados = []
-            carpeta_destino = os.path.join(settings.MEDIA_ROOT, 'Markdowns')
+            carpeta_destino = os.path.join(settings.MEDIA_ROOT, 'Markdowns', categoria)
             os.makedirs(carpeta_destino, exist_ok=True)
 
             for archivo in archivos:
@@ -70,18 +70,22 @@ def embeddings_view(request):
                         "titulo": titulo,
                         "descripcion": descripcion,
                         "texto_para_embedding": texto_para_embedding,
-                        "nombre_archivo": nombre_archivo
+                        "nombre_archivo": nombre_archivo,
+                        "categoria": categoria
                     })
 
             # Guardar resultado JSON
-            json_output = os.path.join(settings.MEDIA_ROOT, 'datos_estructurados.json')
+            json_output = os.path.join(settings.MEDIA_ROOT, 'Markdowns', categoria, 'datos_estructurados.json')
+            
+            # Asegurar que el directorio existe
+            os.makedirs(os.path.dirname(json_output), exist_ok=True)
             
             with open(json_output, 'w', encoding='utf-8') as json_file:
                 json.dump(datos_estructurados, json_file, ensure_ascii=False, indent=2)
 
             # Procesar embeddings
             try:
-                db_path = procesar_embeddings(json_output)
+                procesar_embeddings(json_output)
                 messages.success(request, f"Procesados {len(datos_estructurados)} archivos exitosamente.")
             except Exception as e:
                 messages.error(request, f"Error al procesar embeddings: {str(e)}")

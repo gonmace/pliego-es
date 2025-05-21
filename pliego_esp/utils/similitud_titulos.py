@@ -52,6 +52,7 @@ def calcular_similitud_titulos(titulo_original: str, titulo_sugerido: str) -> di
                     mejor_documento = {
                         "document": metadata["titulo"],
                         "nombre_archivo": metadata["nombre_archivo"],
+                        "categoria": metadata["categoria"],
                         "score_original": round(score_original, 4),
                         "score_sugerido": round(score_sugerido, 4),
                         "mejor_match": "original" if score_original > score_sugerido else "sugerido"
