@@ -10,7 +10,6 @@ from pathlib import Path
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-import openai
 from django.conf import settings
 import markdown
 

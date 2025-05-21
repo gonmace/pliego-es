@@ -103,12 +103,6 @@ El titulo de la especificación fusionada debe ser: {titulo}
 
 {especificaciones_tecnicas}
 
-**Especificación 1:**
-[pega aquí la primera especificación]
-
-**Especificación 2:**
-[pega aquí la segunda especificación]
-
 ### Salida esperada:
 Una única especificación técnica consolidada, con estructura estandarizada, sin contradicciones ni repeticiones, y con todo el contenido complementario correctamente integrado.
 """)
@@ -244,6 +238,7 @@ En función de la **especificación técnica generada** y la **especificación t
 - La redacción debe ser clara, concreta y aplicable a diferentes tipos de obras.
 - No incluir valores numéricos ni referencias comerciales.
 - El contenido debe ser una **lista clara y estructurada**.
+- Mantener las unidades de medida técnicas (ej. m, m², m³, etc.).
 
 ---
 
