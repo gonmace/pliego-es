@@ -1,6 +1,10 @@
 @import "tailwindcss";
 
-/* @source "../../..*.{html,py,js}"; */
+@source "../../..*.{html,py,js}";
+@source "../../**/templates/*.{html,py,js}";
+@source "../../templates/**/*.{html,py,js}";
+@source "../../**/templates/**/*.html";
+@source "../../**/forms.py";
 
 @plugin "@tailwindcss/forms";
 @plugin "@tailwindcss/typography";
@@ -11,11 +15,11 @@
   name: "constructor";
   default: false;
   prefersdark: false;
-  color-scheme: "light";
+  color-scheme: light;
   --color-base-100: oklch(100% 0 0);
-  --color-base-200: oklch(98% 0 0);
-  --color-base-300: oklch(95% 0 0);
-  --color-base-content: oklch(21% 0.006 285.885);
+  --color-base-200: oklch(95% 0 0);
+  --color-base-300: oklch(90% 0 0);
+  --color-base-content: #000;
   --color-primary: #cb4040;
   --color-primary-content: oklch(93% 0.034 272.788);
   --color-secondary: #45484d;
@@ -34,7 +38,7 @@
   --color-error-content: oklch(98% 0.003 247.858);
 }
 
-@config "./tailwind.config.js";
+/* @config "./tailwind.config.js"; */
 
 @layer base {
   body {
@@ -42,6 +46,11 @@
   }
   select {
     @apply !bg-neutral text-white;
+  }
+  
+  /* Asegurar que bg-secondary funcione en el elemento html */
+  html.bg-secondary {
+    background-color: var(--color-secondary) !important;
   }
 }
 @layer components {

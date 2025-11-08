@@ -1,4 +1,4 @@
-{% extends 'base_constructor-app.html' %}
+{% extends 'base_pliego.html' %}
 {% load static crispy_forms_tags tailwind_tags %}
 
 {% block meta %}
@@ -7,7 +7,7 @@
 
 {% block css %}
   {% tailwind_css %}
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
+  <link rel="stylesheet" href="{% static 'fontawesome/css/all.min.css' %}" />
 {% endblock %}
 
 {% block title %}

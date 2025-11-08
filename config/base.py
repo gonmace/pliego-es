@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'prep_doc_gen',
     'esp_generica',
     'embeddings',
+    'main.apps.MainConfig',
 
 ]
 

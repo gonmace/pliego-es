@@ -1,0 +1,8 @@
+{
+  "name": "pliego",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "easymde": "^2.18.0"
+  }
+}

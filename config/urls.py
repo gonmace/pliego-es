@@ -11,6 +11,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('login/', LoginView.as_view(template_name='login.html'), name='login'),
     path("logout/", LogoutView.as_view(), name="logout"),
+    path('proyecto/', include('main.urls')),
     path('pliego/', include('pliego_esp.urls')),
     path('prepare-doc/', include('prep_doc_gen.urls')),
     path('esp-generica/', include('esp_generica.urls')),

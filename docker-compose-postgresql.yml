@@ -1,7 +1,7 @@
 services:
-  rag-db:
+  esp-db:
     image: postgres:15
-    container_name: postgres_django
+    container_name: esp-db
     restart: always
     env_file:
       - .env

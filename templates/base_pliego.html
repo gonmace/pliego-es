@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en" data-theme="constructor" class="bg-neutral">
+<html lang="en" data-theme="constructor" class="bg-base-300">
 
 <head>
     <title>Principal</title>
@@ -9,7 +9,7 @@
     <!--<link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon" />-->
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE" />
 
@@ -100,6 +100,16 @@
         {% endblock %}
     </div>
 
+    {% if messages %}
+    <script id="django-messages-data" type="application/json">
+        [
+        {% for message in messages %}
+            {"level": "{{ message.tags|default:'info' }}", "message": "{{ message|escapejs }}"}{% if not forloop.last %},{% endif %}
+        {% endfor %}
+        ]
+    </script>
+    {% endif %}
+
     <!--End of Main Content-->
 
     <!-- <div class="clearfix"></div>
@@ -133,6 +143,53 @@
         src="{% static 'constructor-app/js/assets/components/library/bootstrap/js/bootstrap.min.js?v=v1.2.3' %}"></script> -->
     <!-- <script 
         src="{% static 'constructor-app/js/assets/components/plugins/nicescroll/jquery.nicescroll.min.js?v=v1.2.3' %}"></!-->
+    <script src="{% static 'vendor/flashy/flashy.js' %}"></script>
+    <script>
+        (function () {
+            if (!window.flashy) {
+                console.warn('Flashy.js no está disponible.');
+                return;
+            }
+            var dataElement = document.getElementById('django-messages-data');
+            if (!dataElement) {
+                return;
+            }
+            var typeMap = {
+                success: 'success',
+                warning: 'warning',
+                error: 'error',
+                danger: 'error',
+                info: 'info',
+                debug: 'info'
+            };
+            try {
+                var messages = JSON.parse(dataElement.textContent || '[]');
+                messages.forEach(function (entry) {
+                    if (!entry || !entry.message) {
+                        return;
+                    }
+                    var tags = (entry.level || '').split(/\s+/).filter(Boolean);
+                    var type = 'default';
+                    for (var i = 0; i < tags.length; i++) {
+                        if (typeMap[tags[i]]) {
+                            type = typeMap[tags[i]];
+                            break;
+                        }
+                    }
+                    flashy(entry.message, {
+                        type: type,
+                        position: 'top-right',
+                        duration: type === 'error' ? 0 : 5000,
+                        closable: true,
+                        animation: 'slide'
+                    });
+                });
+            } catch (error) {
+                console.error('No se pudieron procesar los mensajes de Django para Flashy.js', error);
+            }
+        })();
+    </script>
+
     {% block js %}
     {% endblock %}
 </body>

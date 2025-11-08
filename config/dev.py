@@ -25,7 +25,7 @@ DATABASES = {
         'HOST': '127.0.0.1',
         'PORT': os.getenv('POSTGRES_PORT')
     },
-    'chromadb': {
+    'chroma_db': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'chroma_db',
     }

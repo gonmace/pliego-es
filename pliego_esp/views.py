@@ -1,6 +1,6 @@
 # views.py
 import sys
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from asgiref.sync import async_to_sync
 from langchain_core.runnables import RunnableConfig
 import uuid
@@ -11,12 +11,18 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
+from django.core.files.base import ContentFile
+from django.utils import timezone
+from django.utils.text import slugify
 import markdown
+from django.urls import reverse
+from django.contrib import messages
 
 from pliego_esp.forms import PliegoForm
 from pliego_esp.services.graph_service import PliegoEspService
 from pliego_esp.utils.mejorar_titulo import mejorar_titulo_especificacion
 from pliego_esp.utils.similitud_titulos import calcular_similitud_titulos
+from main.models import Proyecto, Especificacion
 
 from rich.console import Console
 console = Console()
@@ -406,6 +412,57 @@ def nuevo_pliego_view(request):
         'paso4_data': paso4_data
     })
 
+
+@csrf_exempt
+def guardar_pliego_view(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Payload inválido'}, status=400)
+
+    contenido = data.get('contenido')
+    if not contenido:
+        return JsonResponse({'error': 'El contenido del pliego es obligatorio'}, status=400)
+
+    proyecto_id = request.session.get('proyecto_actual_id')
+    if not proyecto_id:
+        return JsonResponse({'error': 'No hay un proyecto seleccionado'}, status=400)
+
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id, activo=True)
+
+    paso1_data = request.session.get('paso1_data', {})
+    titulo = data.get('titulo') or paso1_data.get('titulo_final') or paso1_data.get('titulo_original') or proyecto.nombre
+    token_cost = data.get('token_cost')
+
+    slug = slugify(titulo) or 'especificacion'
+    timestamp = timezone.now().strftime('%Y%m%d%H%M%S')
+    filename = f"{slug}-{timestamp}.md"
+
+    especificacion = Especificacion(
+        proyecto=proyecto,
+        titulo=titulo,
+        contenido=contenido,
+        token_cost=token_cost if token_cost not in (None, '') else None,
+    )
+    especificacion.archivo.save(filename, ContentFile(contenido), save=True)
+
+    for key in ['paso1_data', 'paso2_data', 'paso3_data', 'paso4_data']:
+        request.session.pop(key, None)
+
+    messages.success(request, 'Especificación guardada correctamente.')
+
+    redirect_url = reverse('main:proyecto_detalle', args=[proyecto.id]) + '?guardado=1'
+
+    return JsonResponse({
+        'success': True,
+        'redirect_url': redirect_url,
+        'especificacion_id': especificacion.id
+    })
+
+
 @csrf_exempt
 def generar_pliego(request):
     if request.method == "POST":
@@ -475,11 +532,13 @@ def generar_pliego(request):
                     # 'markdown.extensions.nl2br',
                     'markdown.extensions.sane_lists'
                 ]
+                raw_markdown = response_data.get('content', '')
                 md_generado_html = markdown.markdown(
-                    response_data.get('content', ''), output_format='html', extensions=extensions)
+                    raw_markdown, output_format='html', extensions=extensions)
 
                 return JsonResponse({
                     'content': md_generado_html,
+                    'raw_markdown': raw_markdown,
                     'token_cost': response_data.get('token_cost', 0),
                     'conversation_id': response_data.get('conversation_id', '')
                 })
@@ -509,14 +568,16 @@ def generar_pliego(request):
                 # 'markdown.extensions.nl2br',
                 'markdown.extensions.sane_lists'
             ]
+            raw_markdown = response_data.get('content', '')
             md_generado_html = markdown.markdown(
-                response_data.get('content', ''), output_format='html', extensions=extensions)
+                raw_markdown, output_format='html', extensions=extensions)
 
             console.print("Respuesta del servidor", style="bold green")
             console.print(md_generado_html, style="bold red")
             
             return JsonResponse({
                 'content': md_generado_html,
+                'raw_markdown': raw_markdown,
                 'token_cost': response_data.get('token_cost', 0),
                 'conversation_id': response_data.get('conversation_id', '')
             })

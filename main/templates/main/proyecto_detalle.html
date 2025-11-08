@@ -1,0 +1,189 @@
+{% extends 'base_pliego.html' %}
+{% load static crispy_forms_tags tailwind_tags %}
+
+{% block css %}
+  {% tailwind_css %}
+  <link rel="stylesheet" href="{% static 'fontawesome/css/all.min.css' %}" />
+{% endblock %}
+
+{% block title %}
+  Proyecto: {{ proyecto.nombre }}
+{% endblock %}
+
+{% block content %}
+  <!-- Navbar -->
+  <div class="bg-primary text-white shadow z-50">
+    <div class="flex items-center justify-between px-4 py-2 max-w-7xl mx-auto w-full">
+      <div class="flex items-center space-x-4">
+        <a href="{% url 'main:proyecto_main' %}" class="text-white focus:outline-none">
+          <i class="fas fa-arrow-left text-xl"></i>
+        </a>
+        <a href="{% url 'main:proyecto_main' %}" class="text-lg font-semibold tracking-wide">GDAR</a>
+      </div>
+      <div class="hidden sm:flex items-center gap-3">
+        <span class="text-sm uppercase tracking-wide">Proyecto activo</span>
+        <span class="font-semibold">{{ proyecto.nombre }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensajes -->
+
+  <div class="px-4 py-6 max-w-7xl mx-auto w-full">
+    <div class="flex flex-col lg:flex-row gap-4">
+      <!-- Columna izquierda: Especificaciones -->
+      <div class="w-full lg:w-2/3">
+        <div class="card bg-base-100 shadow-xl h-full">
+          <div class="card-body">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+              <div class="flex items-center gap-3">
+                <h2 class="card-title text-2xl m-0">
+                  <i class="fas fa-list-alt mr-2"></i>
+                  Especificaciones
+                </h2>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <a href="{% url 'main:nueva_especificacion' proyecto.id %}" class="btn btn-sm btn-success">
+                  <i class="fas fa-plus mr-1"></i>
+                  Nuevo
+                </a>
+              </div>
+            </div>
+
+            {% if especificaciones %}
+              <div class="space-y-3 overflow-y-auto max-h-[70vh] pr-1">
+                {% for especificacion in especificaciones %}
+                  <div class="card bg-base-200/70 border border-base-300/60">
+                    <div class="card-body py-3">
+                      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                        <div>
+                          <h3 class="text-lg font-semibold text-base-content">{{ especificacion.titulo }}</h3>
+                          <p class="text-sm text-base-content/60">Creada el {{ especificacion.fecha_creacion|date:"d/m/Y H:i" }}</p>
+                          <p class="text-sm text-base-content/60">Actualizada el {{ especificacion.fecha_actualizacion|date:"d/m/Y H:i" }}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <a href="{% url 'main:editar_especificacion' especificacion.id %}" class="btn btn-ghost btn-xs text-warning" title="Editar">
+                            <i class="fas fa-edit"></i>
+                          </a>
+                          <a href="{% url 'main:eliminar_especificacion' especificacion.id %}" class="btn btn-ghost btn-xs text-error" title="Eliminar">
+                            <i class="fas fa-trash"></i>
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="h-full flex flex-col items-center justify-center text-center py-12">
+                <i class="fas fa-file-alt text-6xl text-base-300 mb-4"></i>
+                <h3 class="text-xl font-semibold mb-2">Sin especificaciones registradas</h3>
+                <p class="text-base-content/70 max-w-md">
+                  Aún no se han generado especificaciones para este proyecto. Utilice el botón "Nuevo" para crear la primera especificación.
+                </p>
+                <a href="{% url 'main:nueva_especificacion' proyecto.id %}" class="btn btn-primary mt-4">
+                  <i class="fas fa-plus mr-2"></i>
+                  Nueva especificación
+                </a>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna derecha: Opciones -->
+      <div class="w-full lg:w-1/3 flex flex-col gap-4">
+        <!-- Información del proyecto -->
+        <div class="card bg-base-100 shadow-xl">
+          <div class="card-body">
+            <h2 class="text-2xl font-bold uppercase tracking-wide text-center mb-6">
+              {{ proyecto.nombre }}
+            </h2>
+            <div class="space-y-3 text-base-content/80">
+              <div>
+                <span class="font-semibold">Nombre:</span>
+                <p>{{ proyecto.nombre }}</p>
+              </div>
+              <div>
+                <span class="font-semibold">Solicitante:</span>
+                <p>{{ proyecto.solicitante }}</p>
+              </div>
+              <div>
+                <span class="font-semibold">Ubicación:</span>
+                <p>{{ proyecto.ubicacion }}</p>
+              </div>
+              <div>
+                <span class="font-semibold">Fecha de creación:</span>
+                <p>{{ proyecto.fecha_creacion|date:"d/m/Y H:i" }}</p>
+              </div>
+              <div>
+                <span class="font-semibold">Última actualización:</span>
+                <p>{{ proyecto.fecha_actualizacion|date:"d/m/Y H:i" }}</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="font-semibold">Visibilidad:</span>
+                {% if proyecto.publico %}
+                  <span class="badge badge-success">
+                    <i class="fas fa-globe-americas mr-1"></i>
+                    Público
+                  </span>
+                {% else %}
+                  <span class="badge badge-base-300">
+                    <i class="fas fa-lock mr-1"></i>
+                    Privado
+                  </span>
+                {% endif %}
+              </div>
+              <div>
+                <span class="font-semibold">Descripción:</span>
+                {% if proyecto.descripcion %}
+                  <div class="mt-2 text-base-content/80 space-y-2">
+                    {{ proyecto.descripcion|linebreaksbr }}
+                  </div>
+                {% else %}
+                  <p class="text-base-content/60 mt-2">No se ha registrado una descripción para este proyecto.</p>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Acciones -->
+        <div class="card bg-base-100 shadow-xl">
+          <div class="card-body">
+            
+
+
+            <div class="grid grid-cols-1 gap-3">
+              <a href="{% url 'main:editar_proyecto' proyecto.id %}" class="btn btn-secondary w-full justify-start">
+                <i class="fas fa-edit mr-2"></i>
+                Editar proyecto
+              </a>
+
+              <a href="{% url 'main:eliminar_proyecto' proyecto.id %}" class="btn btn-error w-full justify-start">
+                <i class="fas fa-trash mr-2"></i>
+                Eliminar proyecto
+              </a>
+            </div>
+
+            <div class="divider my-4"></div>
+
+            <div class="space-y-3">
+              <a href="{% url 'main:lista_proyectos' %}" class="btn btn-outline w-full justify-start">
+                <i class="fas fa-folder-open mr-2"></i>
+                Ver todos los proyectos
+              </a>
+              <a href="{% url 'main:proyecto_main' %}" class="btn btn-ghost w-full justify-start">
+                <i class="fas fa-home mr-2"></i>
+                Volver al inicio
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block js %}{% endblock %}
+

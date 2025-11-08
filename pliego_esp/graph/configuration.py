@@ -33,7 +33,7 @@ class IndexConfiguration:
             embedding_function=OpenAIEmbeddings(
                 model="text-embedding-3-small"
             ),
-            persist_directory=str(Path(__file__).parent.parent.parent / "chromadb")
+            persist_directory=str(Path(__file__).parent.parent.parent / "chroma_db")
         ),
         metadata={"description": "The Chroma vector store configuration."}
     )

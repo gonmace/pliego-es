@@ -1,0 +1,54 @@
+{% extends 'base_pliego.html' %}
+{% load static tailwind_tags %}
+
+{% block css %}
+  {% tailwind_css %}
+  <link rel="stylesheet" href="{% static 'fontawesome/css/all.min.css' %}" />
+{% endblock %}
+
+{% block title %}
+  Eliminar Especificación: {{ especificacion.titulo }}
+{% endblock %}
+
+{% block content %}
+  <div class="bg-primary text-white shadow z-50">
+    <div class="flex items-center justify-between px-4 py-2">
+      <div class="flex items-center space-x-4">
+        <a href="{% url 'main:proyecto_detalle' proyecto.id %}" class="text-white focus:outline-none">
+          <i class="fas fa-arrow-left text-xl"></i>
+        </a>
+        <span class="text-lg font-semibold tracking-wide">Eliminar Especificación</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex flex-col items-center justify-center mt-6 px-4">
+    <div class="w-full max-w-xl">
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body items-center text-center space-y-6">
+          <i class="fas fa-exclamation-triangle text-6xl text-error"></i>
+          <h2 class="card-title text-2xl font-bold">¿Eliminar especificación?</h2>
+          <p class="text-base-content/70">
+            ¿Está seguro de que desea eliminar la especificación
+            <span class="font-semibold">"{{ especificacion.titulo }}"</span>?
+            Esta acción eliminará el archivo asociado y no se podrá deshacer.
+          </p>
+
+          <form method="post" class="flex flex-col sm:flex-row gap-3 justify-center">
+            {% csrf_token %}
+            <a href="{% url 'main:proyecto_detalle' proyecto.id %}" class="btn btn-ghost">
+              <i class="fas fa-times mr-2"></i>
+              Cancelar
+            </a>
+            <button type="submit" class="btn btn-error">
+              <i class="fas fa-trash mr-2"></i>
+              Eliminar
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block js %}{% endblock %}

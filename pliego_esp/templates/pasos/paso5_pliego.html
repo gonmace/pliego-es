@@ -23,7 +23,7 @@
       <!-- Botones de navegación -->
       <div class="card-actions justify-end m-6">
         <button onclick="window.location.href='/pliego/nuevo-pliego/?paso=1'" class="btn btn-outline">Generar Nuevo</button>
-        <button onclick="guardarAdicionales()" class="btn btn-primary">Guradar</button>
+        <button id="btnGuardar" onclick="guardarEspecificacion()" class="btn btn-primary btn-disabled" disabled>Guardar</button>
       </div>
     </div>
   </div>
@@ -40,6 +40,16 @@
 
 
 <script>
+  const btnGuardar = document.getElementById('btnGuardar');
+  window.__ultimoMarkdown = null;
+  window.__ultimoTokenCost = null;
+
+  function setGuardarEnabled(enabled) {
+    if (!btnGuardar) return;
+    btnGuardar.disabled = !enabled;
+    btnGuardar.classList.toggle('btn-disabled', !enabled);
+  }
+
   // Función para mostrar/ocultar el spinner
   function toggleSpinner(show) {
     const spinner = document.getElementById('loadingSpinner');
@@ -135,6 +145,9 @@
       document.getElementById('tokenCost').textContent = responseData.token_cost;
       document.getElementById('conversationId').textContent = responseData.conversation_id;
       toggleSpinner(false);
+      window.__ultimoMarkdown = responseData.raw_markdown || responseData.content;
+      window.__ultimoTokenCost = responseData.token_cost || null;
+      setGuardarEnabled(true);
       return responseData;
     }
   }
@@ -143,6 +156,7 @@
   async function generarPliego() {
     try {
       toggleSpinner(true);
+      setGuardarEnabled(false);
       const formData = new FormData();
       formData.append('request_type', 'inicio');
 
@@ -159,11 +173,52 @@
       }
 
       const data = await response.json();
+      // Guardar el markdown original si viene en la respuesta
+      if (data.raw_markdown) {
+        window.__ultimoMarkdown = data.raw_markdown;
+      }
       await processResponse(data);
     } catch (error) {
       console.error('Error:', error);
       toggleSpinner(false);
+      setGuardarEnabled(false);
       alert('Ha ocurrido un error al procesar su solicitud. Por favor, inténtelo de nuevo.');
+    }
+  }
+
+  async function guardarEspecificacion() {
+    if (!window.__ultimoMarkdown) {
+      alert('Debe generar la especificación antes de guardarla.');
+      return;
+    }
+
+    try {
+      toggleSpinner(true);
+      setGuardarEnabled(false);
+
+      const response = await fetch('/pliego/guardar-pliego/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+          contenido: window.__ultimoMarkdown,
+          token_cost: window.__ultimoTokenCost
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'No se pudo guardar la especificación');
+      }
+
+      window.location.href = data.redirect_url;
+    } catch (error) {
+      console.error('Error al guardar:', error);
+      alert('Error al guardar la especificación: ' + error.message);
+      setGuardarEnabled(true);
+      toggleSpinner(false);
     }
   }
 
