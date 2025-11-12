@@ -1,5 +1,5 @@
 {% extends 'base_pliego.html' %}
-{% load static crispy_forms_tags tailwind_tags %}
+{% load static crispy_forms_tags tailwind_tags main_tags %}
 
 {% block css %}
   {% tailwind_css %}
@@ -15,53 +15,42 @@
 {% endblock %}
 
 {% block content %}
-  <!-- Navbar -->
-  <div class="bg-primary text-white shadow z-50">
-    <div class="flex items-center justify-between px-4 py-2">
-      <!-- Izquierda -->
-      <div class="flex items-center space-x-4">
-        <!-- Marca -->
-        <a href="/" class="text-lg font-semibold tracking-wide">GDAR</a>
-      </div>
-    </div>
-  </div>
-
   <!-- Contenedor principal con dos columnas -->
-  <div class="flex flex-col lg:flex-row h-[calc(100vh-80px)] px-4 py-4 gap-4 max-w-7xl mx-auto w-full">
+  <div class="flex flex-col lg:flex-row px-4 py-4 gap-4 max-w-7xl mx-auto w-full">
     <!-- Columna Izquierda: Opciones -->
     <div class="w-full lg:w-1/3 flex flex-col gap-4">
       <div class="card bg-base-100 shadow-xl">
-        <div class="card-body">
-          <h2 class="card-title text-2xl mb-4">
-            <i class="fas fa-cog mr-2"></i>
-            Opciones
-          </h2>
-          
-                 <div class="space-y-3">
-                   <!-- Crear Nuevo Proyecto -->
-                   <a href="{% url 'main:crear_proyecto' %}" class="btn btn-primary w-full justify-start">
-                     <i class="fas fa-plus-circle mr-2"></i>
-                     Crear Nuevo Proyecto
-                   </a>
+        <div class="card-body">        
+              <div class="space-y-3">
+                <!-- Crear Nuevo Proyecto -->
+                <a href="{% url 'main:crear_proyecto' %}" class="btn btn-success w-full justify-start">
+                  <i class="fas fa-plus-circle mr-2"></i>
+                  Crear Nuevo Proyecto
+                </a>
 
-                   <!-- Ver Todos los Proyectos -->
-                   <a href="{% url 'main:lista_proyectos' %}" class="btn btn-secondary w-full justify-start">
-                     <i class="fas fa-list mr-2"></i>
-                     Ver Todos los Proyectos
-                   </a>
-                 </div>
+                <!-- Ver Todos los Proyectos -->
+                <a href="{% url 'main:lista_proyectos' %}" class="btn btn-secondary w-full justify-start">
+                  <i class="fas fa-list mr-2"></i>
+                  Todos los Proyectos
+                </a>
+ 
+                <!-- Ver todas las especificaciones -->
+                <a href="{% url 'main:especificaciones_disponibles' %}" class="btn btn-info w-full justify-start">
+                  <i class="fas fa-list-ul mr-2"></i>
+                  Especificaciones disponibles
+                </a>
+                </div>
         </div>
       </div>
 
       <!-- Información del Proyecto Actual (si existe) -->
       {% if request.session.proyecto_actual_id %}
-      <div class="card bg-base-200 shadow-xl">
-        <div class="card-body">
-          <h3 class="card-title text-lg mb-2">
-            <i class="fas fa-folder-open mr-2"></i>
-            Proyecto Actual
-          </h3>
-          <p class="font-semibold">{{ request.session.proyecto_actual_nombre }}</p>
+      <div class="card sombra">
+        <div class="card-body bg-primary text-primary-content">
+            <span class="font-semibold"><i class="fas fa-folder-open mr-2"></i>Proyecto Actual</span>
+          <h2 class="card-title mb-2">
+          {{ request.session.proyecto_actual_nombre }}
+        </h2>
         </div>
       </div>
       {% endif %}
@@ -72,126 +61,89 @@
       <div class="card bg-base-100 shadow-xl h-full flex flex-col">
         <div class="card-body flex-1 flex flex-col">
           <div class="flex justify-between items-center mb-4">
-            <h2 class="card-title text-2xl">
-              <i class="fas fa-folder mr-2"></i>
-              Proyectos Recientes
+            <h2 class="card-title text-2xl flex items-center gap-3">
+              <span class="flex items-center gap-2">
+                <i class="fas fa-folder"></i>
+                Proyectos {{ page_obj.paginator.count }}
+              </span>
             </h2>
             {% if proyecto_seleccionado %}
             <div class="flex gap-2">
-              <a href="{% url 'main:nueva_especificacion' proyecto_seleccionado.id %}?next=detalle" class="btn btn-sm btn-success" title="Ingresar al proyecto seleccionado">
+              <a href="{% url 'main:proyecto_detalle' proyecto_seleccionado.id %}" class="btn btn-sm btn-success" title="Ingresar al proyecto seleccionado">
                 <i class="fas fa-sign-in-alt mr-2"></i>
                 Ingresar
               </a>
-              <a href="{% url 'main:editar_proyecto' proyecto_seleccionado.id %}" class="btn btn-sm btn-secondary" title="Editar proyecto seleccionado">
-                <i class="fas fa-edit mr-2"></i>
-                Editar
-              </a>
-              <a href="{% url 'main:eliminar_proyecto' proyecto_seleccionado.id %}" class="btn btn-sm btn-error" title="Eliminar proyecto seleccionado">
-                <i class="fas fa-trash mr-2"></i>
-                Eliminar
-              </a>
+
+              {% if proyecto_seleccionado.creado_por_id == request.user.id %}
+                <a href="{% url 'main:editar_proyecto' proyecto_seleccionado.id %}" class="btn btn-sm btn-secondary" title="Editar proyecto seleccionado">
+                  <i class="fas fa-edit mr-2"></i>
+                  Editar
+                </a>
+              {% else %}
+                <button class="btn btn-sm btn-secondary btn-disabled pointer-events-none opacity-60"
+                        title="Solo puedes editar proyectos que creaste"
+                        aria-disabled="true">
+                  <i class="fas fa-edit mr-2"></i>
+                  Editar
+                </button>
+              {% endif %}
+              {% if proyecto_seleccionado.creado_por_id == request.user.id %}
+                <a href="{% url 'main:eliminar_proyecto' proyecto_seleccionado.id %}"
+                   class="btn btn-sm btn-error"
+                   title="Eliminar proyecto seleccionado">
+                  <i class="fas fa-trash mr-2"></i>
+                  Eliminar
+                </a>
+              {% else %}
+                <button class="btn btn-sm btn-error btn-disabled pointer-events-none opacity-60"
+                        title="Solo puedes eliminar proyectos que creaste"
+                        aria-disabled="true">
+                  <i class="fas fa-trash mr-2"></i>
+                  Eliminar
+                </button>
+              {% endif %}
             </div>
             {% endif %}
           </div>
           
           {% if proyectos %}
-          <div class="overflow-y-auto flex-1">
+          <div class="flex-1">
             <table class="table table-zebra">
               <thead>
                 <tr>
-                  <th>
-                    <a href="?sort_by=nombre&order={% if sort_by == 'nombre' and order == 'asc' %}desc{% else %}asc{% endif %}" 
-                       class="flex items-center gap-2 hover:text-primary transition-colors"
-                       onclick="event.stopPropagation();">
-                      <span>Nombre</span>
-                      {% if sort_by == 'nombre' %}
-                        {% if order == 'asc' %}
-                          <i class="fas fa-sort-up text-primary"></i>
-                        {% else %}
-                          <i class="fas fa-sort-down text-primary"></i>
-                        {% endif %}
-                      {% else %}
-                        <i class="fas fa-sort text-base-content/30"></i>
-                      {% endif %}
-                    </a>
-                  </th>
-                  <th>
-                    <a href="?sort_by=solicitante&order={% if sort_by == 'solicitante' and order == 'asc' %}desc{% else %}asc{% endif %}" 
-                       class="flex items-center gap-2 hover:text-primary transition-colors"
-                       onclick="event.stopPropagation();">
-                      <span>Solicitante</span>
-                      {% if sort_by == 'solicitante' %}
-                        {% if order == 'asc' %}
-                          <i class="fas fa-sort-up text-primary"></i>
-                        {% else %}
-                          <i class="fas fa-sort-down text-primary"></i>
-                        {% endif %}
-                      {% else %}
-                        <i class="fas fa-sort text-base-content/30"></i>
-                      {% endif %}
-                    </a>
-                  </th>
-                  <th>
-                    <a href="?sort_by=fecha_creacion&order={% if sort_by == 'fecha_creacion' and order == 'asc' %}desc{% else %}asc{% endif %}" 
-                       class="flex items-center gap-2 hover:text-primary transition-colors"
-                       onclick="event.stopPropagation();">
-                      <span>Fecha</span>
-                      {% if sort_by == 'fecha_creacion' %}
-                        {% if order == 'asc' %}
-                          <i class="fas fa-sort-up text-primary"></i>
-                        {% else %}
-                          <i class="fas fa-sort-down text-primary"></i>
-                        {% endif %}
-                      {% else %}
-                        <i class="fas fa-sort text-base-content/30"></i>
-                      {% endif %}
-                    </a>
-                  </th>
-                  <th>
-                    <a href="?sort_by=publico&order={% if sort_by == 'publico' and order == 'asc' %}desc{% else %}asc{% endif %}" 
-                       class="flex items-center gap-2 hover:text-primary transition-colors"
-                       onclick="event.stopPropagation();">
-                      <span>Público</span>
-                      {% if sort_by == 'publico' %}
-                        {% if order == 'asc' %}
-                          <i class="fas fa-sort-up text-primary"></i>
-                        {% else %}
-                          <i class="fas fa-sort-down text-primary"></i>
-                        {% endif %}
-                      {% else %}
-                        <i class="fas fa-sort text-base-content/30"></i>
-                      {% endif %}
-                    </a>
-                  </th>
-                  <th class="text-right">Usuario</th>
+                  <th>{% sortable_header 'Nombre' 'nombre' sort_by order %}</th>
+                  <th>{% sortable_header 'Solicitante' 'solicitante' sort_by order %}</th>
+                  <th>{% sortable_header 'Espec.' 'especificaciones' sort_by order %}</th>
+                  <th>{% sortable_header 'Acceso' 'publico' sort_by order %}</th>
+                  <th>{% sortable_header 'Usuario' 'usuario' sort_by order 'justify-end' %}</th>
                 </tr>
               </thead>
               <tbody>
                 {% for proyecto in proyectos %}
-                <tr class="cursor-pointer transition-colors {% if proyecto_seleccionado and proyecto_seleccionado.id == proyecto.id %}!bg-primary/70{% else %}hover:bg-base-200{% endif %}"
+                <tr class="cursor-pointer transition-colors {% if proyecto_seleccionado and proyecto_seleccionado.id == proyecto.id %}!bg-primary/70 text-white{% else %}hover:bg-base-200{% endif %} [&>td]:py-1 [&>td]:align-middle"
                     onclick="window.location.href='{% url 'main:seleccionar_proyecto' proyecto.id %}?next={{ request.get_full_path|urlencode }}'">
                   <td class="font-semibold">
-                    {% if proyecto_seleccionado and proyecto_seleccionado.id == proyecto.id %}
-                      <i class="fas fa-check-circle text-primary mr-2"></i>
-                    {% endif %}
+                    
                     {{ proyecto.nombre }}
                   </td>
                   <td>{{ proyecto.solicitante }}</td>
-                  <td>{{ proyecto.fecha_creacion|date:"d/m/Y" }}</td>
                   <td>
+                    <span class="badge badge-300">
+                      {{ proyecto.num_especificaciones|default:0 }}
+                    </span>
+                  </td>
+                  <td class="text-center">
                     {% if proyecto.publico %}
-                      <span class="badge badge-success">
+                      <span class="badge badge-info">
                         <i class="fas fa-globe mr-1"></i>
-                        Público
                       </span>
                     {% else %}
                       <span class="badge badge-base-300">
                         <i class="fas fa-lock mr-1"></i>
-                        Privado
                       </span>
                     {% endif %}
                   </td>
-                  <td class="text-right">
+                  <td class="text-center">
                     {% if proyecto.creado_por %}
                       {% with proyecto.creado_por.first_name|default:proyecto.creado_por.username as first_name %}
                         {% with proyecto.creado_por.last_name as last_name %}
@@ -210,6 +162,46 @@
                 {% endfor %}
               </tbody>
             </table>
+            <div class="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div class="flex items-center gap-2 text-sm">
+                <span class="text-base-content/70">Mostrando {{ page_obj.start_index }}-{{ page_obj.end_index }} de {{ page_obj.paginator.count }} proyectos</span>
+                <form method="get" class="flex items-center gap-2">
+                  <label for="per_page" class="font-semibold whitespace-nowrap">Mostrar</label>
+                  <select name="per_page" id="per_page" class="select select-bordered select-sm h-9" onchange="this.form.submit()">
+                    {% for option in per_page_options %}
+                      <option value="{{ option }}" {% if per_page == option %}selected{% endif %}>{{ option }}</option>
+                    {% endfor %}
+                  </select>
+                  <span class="whitespace-nowrap">por página</span>
+                  {% for key, value in request.GET.items %}
+                    {% if key != 'per_page' and key != 'page' %}
+                      <input type="hidden" name="{{ key }}" value="{{ value }}">
+                    {% endif %}
+                  {% endfor %}
+                </form>
+              </div>
+              <div class="join">
+                {% if page_obj.has_previous %}
+                  <a class="btn btn-sm join-item" href="?{% if base_query %}{{ base_query }}&{% endif %}page={{ page_obj.previous_page_number }}">Anterior</a>
+                {% else %}
+                  <button class="btn btn-sm join-item btn-disabled">Anterior</button>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                  {% if page_obj.number == num %}
+                    <button class="btn btn-sm join-item btn-active">{{ num }}</button>
+                  {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <a class="btn btn-sm join-item" href="?{% if base_query %}{{ base_query }}&{% endif %}page={{ num }}">{{ num }}</a>
+                  {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                  <a class="btn btn-sm join-item" href="?{% if base_query %}{{ base_query }}&{% endif %}page={{ page_obj.next_page_number }}">Siguiente</a>
+                {% else %}
+                  <button class="btn btn-sm join-item btn-disabled">Siguiente</button>
+                {% endif %}
+              </div>
+            </div>
           </div>
           {% else %}
           <div class="flex-1 flex items-center justify-center">

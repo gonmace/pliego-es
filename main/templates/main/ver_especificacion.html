@@ -1,0 +1,68 @@
+{% extends 'base_pliego.html' %}
+{% load static tailwind_tags %}
+
+{% block title %}Especificación: {{ especificacion.titulo }}{% endblock %}
+
+{% block breadcrumbs %}
+  <li class="flex items-center gap-2">
+    <span class="text-base-content/50">›</span>
+    <a href="{% url 'main:proyecto_main' %}" class="hover:text-primary transition-colors">Proyectos</a>
+  </li>
+  {% if breadcrumbs_origin == 'disponibles' %}
+    {% if dest_project %}
+      <li class="flex items-center gap-2">
+        <span class="text-base-content/50">›</span>
+        <a href="{% url 'main:proyecto_detalle' dest_project.id %}" class="hover:text-primary transition-colors">
+          {{ dest_project.nombre }}
+        </a>
+      </li>
+      <li class="flex items-center gap-2">
+        <span class="text-base-content/50">›</span>
+        <a href="{% url 'main:especificaciones_disponibles' %}?dest={{ dest_project.id }}" class="hover:text-primary transition-colors">
+          Especificaciones disponibles
+        </a>
+      </li>
+    {% else %}
+      <li class="flex items-center gap-2">
+        <span class="text-base-content/50">›</span>
+        <a href="{% url 'main:especificaciones_disponibles' %}" class="hover:text-primary transition-colors">
+          Especificaciones disponibles
+        </a>
+      </li>
+    {% endif %}
+  {% else %}
+    <li class="flex items-center gap-2">
+      <span class="text-base-content/50">›</span>
+      <a href="{% url 'main:proyecto_detalle' especificacion.proyecto.id %}" class="hover:text-primary transition-colors">
+        {{ especificacion.proyecto.nombre }}
+      </a>
+    </li>
+  {% endif %}
+  <li class="flex items-center gap-2">
+    <span class="text-base-content/50">›</span>
+    <span class="font-semibold text-base-content">{{ especificacion.titulo }}</span>
+  </li>
+{% endblock %}
+
+{% block content %}
+  <div class="px-4 py-6 max-w-5xl mx-auto w-full">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <p class="text-sm text-base-content/60 mt-2">
+          Proyecto: <span class="font-semibold">{{ especificacion.proyecto.nombre }}</span> ·
+          Creada {{ especificacion.fecha_creacion|date:"d/m/Y H:i" }} ·
+          Última actualización {{ especificacion.fecha_actualizacion|date:"d/m/Y H:i" }}
+        </p>
+      </div>
+
+    </div>
+
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body">
+        <div class="prose max-w-none">
+          {{ preview_html|safe }}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

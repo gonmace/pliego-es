@@ -1,0 +1,237 @@
+{% extends 'base_pliego.html' %}
+{% load static tailwind_tags main_tags %}
+
+{% block title %}Especificaciones Disponibles{% endblock %}
+
+{% block breadcrumbs %}
+  <li class="flex items-center gap-2">
+    <span class="text-base-content/50">›</span>
+    <a href="{% url 'main:proyecto_main' %}" class="hover:text-primary transition-colors">Proyectos</a>
+  </li>
+  {% if dest_project %}
+    <li class="flex items-center gap-2">
+      <span class="text-base-content/50">›</span>
+      <a href="{% url 'main:proyecto_detalle' dest_project.id %}" class="hover:text-primary transition-colors">
+        {{ dest_project.nombre }}
+      </a>
+    </li>
+  {% endif %}
+  <li class="flex items-center gap-2">
+    <span class="text-base-content/50">›</span>
+    <span class="font-semibold text-base-content">Especificaciones disponibles</span>
+  </li>
+{% endblock %}
+
+{% block content %}
+  <div class="px-4 py-6 max-w-7xl mx-auto w-full">
+    <div class="flex flex-col gap-4">
+
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+          {% if especificaciones %}
+            <div class="flex justify-between items-center mb-4">
+              <div class="text-sm text-base-content/70">
+                Total especificaciones disponibles: <span class="font-semibold">{{ especificaciones|length }}</span>
+              </div>
+              <div class="flex items-center gap-2">
+                {% if mis_proyectos %}
+                  <label id="bulk-copy-trigger" for="bulk-copy-modal" class="btn btn-primary btn-sm btn-disabled opacity-60" aria-disabled="true">
+                    <i class="fas fa-copy mr-2"></i>
+                    Copiar a proyecto
+                  </label>
+                {% endif %}
+
+              </div>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="table table-zebra" id="tabla-especificaciones">
+                <thead>
+                  <tr class="uppercase text-xs tracking-wide text-base-content/70">
+                    <th class="w-12">
+                      <input type="checkbox" class="checkbox checkbox-sm" id="master-checkbox">
+                    </th>
+                    <th>
+                      {% sortable_header 'Nombre' 'nombre' sort_by order %}
+                    </th>
+                    <th>
+                      {% sortable_header 'Proyecto' 'proyecto' sort_by order %}
+                    </th>
+                    <th>
+                      {% sortable_header 'Fecha de creación' 'fecha' sort_by order %}
+                    </th>
+                    <th class="text-right">ACCIONES</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for especificacion in especificaciones %}
+                    <tr>
+                      <td class="align-top">
+                        <input type="checkbox" class="checkbox checkbox-sm spec-checkbox" value="{{ especificacion.id }}">
+                      </td>
+                      <td class="align-top">
+                        <div class="flex flex-col">
+                          <span class="font-semibold">{{ especificacion.titulo }}</span>
+                          <span class="text-xs text-base-content/60">Última actualización {{ especificacion.fecha_actualizacion|date:"d/m/Y H:i" }}</span>
+                        </div>
+                      </td>
+                      <td class="align-top">
+                        <div class="flex flex-col">
+                          <span class="font-medium">{{ especificacion.proyecto.nombre }}</span>
+                          <span class="text-xs text-base-content/60">{{ especificacion.proyecto.solicitante }}</span>
+                        </div>
+                      </td>
+                      <td class="align-top">{{ especificacion.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                      <td class="align-top text-right">
+                        <a href="{% url 'main:ver_especificacion' especificacion.id %}?from=disponibles{% if dest_project %}&dest={{ dest_project.id }}{% endif %}" class="btn btn-sm btn-circle btn-outline" title="Ver especificación">
+                          <i class="fas fa-eye"></i>
+                        </a>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle mr-2"></i>
+              No existen especificaciones disponibles para los proyectos visibles.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% if mis_proyectos %}
+<input type="checkbox" id="bulk-copy-modal" class="modal-toggle" />
+<div class="modal" role="dialog">
+  <div class="modal-box max-w-lg">
+    <label for="bulk-copy-modal" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</label>
+    <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+      <i class="fas fa-copy"></i>
+      Copiar especificaciones seleccionadas
+    </h3>
+    <form method="post" action="{% url 'main:copiar_especificaciones' %}" id="bulk-copy-form" class="space-y-4">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+      <div id="bulk-spec-inputs"></div>
+      {% if dest_project %}
+        <input type="hidden" name="proyecto_destino" value="{{ dest_project.id }}">
+        <p class="text-sm text-base-content/70">
+          Se copiarán al proyecto <span class="font-semibold">{{ dest_project.nombre }}</span>.
+        </p>
+      {% else %}
+        <div class="form-control">
+          <label class="label" for="bulk-select-proyecto">
+            <span class="label-text font-semibold">Selecciona el proyecto destino</span>
+          </label>
+          <select id="bulk-select-proyecto" name="proyecto_destino" class="select select-bordered w-full" required>
+            <option value="" disabled selected>Elige un proyecto...</option>
+            {% for proyecto in mis_proyectos %}
+              <option value="{{ proyecto.id }}">{{ proyecto.nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      {% endif %}
+      <div class="modal-action">
+        <label for="bulk-copy-modal" class="btn btn-ghost">Cancelar</label>
+        <button type="submit" class="btn btn-primary">Copiar</button>
+      </div>
+    </form>
+  </div>
+  <label class="modal-backdrop" for="bulk-copy-modal">Cerrar</label>
+</div>
+{% endif %}
+
+{% block js %}
+<script>
+  (function () {
+    const masterCheckbox = document.getElementById('master-checkbox');
+    const checkboxes = Array.from(document.querySelectorAll('.spec-checkbox'));
+    const trigger = document.getElementById('bulk-copy-trigger');
+    const modalToggle = document.getElementById('bulk-copy-modal');
+    const form = document.getElementById('bulk-copy-form');
+    const inputsContainer = document.getElementById('bulk-spec-inputs');
+
+    if (!trigger || !modalToggle || !inputsContainer) {
+      return;
+    }
+
+    function getCheckboxes() {
+      return Array.from(document.querySelectorAll('.spec-checkbox'));
+    }
+
+    function updateTriggerState() {
+      const selected = getCheckboxes().filter(cb => cb.checked).map(cb => cb.value);
+      if (selected.length > 0) {
+        trigger.classList.remove('btn-disabled', 'opacity-60');
+        trigger.setAttribute('aria-disabled', 'false');
+        trigger.onclick = function (event) {
+          const currentSelected = getCheckboxes().filter(cb => cb.checked).map(cb => cb.value);
+          if (currentSelected.length === 0) {
+            event.preventDefault();
+            return;
+          }
+          modalToggle.checked = true;
+          inputsContainer.innerHTML = '';
+          const select = document.getElementById('bulk-select-proyecto');
+          if (select) {
+            select.selectedIndex = 0;
+          }
+          currentSelected.forEach(id => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'especificaciones';
+            input.value = id;
+            inputsContainer.appendChild(input);
+          });
+        };
+      } else {
+        trigger.classList.add('btn-disabled', 'opacity-60');
+        trigger.setAttribute('aria-disabled', 'true');
+        trigger.onclick = function (event) {
+          event.preventDefault();
+        };
+      }
+    }
+
+    const currentCheckboxes = getCheckboxes();
+    if (masterCheckbox && currentCheckboxes.length) {
+      masterCheckbox.addEventListener('change', function () {
+        currentCheckboxes.forEach(cb => {
+          cb.checked = masterCheckbox.checked;
+        });
+        updateTriggerState();
+      });
+
+      currentCheckboxes.forEach(cb => {
+        cb.addEventListener('change', function () {
+          if (!cb.checked && masterCheckbox) {
+            masterCheckbox.checked = false;
+          } else if (masterCheckbox && getCheckboxes().every(box => box.checked)) {
+            masterCheckbox.checked = true;
+          }
+          updateTriggerState();
+        });
+      });
+    } else {
+      getCheckboxes().forEach(cb => {
+        cb.addEventListener('change', updateTriggerState);
+      });
+    }
+
+    updateTriggerState();
+
+    if (form) {
+      form.addEventListener('submit', function (event) {
+        const selected = getCheckboxes().filter(cb => cb.checked).map(cb => cb.value);
+        if (selected.length === 0) {
+          event.preventDefault();
+          alert('Selecciona al menos una especificación para copiar.');
+        }
+      });
+    }
+  })();
+</script>
+{% endblock %}

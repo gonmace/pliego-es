@@ -1,4 +1,4 @@
-{% load static %}
+{% load static tailwind_tags %}
 <!DOCTYPE html>
 <html lang="en" data-theme="constructor" class="bg-base-300">
 
@@ -13,8 +13,12 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE" />
 
+
     <!-- Font Awesome -->
+    <link rel="stylesheet" href="{% static 'fontawesome/css/all.min.css' %}">
     
+    {% tailwind_css %}
+  
 
     <!-- <link rel="stylesheet"  href="{% static 'constructor-app/js/assets/css/admin/module.admin.page.index.min.css' %}" /> -->
     <!-- <link rel="stylesheet" 
@@ -94,6 +98,57 @@
     <!--End of Sidebar-->
 
     <!--Main Content-->
+
+    <div class="bg-primary text-white shadow z-50">
+        <div class="px-4 py-2 flex items-center">
+            <div class="flex items-center space-x-4">
+                <a href="/" class="text-lg font-semibold tracking-wide">GDAR</a>
+            </div>
+            <div class="flex-1 flex items-center justify-center">
+                <span class="text-lg font-semibold tracking-wide uppercase">
+                    {% block navbar_title %}{% block title %}Principal{% endblock %}{% endblock %}
+                </span>
+            </div>
+            <div class="flex items-center gap-4">
+                {% block navbar_right %}{% endblock %}
+                {% if request.user.is_authenticated %}
+                <div class="inline-flex items-center gap-2">
+                    {% with request.user.first_name|default:request.user.username as first_name %}
+                      {% with request.user.last_name as last_name %}
+                        <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-base-200 text-base-content font-semibold uppercase">
+                          {{ first_name|slice:':1' }}{{ last_name|default:''|slice:':1' }}
+                        </span>
+                      {% endwith %}
+                    {% endwith %}
+                </div>
+                <form action="{% url 'logout' %}" method="post" class="m-0">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-ghost text-white hover:text-primary-content">
+                        <i class="fas fa-sign-out-alt mr-2"></i>
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% block breadcrumbs_bar %}
+    <div class="bg-base-100 border-b border-base-300">
+        <nav class="px-4 py-2 max-w-7xl mx-auto" aria-label="Breadcrumb">
+            <ol class="flex flex-wrap items-center gap-2 text-sm text-base-content/70">
+                <li class="flex items-center gap-2">
+                    <a href="{% url 'main:proyecto_main' %}" class="hover:text-primary transition-colors flex items-center gap-1">
+                        <i class="fas fa-home text-xs"></i>
+                        <span>Inicio</span>
+                    </a>
+                    {% block breadcrumbs_separator %}{% endblock %}
+                </li>
+                {% block breadcrumbs %}
+                {% endblock %}
+            </ol>
+        </nav>
+    </div>
+    {% endblock %}
 
     <div id="content">
         {% block content %}

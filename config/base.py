@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'esp_generica',
     'embeddings',
     'main.apps.MainConfig',
+    'login.apps.LoginConfig',
 
 ]
 
@@ -171,8 +172,8 @@ REST_FRAMEWORK = {
 CORS_ALLOW_ALL_ORIGINS = True  # Solo para desarrollo, en producción especifica los orígenes permitidos
 CORS_ALLOW_CREDENTIALS = True
 
-# LOGIN_URL = 'login'  # nombre de la URL de login
-# LOGIN_REDIRECT_URL = '/chat/legal/'  # a dónde redirigir después del login
-# LOGOUT_REDIRECT_URL = '/login/'  # a dónde redirigir después del logout
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/proyecto/'
+LOGOUT_REDIRECT_URL = '/login/'
 
 ALLOWED_HOSTS = ['pliego.magoreal.com']

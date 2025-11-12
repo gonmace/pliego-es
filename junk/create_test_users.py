@@ -1,7 +1,13 @@
 import os
+import sys
+from pathlib import Path
 import django
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+BASE_DIR = Path(__file__).resolve().parents[1]
+if str(BASE_DIR) not in sys.path:
+    sys.path.append(str(BASE_DIR))
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.dev')
 django.setup()
 
 from django.contrib.auth import get_user_model

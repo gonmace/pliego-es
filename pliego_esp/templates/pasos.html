@@ -6,20 +6,21 @@
 {% endblock %}
 
 {% block css %}
-  {% tailwind_css %}
-  <link rel="stylesheet" href="{% static 'fontawesome/css/all.min.css' %}" />
+
 {% endblock %}
 
 {% block title %}
-
+Generar Especificacion
 {% endblock %}
+
+{% block breadcrumbs_bar %}{% endblock %}
 
 {% block body_class %}
   
 {% endblock %}
 
 {% block content %}
-  <!-- Navbar -->
+  {% comment %} <!-- Navbar -->
   <div class="bg-primary text-white shadow z-50">
     <div class="flex items-center justify-between px-4 py-2">
       <!-- Izquierda -->
@@ -31,7 +32,7 @@
         <a href="main" class="text-lg font-semibold tracking-wide">GDAR</a>
       </div>
     </div>
-  </div>
+  </div> {% endcomment %}
 
 <!-- Modal de confirmación -->
 <dialog id="modal_parametros" class="modal">

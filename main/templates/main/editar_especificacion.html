@@ -11,17 +11,31 @@
   Editar Especificación: {{ especificacion.titulo }}
 {% endblock %}
 
+{% block breadcrumbs %}
+  <li class="flex items-center gap-2">
+    <span class="text-base-content/50">›</span>
+    <a href="{% url 'main:proyecto_main' %}" class="hover:text-primary transition-colors">Proyectos</a>
+  </li>
+  <li class="flex items-center gap-2">
+    <span class="text-base-content/50">›</span>
+    <a href="{% url 'main:proyecto_detalle' proyecto.id %}" class="hover:text-primary transition-colors">
+      {{ proyecto.nombre }}
+    </a>
+  </li>
+  <li class="flex items-center gap-2">
+    <span class="text-base-content/50">›</span>
+    <a href="{% url 'main:ver_especificacion' especificacion.id %}" class="hover:text-primary transition-colors">
+      {{ especificacion.titulo }}
+    </a>
+  </li>
+  <li class="flex items-center gap-2">
+    <span class="text-base-content/50">›</span>
+    <span class="font-semibold text-base-content">Editar</span>
+  </li>
+{% endblock %}
+
 {% block content %}
-  <div class="bg-primary text-white shadow z-50">
-    <div class="flex items-center justify-between px-4 py-2">
-      <div class="flex items-center space-x-4">
-        <a href="{% url 'main:proyecto_detalle' proyecto.id %}" class="text-white focus:outline-none">
-          <i class="fas fa-arrow-left text-xl"></i>
-        </a>
-        <span class="text-lg font-semibold tracking-wide">Editar Especificación</span>
-      </div>
-    </div>
-  </div>
+
 
   <div class="flex flex-col items-center justify-center mt-6 px-4">
     <div class="w-full max-w-4xl">
@@ -31,10 +45,7 @@
 
       <div class="card bg-base-100 shadow-xl">
         <div class="card-body space-y-6">
-          <h2 class="card-title text-2xl font-semibold">
-            <i class="fas fa-edit mr-2 text-warning"></i>
-            {{ especificacion.titulo }}
-          </h2>
+
 
           <form method="post" class="space-y-6">
             {% csrf_token %}
