@@ -47,12 +47,24 @@
     const tituloElement = document.getElementById('eliminar-especificacion-titulo');
     const idInput = document.getElementById('eliminar-especificacion-id');
 
+    // Función para restablecer el estado del botón
+    function resetSubmitButton() {
+      const submitButton = form.querySelector('button[type="submit"]');
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.innerHTML = '<i class="fas fa-trash mr-2"></i>Eliminar';
+      }
+    }
+
     // Función para abrir el modal
     function openEliminarModal(especificacionId, especificacionTitulo) {
       if (!modal || !tituloElement || !idInput) {
         console.error('Elementos del modal de eliminar especificación no encontrados');
         return;
       }
+
+      // Restablecer el estado del botón antes de abrir
+      resetSubmitButton();
 
       tituloElement.textContent = `"${especificacionTitulo}"`;
       idInput.value = especificacionId;
@@ -63,6 +75,47 @@
         modal.setAttribute('open', '');
         modal.classList.add('modal-open');
       }
+
+      // Agregar listener para Enter después de abrir el modal
+      setTimeout(() => {
+        const handleEnterKey = function(e) {
+          // Solo procesar si el modal está abierto y visible
+          if (!modal.hasAttribute('open') && !modal.classList.contains('modal-open')) {
+            return;
+          }
+          
+          // Solo procesar Enter, no otras combinaciones
+          if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) {
+            // No procesar si el usuario está escribiendo en un input o textarea
+            const activeElement = document.activeElement;
+            if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+              return;
+            }
+            
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const submitButton = form.querySelector('button[type="submit"]');
+            if (submitButton && !submitButton.disabled) {
+              // Disparar el evento submit del formulario
+              form.requestSubmit();
+            }
+          }
+        };
+        
+        // Remover listener anterior si existe
+        if (modal._enterKeyHandler) {
+          document.removeEventListener('keydown', modal._enterKeyHandler);
+        }
+        
+        // Guardar referencia al handler para poder removerlo después
+        modal._enterKeyHandler = handleEnterKey;
+        // Agregar el listener al documento para capturar mejor los eventos
+        document.addEventListener('keydown', handleEnterKey);
+        
+        // Enfocar el modal para que capture mejor los eventos de teclado
+        modal.focus();
+      }, 100);
     }
 
     // Manejar el envío del formulario
@@ -169,11 +222,35 @@
     // Manejar el botón cancelar
     if (cancelButton) {
       cancelButton.addEventListener('click', function() {
+        resetSubmitButton();
         if (typeof modal.close === 'function') {
           modal.close();
         } else {
           modal.removeAttribute('open');
           modal.classList.remove('modal-open');
+        }
+      });
+    }
+
+    // Restablecer el botón cuando se cierra el modal (por cualquier razón)
+    if (modal) {
+      modal.addEventListener('close', function() {
+        resetSubmitButton();
+        // Remover el listener de Enter cuando se cierra el modal
+        if (modal._enterKeyHandler) {
+          document.removeEventListener('keydown', modal._enterKeyHandler);
+          modal._enterKeyHandler = null;
+        }
+      });
+      
+      // También manejar cuando se cierra haciendo clic fuera del modal
+      modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+          resetSubmitButton();
+          if (modal._enterKeyHandler) {
+            document.removeEventListener('keydown', modal._enterKeyHandler);
+            modal._enterKeyHandler = null;
+          }
         }
       });
     }

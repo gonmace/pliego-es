@@ -4646,6 +4646,11 @@
     }
   }
   @media (hover: hover) {
+    .hover\:text-base-content:hover {
+      color: var(--color-base-content);
+    }
+  }
+  @media (hover: hover) {
     .hover\:text-base-content\/70:hover {
       color: var(--color-base-content);
     }
