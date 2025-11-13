@@ -145,4 +145,11 @@
   .btn.btn-copy:focus-visible {
     outline-color: var(--color-copy);
   }
+
+  /* Icono de imagen sin imágenes - efecto relieve */
+  .gestionar-imagenes-btn i.text-base-content\/20 {
+    color: var(--color-base-content);
+    opacity: 0.2;
+    filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.1));
+  }
 }

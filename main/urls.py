@@ -20,5 +20,9 @@ urlpatterns = [
     path('especificaciones/copiar/', views.copiar_especificaciones_view, name='copiar_especificaciones'),
     path('<int:proyecto_id>/reordenar-especificaciones/', views.reordenar_especificaciones_view, name='reordenar_especificaciones'),
     path('<int:proyecto_id>/mover-especificacion/', views.mover_especificacion_view, name='mover_especificacion'),
+    path('especificacion/<int:especificacion_id>/imagenes/', views.obtener_imagenes_especificacion_view, name='obtener_imagenes_especificacion'),
+    path('especificacion/<int:especificacion_id>/subir-imagenes/', views.subir_imagenes_especificacion_view, name='subir_imagenes_especificacion'),
+    path('especificacion/imagen/<int:imagen_id>/eliminar/', views.eliminar_imagen_especificacion_view, name='eliminar_imagen_especificacion'),
+    path('especificacion/imagen/<int:imagen_id>/actualizar-descripcion/', views.actualizar_descripcion_imagen_view, name='actualizar_descripcion_imagen'),
 ]
 

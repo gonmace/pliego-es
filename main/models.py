@@ -4,6 +4,9 @@ from django.db.models import Max
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.utils.text import slugify
+from PIL import Image
+from io import BytesIO
+from django.core.files.base import ContentFile
 
 
 class Proyecto(models.Model):
@@ -39,6 +42,13 @@ def especificacion_upload_path(instance, filename):
     return f'especificaciones/{instance.proyecto_id}/{slug}-{timestamp}.md'
 
 
+def especificacion_imagen_upload_path(instance, filename):
+    base, ext = os.path.splitext(filename)
+    slug = slugify(instance.especificacion.titulo) or 'especificacion'
+    timestamp = timezone.now().strftime('%Y%m%d%H%M%S')
+    return f'especificaciones/{instance.especificacion.proyecto_id}/imagenes/{slug}-{timestamp}{ext}'
+
+
 class Especificacion(models.Model):
     proyecto = models.ForeignKey(
         Proyecto,
@@ -67,4 +77,73 @@ class Especificacion(models.Model):
 
     def __str__(self):
         return f"{self.titulo} ({self.proyecto.nombre})"
+    
+    def tiene_imagenes(self):
+        """Verifica si la especificación tiene imágenes asociadas"""
+        return self.imagenes.exists()
+    
+    def cantidad_imagenes(self):
+        """Retorna la cantidad de imágenes asociadas"""
+        return self.imagenes.count()
+
+
+class EspecificacionImagen(models.Model):
+    especificacion = models.ForeignKey(
+        Especificacion,
+        on_delete=models.CASCADE,
+        related_name='imagenes'
+    )
+    imagen = models.ImageField(upload_to=especificacion_imagen_upload_path)
+    descripcion = models.TextField(blank=True, verbose_name="Descripción")
+    fecha_subida = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-fecha_subida']
+        verbose_name = "Imagen de Especificación"
+        verbose_name_plural = "Imágenes de Especificaciones"
+    
+    def save(self, *args, **kwargs):
+        # Optimizar la imagen antes de guardar (solo si es nueva o se está actualizando)
+        if self.imagen and (not self.pk or 'imagen' in kwargs.get('update_fields', [])):
+            try:
+                img = Image.open(self.imagen)
+                
+                # Convertir a RGB si es necesario (para JPEG)
+                if img.mode in ('RGBA', 'LA', 'P'):
+                    background = Image.new('RGB', img.size, (255, 255, 255))
+                    if img.mode == 'P':
+                        img = img.convert('RGBA')
+                    background.paste(img, mask=img.split()[-1] if img.mode == 'RGBA' else None)
+                    img = background
+                elif img.mode != 'RGB':
+                    img = img.convert('RGB')
+                
+                # Redimensionar si es muy grande (máximo 1920px en el lado más largo)
+                max_size = 1920
+                if img.width > max_size or img.height > max_size:
+                    img.thumbnail((max_size, max_size), Image.Resampling.LANCZOS)
+                
+                # Guardar optimizada
+                output = BytesIO()
+                img.save(output, format='JPEG', quality=85, optimize=True)
+                output.seek(0)
+                
+                # Obtener el nombre del archivo original y cambiar la extensión a .jpg
+                original_name = os.path.splitext(self.imagen.name)[0]
+                new_filename = f"{original_name}.jpg"
+                
+                # Reemplazar el archivo original con el optimizado
+                self.imagen.save(
+                    new_filename,
+                    ContentFile(output.read()),
+                    save=False
+                )
+            except Exception as e:
+                # Si hay un error al optimizar, continuar con el guardado normal
+                print(f"Error al optimizar imagen: {e}")
+        
+        super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return f"Imagen de {self.especificacion.titulo}"
 

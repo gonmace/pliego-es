@@ -64,6 +64,20 @@
                               <i class="fas fa-grip-vertical"></i>
                             </div>
                           {% endif %}
+                          <button type="button" 
+                                  class="btn btn-ghost btn-sm p-1.5 h-8 min-h-8 gestionar-imagenes-btn" 
+                                  title="{% if especificacion.cantidad_imagenes > 0 %}Ver imágenes ({{ especificacion.cantidad_imagenes }}){% else %}Agregar imágenes{% endif %}"
+                                  data-especificacion-id="{{ especificacion.id }}"
+                                  data-especificacion-titulo="{{ especificacion.titulo|escape }}"
+                                  data-cantidad-imagenes="{{ especificacion.cantidad_imagenes }}">
+                            {% if especificacion.cantidad_imagenes == 0 %}
+                              <i class="fas fa-image text-lg text-base-content/20 opacity-50"></i>
+                            {% elif especificacion.cantidad_imagenes == 1 %}
+                              <i class="fas fa-image text-lg text-warning"></i>
+                            {% else %}
+                              <i class="fas fa-image text-lg text-success"></i>
+                            {% endif %}
+                          </button>
                           <h3 class="text-base font-semibold text-base-content flex-1 min-w-0 break-words">{{ especificacion.titulo }}</h3>
                         </div>
                         <div class="flex items-center gap-1">
@@ -183,6 +197,7 @@
   {% include 'main/modals/lista_especificaciones_modal.html' %}
   {% include 'main/modals/eliminar_especificacion_modal.html' %}
   {% include 'main/modals/mover_especificacion_modal.html' %}
+  {% include 'main/modals/gestionar_imagenes_modal.html' %}
 {% endblock %}
 
 {% block js %}
@@ -293,6 +308,19 @@
           especificacionPosicion,
           totalEspecificaciones
         );
+      }
+    }
+  });
+
+  // Manejar clics en botones de gestionar imágenes
+  document.addEventListener('click', function(event) {
+    const button = event.target.closest('.gestionar-imagenes-btn');
+    if (button) {
+      event.preventDefault();
+      const especificacionId = button.dataset.especificacionId;
+      const especificacionTitulo = button.dataset.especificacionTitulo;
+      if (window.openGestionarImagenesModal) {
+        window.openGestionarImagenesModal(especificacionId, especificacionTitulo);
       }
     }
   });

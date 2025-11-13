@@ -13,9 +13,10 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
+from django.conf import settings
 import json
 from markdown import markdown
-from .models import Proyecto, Especificacion
+from .models import Proyecto, Especificacion, EspecificacionImagen
 from .forms import ProyectoForm, EspecificacionForm
 
 
@@ -224,7 +225,7 @@ def proyecto_detalle_view(request, proyecto_id):
     request.session['proyecto_actual_id'] = proyecto.id
     request.session['proyecto_actual_nombre'] = proyecto.nombre
 
-    especificaciones = proyecto.especificaciones.all()
+    especificaciones = proyecto.especificaciones.prefetch_related('imagenes').all()
     
     # Inicializar el campo orden si no está establecido (solo si todas tienen orden 0)
     especificaciones_list = list(especificaciones)
@@ -233,7 +234,7 @@ def proyecto_detalle_view(request, proyecto_id):
             spec.orden = i
             spec.save(update_fields=['orden'])
         # Recargar las especificaciones con el nuevo orden
-        especificaciones = proyecto.especificaciones.all()
+        especificaciones = proyecto.especificaciones.prefetch_related('imagenes').all()
 
     spec_sort_by = request.GET.get('spec_sort_by', 'titulo')
     spec_order = request.GET.get('spec_order', 'asc')
@@ -652,6 +653,135 @@ def mover_especificacion_view(request, proyecto_id):
         return JsonResponse({'error': 'Datos JSON inválidos.'}, status=400)
     except ValueError as e:
         return JsonResponse({'error': f'Valor inválido: {str(e)}'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@login_required
+def obtener_imagenes_especificacion_view(request, especificacion_id):
+    """
+    Vista AJAX para obtener las imágenes de una especificación
+    """
+    especificacion = get_object_or_404(Especificacion, id=especificacion_id, proyecto__activo=True)
+    
+    # Verificar permisos
+    if not (especificacion.proyecto.publico or especificacion.proyecto.creado_por == request.user):
+        return JsonResponse({'error': 'No tienes permisos para ver las imágenes de esta especificación.'}, status=403)
+    
+    imagenes = especificacion.imagenes.all()
+    imagenes_data = [{
+        'id': img.id,
+        'url': img.imagen.url if img.imagen else '',
+        'descripcion': img.descripcion or '',
+        'fecha_subida': img.fecha_subida.strftime('%d/%m/%Y %H:%M')
+    } for img in imagenes]
+    
+    return JsonResponse({
+        'success': True,
+        'imagenes': imagenes_data
+    })
+
+
+@login_required
+@require_http_methods(["POST"])
+def subir_imagenes_especificacion_view(request, especificacion_id):
+    """
+    Vista AJAX para subir imágenes a una especificación
+    """
+    especificacion = get_object_or_404(Especificacion, id=especificacion_id, proyecto__activo=True)
+    
+    # Verificar que el usuario es propietario del proyecto
+    if especificacion.proyecto.creado_por != request.user:
+        return JsonResponse({'error': 'Solo puedes agregar imágenes a especificaciones de tus proyectos.'}, status=403)
+    
+    imagenes_subidas = request.FILES.getlist('imagenes')
+    
+    if not imagenes_subidas:
+        return JsonResponse({'error': 'No se proporcionaron imágenes.'}, status=400)
+    
+    imagenes_creadas = []
+    for imagen_file in imagenes_subidas:
+        # Validar que sea una imagen
+        try:
+            from PIL import Image
+            img = Image.open(imagen_file)
+            img.verify()
+            imagen_file.seek(0)  # Resetear el archivo después de verificar
+        except Exception:
+            continue
+        
+        especificacion_imagen = EspecificacionImagen(
+            especificacion=especificacion,
+            imagen=imagen_file
+        )
+        especificacion_imagen.save()
+        imagenes_creadas.append({
+            'id': especificacion_imagen.id,
+            'url': especificacion_imagen.imagen.url
+        })
+    
+    if not imagenes_creadas:
+        return JsonResponse({'error': 'No se pudieron procesar las imágenes. Asegúrate de que sean archivos de imagen válidos.'}, status=400)
+    
+    return JsonResponse({
+        'success': True,
+        'message': f'{len(imagenes_creadas)} imagen(es) subida(s) correctamente.',
+        'imagenes': imagenes_creadas
+    })
+
+
+@login_required
+@require_http_methods(["POST"])
+def eliminar_imagen_especificacion_view(request, imagen_id):
+    """
+    Vista AJAX para eliminar una imagen de una especificación
+    """
+    imagen = get_object_or_404(EspecificacionImagen, id=imagen_id)
+    especificacion = imagen.especificacion
+    
+    # Verificar que el usuario es propietario del proyecto
+    if especificacion.proyecto.creado_por != request.user:
+        return JsonResponse({'error': 'Solo puedes eliminar imágenes de especificaciones de tus proyectos.'}, status=403)
+    
+    # Eliminar el archivo físico
+    if imagen.imagen:
+        imagen.imagen.delete(save=False)
+    
+    imagen.delete()
+    
+    return JsonResponse({
+        'success': True,
+        'message': 'Imagen eliminada correctamente.'
+    })
+
+
+@login_required
+@require_http_methods(["POST"])
+def actualizar_descripcion_imagen_view(request, imagen_id):
+    """
+    Vista AJAX para actualizar la descripción de una imagen
+    """
+    imagen = get_object_or_404(EspecificacionImagen, id=imagen_id)
+    especificacion = imagen.especificacion
+    
+    # Verificar que el usuario es propietario del proyecto
+    if especificacion.proyecto.creado_por != request.user:
+        return JsonResponse({'error': 'Solo puedes editar descripciones de imágenes de tus proyectos.'}, status=403)
+    
+    try:
+        data = json.loads(request.body)
+        descripcion = data.get('descripcion', '').strip()
+        
+        imagen.descripcion = descripcion
+        imagen.save(update_fields=['descripcion'])
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Descripción actualizada correctamente.'
+        })
+    
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Datos JSON inválidos.'}, status=400)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
