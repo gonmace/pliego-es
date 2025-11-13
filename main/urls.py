@@ -18,5 +18,7 @@ urlpatterns = [
     path('especificacion/<int:especificacion_id>/eliminar/', views.eliminar_especificacion_view, name='eliminar_especificacion'),
     path('especificacion/<int:especificacion_id>/copiar/', views.copiar_especificacion_view, name='copiar_especificacion'),
     path('especificaciones/copiar/', views.copiar_especificaciones_view, name='copiar_especificaciones'),
+    path('<int:proyecto_id>/reordenar-especificaciones/', views.reordenar_especificaciones_view, name='reordenar_especificaciones'),
+    path('<int:proyecto_id>/mover-especificacion/', views.mover_especificacion_view, name='mover_especificacion'),
 ]
 

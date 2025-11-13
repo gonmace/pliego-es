@@ -36,6 +36,16 @@
   --color-warning-content: oklch(98% 0.002 247.839);
   --color-error: #b55151;
   --color-error-content: oklch(98% 0.003 247.858);
+  
+  --color-edit: #f0b100;
+  --color-edit-content: #fff;
+  --color-delete: #e7000b;
+  --color-delete-content: #fff;
+  --color-view: #2b7fff;
+  --color-view-content: #fff;
+  --color-copy: #00b8db;
+  --color-copy-content: #fff;
+  
 }
 
 /* @config "./tailwind.config.js"; */
@@ -69,5 +79,70 @@
   }
   .prose li {
     @apply !text-base;
+  }
+
+  /* Botones personalizados para DaisyUI */
+  .btn.btn-edit {
+    --btn-color: var(--color-edit);
+    --btn-fg: var(--color-edit-content);
+    background-color: var(--color-edit);
+    color: var(--color-edit-content) !important;
+    border-color: var(--color-edit);
+  }
+  .btn.btn-edit:hover {
+    background-color: color-mix(in srgb, var(--color-edit) 90%, black);
+    border-color: color-mix(in srgb, var(--color-edit) 90%, black);
+    color: var(--color-edit-content) !important;
+  }
+  .btn.btn-edit:focus-visible {
+    outline-color: var(--color-edit);
+  }
+
+  .btn.btn-delete {
+    --btn-color: var(--color-delete);
+    --btn-fg: var(--color-delete-content);
+    background-color: var(--color-delete);
+    color: var(--color-delete-content) !important;
+    border-color: var(--color-delete);
+  }
+  .btn.btn-delete:hover {
+    background-color: color-mix(in srgb, var(--color-delete) 90%, black);
+    border-color: color-mix(in srgb, var(--color-delete) 90%, black);
+    color: var(--color-delete-content) !important;
+  }
+  .btn.btn-delete:focus-visible {
+    outline-color: var(--color-delete);
+  }
+
+  .btn.btn-view {
+    --btn-color: var(--color-view);
+    --btn-fg: var(--color-view-content);
+    background-color: var(--color-view);
+    color: var(--color-view-content) !important;
+    border-color: var(--color-view);
+  }
+  .btn.btn-view:hover {
+    background-color: color-mix(in srgb, var(--color-view) 90%, black);
+    border-color: color-mix(in srgb, var(--color-view) 90%, black);
+    color: var(--color-view-content) !important;
+  }
+  .btn.btn-view:focus-visible {
+    outline-color: var(--color-view);
+  }
+
+  .btn.btn-copy {
+    --btn-color: var(--color-copy);
+    --btn-fg: var(--color-copy-content);
+    background-color: var(--color-copy);
+    color: var(--color-copy-content) !important;
+    border-color: var(--color-copy);
+  }
+  .btn.btn-copy:hover {
+    background-color: color-mix(in srgb, var(--color-copy) 90%, black);
+    border-color: color-mix(in srgb, var(--color-copy) 90%, black);
+    color: var(--color-copy-content) !important;
+  }
+  .btn.btn-copy:focus-visible {
+    outline-color: var(--color-copy);
   }
 }

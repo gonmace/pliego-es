@@ -39,7 +39,7 @@
                   <i class="fas fa-list-ul mr-2"></i>
                   Especificaciones disponibles
                 </a>
-                </div>
+              </div>
         </div>
       </div>
 
@@ -75,7 +75,7 @@
               </a>
 
               {% if proyecto_seleccionado.creado_por_id == request.user.id %}
-                <a href="{% url 'main:editar_proyecto' proyecto_seleccionado.id %}" class="btn btn-sm btn-secondary" title="Editar proyecto seleccionado">
+                <a href="{% url 'main:editar_proyecto' proyecto_seleccionado.id %}" class="btn btn-sm btn-edit" title="Editar proyecto seleccionado">
                   <i class="fas fa-edit mr-2"></i>
                   Editar
                 </a>
@@ -89,13 +89,13 @@
               {% endif %}
               {% if proyecto_seleccionado.creado_por_id == request.user.id %}
                 <a href="{% url 'main:eliminar_proyecto' proyecto_seleccionado.id %}"
-                   class="btn btn-sm btn-error"
+                   class="btn btn-sm btn-delete"
                    title="Eliminar proyecto seleccionado">
                   <i class="fas fa-trash mr-2"></i>
                   Eliminar
                 </a>
               {% else %}
-                <button class="btn btn-sm btn-error btn-disabled pointer-events-none opacity-60"
+                <button class="btn btn-sm btn-delete btn-disabled pointer-events-none opacity-60"
                         title="Solo puedes eliminar proyectos que creaste"
                         aria-disabled="true">
                   <i class="fas fa-trash mr-2"></i>
@@ -222,5 +222,124 @@
 {% endblock %}
 
 {% block js %}
+<script>
+  (function () {
+    const STORAGE_KEY_SORT_BY = 'proyecto_main_sort_by';
+    const STORAGE_KEY_ORDER = 'proyecto_main_order';
+    const STORAGE_KEY_PROYECTO_ID = 'proyecto_main_seleccionado_id';
+    const STORAGE_KEY_PROYECTO_NOMBRE = 'proyecto_main_seleccionado_nombre';
+
+    // Función para guardar el estado de sort en localStorage
+    function saveSortState(sortBy, order) {
+      try {
+        localStorage.setItem(STORAGE_KEY_SORT_BY, sortBy);
+        localStorage.setItem(STORAGE_KEY_ORDER, order);
+      } catch (e) {
+        console.warn('No se pudo guardar el estado de sort en localStorage:', e);
+      }
+    }
+
+    // Función para guardar el proyecto seleccionado en localStorage
+    function saveProyectoSeleccionado(proyectoId, proyectoNombre) {
+      try {
+        localStorage.setItem(STORAGE_KEY_PROYECTO_ID, proyectoId.toString());
+        localStorage.setItem(STORAGE_KEY_PROYECTO_NOMBRE, proyectoNombre);
+      } catch (e) {
+        console.warn('No se pudo guardar el proyecto seleccionado en localStorage:', e);
+      }
+    }
+
+    // Función para obtener el estado de sort desde localStorage
+    function getSortState() {
+      try {
+        return {
+          sortBy: localStorage.getItem(STORAGE_KEY_SORT_BY) || null,
+          order: localStorage.getItem(STORAGE_KEY_ORDER) || null
+        };
+      } catch (e) {
+        console.warn('No se pudo leer el estado de sort desde localStorage:', e);
+        return { sortBy: null, order: null };
+      }
+    }
+
+    // Función para obtener el proyecto seleccionado desde localStorage
+    function getProyectoSeleccionado() {
+      try {
+        const id = localStorage.getItem(STORAGE_KEY_PROYECTO_ID);
+        const nombre = localStorage.getItem(STORAGE_KEY_PROYECTO_NOMBRE);
+        return id ? { id: id, nombre: nombre } : null;
+      } catch (e) {
+        console.warn('No se pudo leer el proyecto seleccionado desde localStorage:', e);
+        return null;
+      }
+    }
+
+    // Guardar el estado actual de sort si hay parámetros GET
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentSortBy = urlParams.get('sort_by');
+    const currentOrder = urlParams.get('order');
+
+    if (currentSortBy && currentOrder) {
+      saveSortState(currentSortBy, currentOrder);
+    } else {
+      // Si no hay parámetros GET, intentar restaurar desde localStorage
+      const savedSort = getSortState();
+      if (savedSort.sortBy && savedSort.order) {
+        // Redirigir con los parámetros guardados
+        const newUrl = new URL(window.location);
+        newUrl.searchParams.set('sort_by', savedSort.sortBy);
+        newUrl.searchParams.set('order', savedSort.order);
+        // Mantener otros parámetros como per_page y page
+        window.location.href = newUrl.toString();
+        return; // Salir temprano para evitar ejecutar el resto del código
+      }
+    }
+
+    // Guardar el proyecto seleccionado cuando se hace clic en una fila
+    const proyectoRows = document.querySelectorAll('tbody tr[onclick]');
+    proyectoRows.forEach(row => {
+      const originalOnclick = row.getAttribute('onclick');
+      if (originalOnclick) {
+        row.addEventListener('click', function(e) {
+          // Extraer el ID del proyecto de la URL en el onclick
+          const match = originalOnclick.match(/seleccionar\/(\d+)\//);
+          if (match && match[1]) {
+            const proyectoId = match[1];
+            // Intentar obtener el nombre del proyecto desde el DOM
+            const nombreCell = row.querySelector('td.font-semibold');
+            const proyectoNombre = nombreCell ? nombreCell.textContent.trim() : '';
+            saveProyectoSeleccionado(proyectoId, proyectoNombre);
+          }
+        });
+      }
+    });
+
+    // Guardar el estado de sort cuando se hace clic en los headers de ordenamiento
+    const sortableHeaders = document.querySelectorAll('thead a[href*="sort_by"]');
+    sortableHeaders.forEach(header => {
+      header.addEventListener('click', function(e) {
+        const href = this.getAttribute('href');
+        if (href) {
+          const url = new URL(href, window.location.origin);
+          const sortBy = url.searchParams.get('sort_by');
+          const order = url.searchParams.get('order');
+          if (sortBy && order) {
+            saveSortState(sortBy, order);
+          }
+        }
+      });
+    });
+
+    // Guardar el proyecto seleccionado actual si existe en la página
+    {% if proyecto_seleccionado %}
+    saveProyectoSeleccionado({{ proyecto_seleccionado.id }}, '{{ proyecto_seleccionado.nombre|escapejs }}');
+    {% endif %}
+
+    // Guardar el estado de sort actual si existe
+    {% if sort_by and order %}
+    saveSortState('{{ sort_by }}', '{{ order }}');
+    {% endif %}
+  })();
+</script>
 {% endblock %}
 

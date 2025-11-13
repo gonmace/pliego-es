@@ -11,6 +11,9 @@ from django.core.files.base import ContentFile
 from django.utils.text import slugify
 from django.utils import timezone
 from django.utils.safestring import mark_safe
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+import json
 from markdown import markdown
 from .models import Proyecto, Especificacion
 from .forms import ProyectoForm, EspecificacionForm
@@ -222,6 +225,15 @@ def proyecto_detalle_view(request, proyecto_id):
     request.session['proyecto_actual_nombre'] = proyecto.nombre
 
     especificaciones = proyecto.especificaciones.all()
+    
+    # Inicializar el campo orden si no está establecido (solo si todas tienen orden 0)
+    especificaciones_list = list(especificaciones)
+    if especificaciones_list and all(spec.orden == 0 for spec in especificaciones_list):
+        for i, spec in enumerate(especificaciones_list, start=1):
+            spec.orden = i
+            spec.save(update_fields=['orden'])
+        # Recargar las especificaciones con el nuevo orden
+        especificaciones = proyecto.especificaciones.all()
 
     spec_sort_by = request.GET.get('spec_sort_by', 'titulo')
     spec_order = request.GET.get('spec_order', 'asc')
@@ -345,6 +357,8 @@ def eliminar_especificacion_view(request, especificacion_id):
     proyecto = especificacion.proyecto
 
     if proyecto.creado_por != request.user:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.content_type == 'application/json':
+            return JsonResponse({'error': 'Solo puedes eliminar especificaciones de tus proyectos.'}, status=403)
         messages.error(request, 'Solo puedes eliminar especificaciones de tus proyectos.')
         return redirect('main:proyecto_detalle', proyecto_id=proyecto.id)
 
@@ -352,9 +366,18 @@ def eliminar_especificacion_view(request, especificacion_id):
         if especificacion.archivo:
             especificacion.archivo.delete(save=False)
         especificacion.delete()
+        
+        # Si es una petición AJAX, devolver JSON
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.content_type == 'application/json':
+            return JsonResponse({
+                'success': True,
+                'message': 'Especificación eliminada correctamente.'
+            })
+        
         messages.success(request, 'Especificación eliminada correctamente.')
         return redirect('main:proyecto_detalle', proyecto_id=proyecto.id)
 
+    # Si es GET, mostrar la página de confirmación (para compatibilidad)
     return render(request, 'main/eliminar_especificacion.html', {
         'especificacion': especificacion,
         'proyecto': proyecto,
@@ -399,10 +422,15 @@ def especificaciones_disponibles_view(request):
 
     especificaciones = _get_especificaciones_accesibles(request)
 
+    def _safe_lower(value):
+        return (value or '').lower()
+
+    fallback_date = timezone.now()
+
     key_map = {
-        'nombre': lambda e: e.titulo.lower(),
-        'proyecto': lambda e: e.proyecto.nombre.lower(),
-        'fecha': lambda e: e.fecha_creacion,
+        'nombre': lambda e: _safe_lower(getattr(e, 'titulo', '')),
+        'proyecto': lambda e: _safe_lower(getattr(e.proyecto, 'nombre', '') if getattr(e, 'proyecto', None) else ''),
+        'fecha': lambda e: getattr(e, 'fecha_creacion', None) or fallback_date,
     }
 
     especificaciones.sort(key=key_map[sort_by], reverse=(order == 'desc'))
@@ -532,10 +560,7 @@ def copiar_especificaciones_view(request):
     else:
         messages.warning(request, 'No se copiaron especificaciones. Verifica la selección y tus permisos.')
 
-    next_url = request.POST.get('next')
-    if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
-        return redirect(next_url)
-    return redirect('main:proyecto_detalle', proyecto_destino.id)
+    return redirect('main:proyecto_main')
 
 
 @login_required
@@ -562,4 +587,110 @@ def editar_proyecto_view(request, proyecto_id):
         'form': form,
         'proyecto': proyecto
     })
+
+
+@login_required
+@require_http_methods(["POST"])
+def mover_especificacion_view(request, proyecto_id):
+    """
+    Vista AJAX para mover una especificación a una nueva posición
+    """
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id, activo=True)
+    
+    # Verificar que el usuario es propietario del proyecto
+    if proyecto.creado_por != request.user:
+        return JsonResponse({'error': 'No tienes permisos para mover especificaciones de este proyecto.'}, status=403)
+    
+    try:
+        data = json.loads(request.body)
+        especificacion_id = data.get('especificacion_id')
+        nueva_posicion = data.get('nueva_posicion')
+        
+        if not especificacion_id or not nueva_posicion:
+            return JsonResponse({'error': 'Faltan datos requeridos.'}, status=400)
+        
+        nueva_posicion = int(nueva_posicion)
+        if nueva_posicion < 1:
+            return JsonResponse({'error': 'La posición debe ser mayor a 0.'}, status=400)
+        
+        # Obtener la especificación a mover
+        especificacion = get_object_or_404(
+            Especificacion,
+            id=especificacion_id,
+            proyecto=proyecto
+        )
+        
+        posicion_actual = especificacion.orden
+        
+        if nueva_posicion == posicion_actual:
+            return JsonResponse({'error': 'La nueva posición es igual a la posición actual.'}, status=400)
+        
+        # Obtener todas las especificaciones ordenadas
+        especificaciones = list(proyecto.especificaciones.all().order_by('orden'))
+        total = len(especificaciones)
+        
+        if nueva_posicion > total:
+            return JsonResponse({'error': f'La posición máxima es {total}.'}, status=400)
+        
+        # Remover la especificación de su posición actual
+        especificaciones.remove(especificacion)
+        
+        # Insertar en la nueva posición (ajustar índice porque es 0-based)
+        especificaciones.insert(nueva_posicion - 1, especificacion)
+        
+        # Actualizar el orden de todas las especificaciones
+        for orden, especificacion_item in enumerate(especificaciones, start=1):
+            especificacion_item.orden = orden
+            especificacion_item.save(update_fields=['orden'])
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Especificación movida de la posición {posicion_actual} a la posición {nueva_posicion}.'
+        })
+    
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Datos JSON inválidos.'}, status=400)
+    except ValueError as e:
+        return JsonResponse({'error': f'Valor inválido: {str(e)}'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@login_required
+@require_http_methods(["POST"])
+def reordenar_especificaciones_view(request, proyecto_id):
+    """
+    Vista AJAX para reordenar las especificaciones de un proyecto
+    """
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id, activo=True)
+    
+    # Verificar que el usuario es propietario del proyecto
+    if proyecto.creado_por != request.user:
+        return JsonResponse({'error': 'No tienes permisos para reordenar las especificaciones de este proyecto.'}, status=403)
+    
+    try:
+        data = json.loads(request.body)
+        especificaciones_ids = data.get('especificaciones_ids', [])
+        
+        if not especificaciones_ids:
+            return JsonResponse({'error': 'No se proporcionaron IDs de especificaciones.'}, status=400)
+        
+        # Actualizar el orden de cada especificación
+        for orden, especificacion_id in enumerate(especificaciones_ids, start=1):
+            try:
+                especificacion = Especificacion.objects.get(
+                    id=especificacion_id,
+                    proyecto=proyecto
+                )
+                especificacion.orden = orden
+                especificacion.save(update_fields=['orden'])
+            except Especificacion.DoesNotExist:
+                continue
+        
+        return JsonResponse({'success': True, 'message': 'Orden actualizado correctamente.'})
+    
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Datos JSON inválidos.'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 

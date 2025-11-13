@@ -1,5 +1,6 @@
 import os
 from django.db import models
+from django.db.models import Max
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.utils.text import slugify
@@ -48,11 +49,21 @@ class Especificacion(models.Model):
     contenido = models.TextField(blank=True)
     archivo = models.FileField(upload_to=especificacion_upload_path, blank=True, null=True)
     token_cost = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    orden = models.PositiveIntegerField(default=0, db_index=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_actualizacion = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['-fecha_creacion']
+        ordering = ['orden', '-fecha_creacion']
+
+    def save(self, *args, **kwargs):
+        # Si es una nueva especificación y no tiene orden asignado, asignar el siguiente orden disponible
+        if self.pk is None and self.orden == 0:
+            max_orden = Especificacion.objects.filter(proyecto=self.proyecto).aggregate(
+                max_orden=Max('orden')
+            )['max_orden'] or 0
+            self.orden = max_orden + 1
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.titulo} ({self.proyecto.nombre})"

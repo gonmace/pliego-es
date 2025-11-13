@@ -35,7 +35,7 @@
               <div class="flex items-center gap-3">
                 <h2 class="card-title text-2xl m-0">
                   <i class="fas fa-list-alt mr-2"></i>
-                  Especificaciones
+                  Especificaciones del Proyecto
                 </h2>
               </div>
               <div class="flex flex-wrap gap-2">
@@ -44,36 +44,55 @@
                     <i class="fas fa-plus mr-1"></i>
                     Nueva
                   </a>
-                  <label for="lista-especificaciones-modal" class="btn btn-sm btn-outline cursor-pointer">
+                  <label for="lista-especificaciones-modal" class="btn btn-sm btn-view cursor-pointer">
                     <i class="fas fa-list mr-1"></i>
-                    Especificaciones
+                    Ver Especificaciones Disponibles
                   </label>
                 {% endif %}
               </div>
             </div>
 
             {% if especificaciones %}
-              <div class="space-y-3 overflow-y-auto max-h-[70vh] pr-1">
+              <div id="especificaciones-list" class="space-y-2 overflow-y-auto max-h-[70vh] pr-1">
                 {% for especificacion in especificaciones %}
-                  <div class="card bg-base-200/70 border border-base-300/60">
-                    <div class="card-body py-3">
-                      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                          <h3 class="text-lg font-semibold text-base-content">{{ especificacion.titulo }}</h3>
-                          <p class="text-sm text-base-content/60">Creada el {{ especificacion.fecha_creacion|date:"d/m/Y H:i" }}</p>
-                          <p class="text-sm text-base-content/60">Actualizada el {{ especificacion.fecha_actualizacion|date:"d/m/Y H:i" }}</p>
+                  <div class="card bg-base-200/70 border border-base-300/60 especificacion-item" data-especificacion-id="{{ especificacion.id }}">
+                    <div class="card-body py-2 px-4">
+                      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                        <div class="flex items-center gap-2 flex-1 min-w-0">
+                          {% if es_propietario %}
+                            <div class="cursor-move text-base-content/40 hover:text-base-content/70 transition-colors">
+                              <i class="fas fa-grip-vertical"></i>
+                            </div>
+                          {% endif %}
+                          <h3 class="text-base font-semibold text-base-content flex-1 min-w-0 break-words">{{ especificacion.titulo }}</h3>
                         </div>
-                        <div class="flex items-end">
-                          <a href="{% url 'main:ver_especificacion' especificacion.id %}?from=proyecto" class="btn btn-ghost text-blue-500" title="Ver">
+                        <div class="flex items-center gap-1">
+                          {% if es_propietario %}
+                          <button type="button" 
+                                  class="btn btn-ghost btn-sm text-purple-500 mover-especificacion-btn" 
+                                  title="Mover posición"
+                                  data-especificacion-id="{{ especificacion.id }}"
+                                  data-especificacion-titulo="{{ especificacion.titulo|escape }}"
+                                  data-especificacion-posicion="{{ especificacion.orden }}"
+                                  data-proyecto-id="{{ proyecto.id }}"
+                                  data-total-especificaciones="{{ especificaciones|length }}">
+                            <i class="fas fa-arrows-alt"></i>
+                          </button>
+                          {% endif %}
+                          <a href="{% url 'main:ver_especificacion' especificacion.id %}?from=proyecto" class="btn btn-ghost btn-sm text-blue-500" title="Ver">
                             <i class="fas fa-eye"></i>
                           </a>
                           {% if es_propietario %}
-                          <a href="{% url 'main:editar_especificacion' especificacion.id %}" class="btn btn-ghost text-yellow-500" title="Editar">
+                          <a href="{% url 'main:editar_especificacion' especificacion.id %}" class="btn btn-ghost btn-sm text-yellow-500" title="Editar">
                             <i class="fas fa-edit"></i>
                           </a>
-                          <a href="{% url 'main:eliminar_especificacion' especificacion.id %}" class="btn btn-ghost text-red-600" title="Eliminar">
+                          <button type="button" 
+                                  class="btn btn-ghost btn-sm text-red-600 eliminar-especificacion-btn" 
+                                  title="Eliminar"
+                                  data-especificacion-id="{{ especificacion.id }}"
+                                  data-especificacion-titulo="{{ especificacion.titulo|escape }}">
                             <i class="fas fa-trash"></i>
-                          </a>
+                          </button>
                           {% endif %}
                         </div>
                       </div>
@@ -162,7 +181,121 @@
     </div>
   </div>
   {% include 'main/modals/lista_especificaciones_modal.html' %}
+  {% include 'main/modals/eliminar_especificacion_modal.html' %}
+  {% include 'main/modals/mover_especificacion_modal.html' %}
 {% endblock %}
 
-{% block js %}{% endblock %}
+{% block js %}
+{% if es_propietario %}
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+<script>
+  (function() {
+    // Función para obtener el token CSRF
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+    const especificacionesList = document.getElementById('especificaciones-list');
+    if (!especificacionesList) return;
+
+    const sortable = new Sortable(especificacionesList, {
+      animation: 150,
+      handle: '.cursor-move',
+      ghostClass: 'opacity-50',
+      chosenClass: 'bg-base-300/50',
+      onEnd: function(evt) {
+        const items = especificacionesList.querySelectorAll('.especificacion-item');
+        const especificacionesIds = Array.from(items).map(item => 
+          parseInt(item.dataset.especificacionId)
+        );
+
+        // Enviar el nuevo orden al servidor
+        fetch('{% url "main:reordenar_especificaciones" proyecto.id %}', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+          },
+          body: JSON.stringify({
+            especificaciones_ids: especificacionesIds
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Opcional: mostrar un mensaje de éxito
+            if (window.flashy) {
+              flashy.success(data.message || 'Orden actualizado correctamente.');
+            }
+          } else {
+            console.error('Error al actualizar el orden:', data.error);
+            if (window.flashy) {
+              flashy.error(data.error || 'Error al actualizar el orden.');
+            }
+            // Recargar la página para restaurar el orden original
+            window.location.reload();
+          }
+        })
+        .catch(error => {
+          console.error('Error al actualizar el orden:', error);
+          if (window.flashy) {
+            flashy.error('Error al actualizar el orden. Recargando página...');
+          }
+          // Recargar la página para restaurar el orden original
+          setTimeout(() => window.location.reload(), 1000);
+        });
+      }
+    });
+  })();
+</script>
+{% endif %}
+
+<script>
+  // Manejar clics en botones de eliminar
+  document.addEventListener('click', function(event) {
+    const button = event.target.closest('.eliminar-especificacion-btn');
+    if (button) {
+      event.preventDefault();
+      const especificacionId = button.dataset.especificacionId;
+      const especificacionTitulo = button.dataset.especificacionTitulo;
+      if (window.openEliminarEspecificacionModal) {
+        window.openEliminarEspecificacionModal(especificacionId, especificacionTitulo);
+      }
+    }
+  });
+
+  // Manejar clics en botones de mover posición
+  document.addEventListener('click', function(event) {
+    const button = event.target.closest('.mover-especificacion-btn');
+    if (button) {
+      event.preventDefault();
+      const especificacionId = button.dataset.especificacionId;
+      const especificacionTitulo = button.dataset.especificacionTitulo;
+      const especificacionPosicion = parseInt(button.dataset.especificacionPosicion);
+      const proyectoId = button.dataset.proyectoId;
+      const totalEspecificaciones = parseInt(button.dataset.totalEspecificaciones);
+      if (window.openMoverEspecificacionModal) {
+        window.openMoverEspecificacionModal(
+          especificacionId,
+          especificacionTitulo,
+          proyectoId,
+          especificacionPosicion,
+          totalEspecificaciones
+        );
+      }
+    }
+  });
+</script>
+{% endblock %}
 
