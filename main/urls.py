@@ -24,5 +24,6 @@ urlpatterns = [
     path('especificacion/<int:especificacion_id>/subir-imagenes/', views.subir_imagenes_especificacion_view, name='subir_imagenes_especificacion'),
     path('especificacion/imagen/<int:imagen_id>/eliminar/', views.eliminar_imagen_especificacion_view, name='eliminar_imagen_especificacion'),
     path('especificacion/imagen/<int:imagen_id>/actualizar-descripcion/', views.actualizar_descripcion_imagen_view, name='actualizar_descripcion_imagen'),
+    path('<int:proyecto_id>/exportar-word/', views.exportar_proyecto_word_view, name='exportar_proyecto_word'),
 ]
 

@@ -11,11 +11,20 @@ from django.core.files.base import ContentFile
 from django.utils.text import slugify
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.conf import settings
 import json
+import os
+import io
+from docx import Document
+from docx.shared import Inches, Pt, RGBColor
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
 from markdown import markdown
+from bs4 import BeautifulSoup
+from PIL import Image
 from .models import Proyecto, Especificacion, EspecificacionImagen
 from .forms import ProyectoForm, EspecificacionForm
 
@@ -276,6 +285,281 @@ def proyecto_detalle_view(request, proyecto_id):
         'spec_order': spec_order,
         'spec_modal_open': spec_modal_open,
     })
+
+
+@login_required
+@require_http_methods(["GET"])
+def exportar_proyecto_word_view(request, proyecto_id):
+    """
+    Vista para exportar todas las especificaciones de un proyecto a un documento Word
+    """
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id, activo=True)
+    
+    # Verificar permisos
+    if not (proyecto.publico or proyecto.creado_por == request.user):
+        messages.error(request, 'No tienes permisos para exportar este proyecto.')
+        return redirect('main:proyecto_main')
+    
+    # Obtener todas las especificaciones ordenadas
+    especificaciones = proyecto.especificaciones.prefetch_related('imagenes').all().order_by('orden', '-fecha_creacion')
+    
+    # Crear el documento Word
+    doc = Document()
+    
+    # Configurar estilos
+    style = doc.styles['Normal']
+    font = style.font
+    font.name = 'Arial'
+    font.size = Pt(11)
+    
+    # Título del documento
+    title = doc.add_heading(proyecto.nombre, level=1)
+    title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    
+    # Información del proyecto
+    doc.add_paragraph(f'Solicitante: {proyecto.solicitante}')
+    doc.add_paragraph(f'Ubicación: {proyecto.ubicacion}')
+    doc.add_paragraph(f'Fecha de creación: {proyecto.fecha_creacion.strftime("%d/%m/%Y %H:%M")}')
+    if proyecto.descripcion:
+        doc.add_paragraph(f'Descripción: {proyecto.descripcion}')
+    
+    doc.add_paragraph()  # Espacio
+    
+    # Agregar cada especificación
+    for especificacion in especificaciones:
+        # Contenido de la especificación (convertir markdown a HTML y luego procesar)
+        contenido_html = markdown(especificacion.contenido or '', extensions=['extra'])
+        
+        # Parsear el HTML para detectar headings y otros elementos
+        soup = BeautifulSoup(contenido_html, 'html.parser')
+        
+        # Función para agregar texto con formato a un párrafo
+        def add_formatted_text(para, elem):
+            """Agrega texto con formato (negritas, cursivas, etc.) a un párrafo"""
+            if isinstance(elem, str):
+                para.add_run(elem)
+                return
+            
+            if not hasattr(elem, 'name') or elem.name is None:
+                text = str(elem)
+                if text and text.strip():
+                    para.add_run(text)
+                return
+            
+            tag_name = elem.name.lower() if elem.name else None
+            if not tag_name:
+                return
+            
+            # Procesar según el tipo de elemento
+            if tag_name in ['strong', 'b']:
+                # Negritas
+                for child in elem.children:
+                    if isinstance(child, str):
+                        run = para.add_run(child)
+                        run.bold = True
+                    elif hasattr(child, 'name') and child.name:
+                        add_formatted_text(para, child)
+                    else:
+                        text = str(child).strip()
+                        if text:
+                            run = para.add_run(text)
+                            run.bold = True
+            elif tag_name in ['em', 'i']:
+                # Cursivas
+                for child in elem.children:
+                    if isinstance(child, str):
+                        run = para.add_run(child)
+                        run.italic = True
+                    elif hasattr(child, 'name') and child.name:
+                        add_formatted_text(para, child)
+                    else:
+                        text = str(child).strip()
+                        if text:
+                            run = para.add_run(text)
+                            run.italic = True
+            elif tag_name == 'code':
+                text = elem.get_text()
+                if text:
+                    run = para.add_run(text)
+                    run.font.name = 'Courier New'
+            elif tag_name == 'a':
+                href = elem.get('href', '')
+                text = elem.get_text()
+                if text:
+                    run = para.add_run(text if not href else f"{text} ({href})")
+                    run.font.color.rgb = RGBColor(0, 0, 255)
+                    run.underline = True
+            elif tag_name in ['u']:
+                text = elem.get_text()
+                if text:
+                    run = para.add_run(text)
+                    run.underline = True
+            else:
+                for child in elem.children:
+                    add_formatted_text(para, child)
+        
+        # Función recursiva para procesar elementos
+        def process_element(elem):
+            if not hasattr(elem, 'name') or elem.name is None:
+                text = str(elem).strip()
+                if text and text not in ['\n', '\r', '\t', '']:
+                    clean_text = ' '.join(text.split())
+                    if clean_text:
+                        para = doc.add_paragraph()
+                        para.add_run(clean_text)
+                return
+            
+            tag_name = elem.name.lower() if elem.name else None
+            if not tag_name:
+                return
+            
+            # Detectar headings (h1-h6)
+            if tag_name in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
+                level = int(tag_name[1])
+                heading = doc.add_heading(level=level)
+                for child in elem.children:
+                    add_formatted_text(heading, child)
+            
+            # Detectar párrafos
+            elif tag_name == 'p':
+                para = doc.add_paragraph()
+                for child in elem.children:
+                    add_formatted_text(para, child)
+            
+            # Detectar listas
+            elif tag_name == 'ul':
+                for li in elem.find_all('li', recursive=False):
+                    para = doc.add_paragraph(style='List Bullet')
+                    for child in li.children:
+                        add_formatted_text(para, child)
+            
+            elif tag_name == 'ol':
+                for li in elem.find_all('li', recursive=False):
+                    para = doc.add_paragraph(style='List Number')
+                    for child in li.children:
+                        add_formatted_text(para, child)
+            
+            elif tag_name == 'li':
+                para = doc.add_paragraph(style='List Bullet')
+                for child in elem.children:
+                    add_formatted_text(para, child)
+            
+            elif tag_name == 'br':
+                doc.add_paragraph()
+            
+            else:
+                if hasattr(elem, 'children') and list(elem.children):
+                    for child in elem.children:
+                        process_element(child)
+                else:
+                    text = elem.get_text().strip()
+                    if text:
+                        para = doc.add_paragraph()
+                        add_formatted_text(para, elem)
+        
+        # Procesar todos los elementos principales
+        for element in soup.children:
+            process_element(element)
+        
+        # Agregar imágenes si existen
+        imagenes = especificacion.imagenes.all()
+        if imagenes:
+            doc.add_paragraph()
+            
+            num_imagenes = imagenes.count()
+            num_filas = (num_imagenes + 1) // 2
+            
+            # Crear tabla con 2 columnas sin bordes
+            table = doc.add_table(rows=num_filas, cols=2)
+            
+            # Eliminar bordes de la tabla
+            for row in table.rows:
+                for cell in row.cells:
+                    tcPr = cell._element.tcPr
+                    if tcPr is None:
+                        tcPr = OxmlElement('w:tcPr')
+                        cell._element.append(tcPr)
+                    
+                    tcBorders = tcPr.find(qn('w:tcBorders'))
+                    if tcBorders is None:
+                        tcBorders = OxmlElement('w:tcBorders')
+                        tcPr.append(tcBorders)
+                    
+                    for border_name in ['top', 'left', 'bottom', 'right']:
+                        border = tcBorders.find(qn(f'w:{border_name}'))
+                        if border is None:
+                            border = OxmlElement(f'w:{border_name}')
+                            tcBorders.append(border)
+                        border.set(qn('w:val'), 'nil')
+                        border.set(qn('w:sz'), '0')
+                        border.set(qn('w:space'), '0')
+            
+            # Llenar la tabla con las imágenes
+            imagen_index = 0
+            for row in table.rows:
+                for cell in row.cells:
+                    if imagen_index < num_imagenes:
+                        imagen = imagenes[imagen_index]
+                        imagen_path = imagen.imagen.path
+                        
+                        if os.path.exists(imagen_path):
+                            try:
+                                paragraph = cell.paragraphs[0]
+                                paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                                
+                                img = Image.open(imagen_path)
+                                max_width_inches = 3.0
+                                max_height_inches = 3.0
+                                
+                                img_width_px = img.width
+                                img_height_px = img.height
+                                
+                                try:
+                                    dpi = img.info.get('dpi', (96, 96))[0]
+                                except:
+                                    dpi = 96
+                                
+                                width_inches = img_width_px / dpi
+                                height_inches = img_height_px / dpi
+                                
+                                if width_inches > max_width_inches or height_inches > max_height_inches:
+                                    ratio = min(max_width_inches / width_inches, max_height_inches / height_inches)
+                                    width_inches *= ratio
+                                    height_inches *= ratio
+                                
+                                run = paragraph.add_run()
+                                run.add_picture(imagen_path, width=Inches(width_inches))
+                                
+                                if imagen.descripcion:
+                                    desc_para = cell.add_paragraph(imagen.descripcion)
+                                    desc_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                                    desc_para.style.font.size = Pt(9)
+                            except Exception as e:
+                                error_para = cell.paragraphs[0]
+                                error_para.add_run('[Error al cargar imagen]')
+                                error_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                        
+                        imagen_index += 1
+            
+            doc.add_paragraph()
+        
+        # Espacio entre especificaciones
+        doc.add_paragraph()
+        doc.add_paragraph('─' * 50)
+        doc.add_paragraph()
+    
+    # Preparar la respuesta
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+    filename = f'{slugify(proyecto.nombre)}_especificaciones.docx'
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    
+    # Guardar el documento en memoria
+    buffer = io.BytesIO()
+    doc.save(buffer)
+    buffer.seek(0)
+    response.write(buffer.read())
+    
+    return response
 
 
 @login_required
