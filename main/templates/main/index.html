@@ -23,19 +23,19 @@
         <div class="card-body">        
               <div class="space-y-3">
                 <!-- Crear Nuevo Proyecto -->
-                <a href="{% url 'main:crear_proyecto' %}" class="btn btn-success w-full justify-start">
+                <a href="{% url 'esp_web:crear_proyecto' %}" class="btn btn-success w-full justify-start">
                   <i class="fas fa-plus-circle mr-2"></i>
                   Crear Nuevo Proyecto
                 </a>
 
                 <!-- Ver Todos los Proyectos -->
-                <a href="{% url 'main:lista_proyectos' %}" class="btn btn-secondary w-full justify-start">
+                <a href="{% url 'esp_web:lista_proyectos' %}" class="btn btn-secondary w-full justify-start">
                   <i class="fas fa-list mr-2"></i>
                   Todos los Proyectos
                 </a>
  
                 <!-- Ver todas las especificaciones -->
-                <a href="{% url 'main:especificaciones_disponibles' %}" class="btn btn-info w-full justify-start">
+                <a href="{% url 'esp_web:especificaciones_disponibles' %}" class="btn btn-info w-full justify-start">
                   <i class="fas fa-list-ul mr-2"></i>
                   Especificaciones disponibles
                 </a>
@@ -69,13 +69,13 @@
             </h2>
             {% if proyecto_seleccionado %}
             <div class="flex gap-2">
-              <a href="{% url 'main:proyecto_detalle' proyecto_seleccionado.id %}" class="btn btn-sm btn-success" title="Ingresar al proyecto seleccionado">
+              <a href="{% url 'esp_web:proyecto_detalle' proyecto_seleccionado.id %}" class="btn btn-sm btn-success" title="Ingresar al proyecto seleccionado">
                 <i class="fas fa-sign-in-alt mr-2"></i>
                 Ingresar
               </a>
 
               {% if proyecto_seleccionado.creado_por_id == request.user.id %}
-                <a href="{% url 'main:editar_proyecto' proyecto_seleccionado.id %}" class="btn btn-sm btn-edit" title="Editar proyecto seleccionado">
+                <a href="{% url 'esp_web:editar_proyecto' proyecto_seleccionado.id %}" class="btn btn-sm btn-edit" title="Editar proyecto seleccionado">
                   <i class="fas fa-edit mr-2"></i>
                   Editar
                 </a>
@@ -88,7 +88,7 @@
                 </button>
               {% endif %}
               {% if proyecto_seleccionado.creado_por_id == request.user.id %}
-                <a href="{% url 'main:eliminar_proyecto' proyecto_seleccionado.id %}"
+                <a href="{% url 'esp_web:eliminar_proyecto' proyecto_seleccionado.id %}"
                    class="btn btn-sm btn-delete"
                    title="Eliminar proyecto seleccionado">
                   <i class="fas fa-trash mr-2"></i>
@@ -121,7 +121,7 @@
               <tbody>
                 {% for proyecto in proyectos %}
                 <tr class="cursor-pointer transition-colors {% if proyecto_seleccionado and proyecto_seleccionado.id == proyecto.id %}!bg-primary/70 text-white{% else %}hover:bg-base-200{% endif %} [&>td]:py-1 [&>td]:align-middle"
-                    onclick="window.location.href='{% url 'main:seleccionar_proyecto' proyecto.id %}?next={{ request.get_full_path|urlencode }}'">
+                    onclick="window.location.href='{% url 'esp_web:seleccionar_proyecto' proyecto.id %}?next={{ request.get_full_path|urlencode }}'">
                   <td class="font-semibold">
                     
                     {{ proyecto.nombre }}
@@ -208,7 +208,7 @@
             <div class="text-center">
               <i class="fas fa-folder-open text-6xl text-base-300 mb-4"></i>
               <p class="text-base-content/70 text-lg">No hay proyectos disponibles</p>
-              <a href="{% url 'main:crear_proyecto' %}" class="btn btn-primary mt-4">
+              <a href="{% url 'esp_web:crear_proyecto' %}" class="btn btn-primary mt-4">
                 <i class="fas fa-plus mr-2"></i>
                 Crear Primer Proyecto
               </a>

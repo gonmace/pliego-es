@@ -22,7 +22,7 @@ from pliego_esp.forms import PliegoForm
 from pliego_esp.services.graph_service import PliegoEspService
 from pliego_esp.utils.mejorar_titulo import mejorar_titulo_especificacion
 from pliego_esp.utils.similitud_titulos import calcular_similitud_titulos
-from main.models import Proyecto, Especificacion
+from esp_web.models import Proyecto, Especificacion
 
 from rich.console import Console
 console = Console()

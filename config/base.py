@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'esp_generica',
     'embeddings',
     'main.apps.MainConfig',
+    'esp_web.apps.EspWebConfig',
     'login.apps.LoginConfig',
 
 ]
