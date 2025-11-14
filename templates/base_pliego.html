@@ -134,7 +134,7 @@
 
     {% block breadcrumbs_bar %}
     <div class="bg-base-100 border-b border-base-300">
-        <nav class="px-4 py-2 max-w-7xl mx-auto" aria-label="Breadcrumb">
+        <nav class="px-4 py-0 max-w-7xl mx-auto flex items-center {% if request.resolver_match.url_name == 'proyecto_main' %}justify-start{% else %}justify-between{% endif %}" aria-label="Breadcrumb">
             <ol class="flex flex-wrap items-center gap-2 text-sm text-base-content/70">
                 <li class="flex items-center gap-2">
                     <a href="{% url 'main:proyecto_main' %}" class="hover:text-primary transition-colors flex items-center gap-1">
@@ -146,6 +146,12 @@
                 {% block breadcrumbs %}
                 {% endblock %}
             </ol>
+            {% if request.resolver_match.url_name != 'proyecto_main' %}
+            <button onclick="window.history.back()" class="btn btn-ghost btn-sm text-base-content/70 hover:text-base-content" title="Volver a la página anterior">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Volver
+            </button>
+            {% endif %}
         </nav>
     </div>
     {% endblock %}

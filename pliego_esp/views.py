@@ -423,44 +423,56 @@ def guardar_pliego_view(request):
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Payload inválido'}, status=400)
 
-    contenido = data.get('contenido')
-    if not contenido:
-        return JsonResponse({'error': 'El contenido del pliego es obligatorio'}, status=400)
+    try:
+        contenido = data.get('contenido')
+        if not contenido:
+            return JsonResponse({'error': 'El contenido del pliego es obligatorio'}, status=400)
 
-    proyecto_id = request.session.get('proyecto_actual_id')
-    if not proyecto_id:
-        return JsonResponse({'error': 'No hay un proyecto seleccionado'}, status=400)
+        proyecto_id = request.session.get('proyecto_actual_id')
+        if not proyecto_id:
+            return JsonResponse({'error': 'No hay un proyecto seleccionado'}, status=400)
 
-    proyecto = get_object_or_404(Proyecto, id=proyecto_id, activo=True)
+        try:
+            proyecto = Proyecto.objects.get(id=proyecto_id, activo=True)
+        except Proyecto.DoesNotExist:
+            return JsonResponse({'error': 'El proyecto seleccionado no existe o no está activo'}, status=404)
 
-    paso1_data = request.session.get('paso1_data', {})
-    titulo = data.get('titulo') or paso1_data.get('titulo_final') or paso1_data.get('titulo_original') or proyecto.nombre
-    token_cost = data.get('token_cost')
+        paso1_data = request.session.get('paso1_data', {})
+        titulo = data.get('titulo') or paso1_data.get('titulo_final') or paso1_data.get('titulo_original') or proyecto.nombre
+        token_cost = data.get('token_cost')
 
-    slug = slugify(titulo) or 'especificacion'
-    timestamp = timezone.now().strftime('%Y%m%d%H%M%S')
-    filename = f"{slug}-{timestamp}.md"
+        slug = slugify(titulo) or 'especificacion'
+        timestamp = timezone.now().strftime('%Y%m%d%H%M%S')
+        filename = f"{slug}-{timestamp}.md"
 
-    especificacion = Especificacion(
-        proyecto=proyecto,
-        titulo=titulo,
-        contenido=contenido,
-        token_cost=token_cost if token_cost not in (None, '') else None,
-    )
-    especificacion.archivo.save(filename, ContentFile(contenido), save=True)
+        especificacion = Especificacion(
+            proyecto=proyecto,
+            titulo=titulo,
+            contenido=contenido,
+            token_cost=token_cost if token_cost not in (None, '') else None,
+        )
+        especificacion.archivo.save(filename, ContentFile(contenido), save=True)
 
-    for key in ['paso1_data', 'paso2_data', 'paso3_data', 'paso4_data']:
-        request.session.pop(key, None)
+        for key in ['paso1_data', 'paso2_data', 'paso3_data', 'paso4_data']:
+            request.session.pop(key, None)
 
-    messages.success(request, 'Especificación guardada correctamente.')
+        messages.success(request, 'Especificación guardada correctamente.')
 
-    redirect_url = reverse('main:proyecto_detalle', args=[proyecto.id]) + '?guardado=1'
+        redirect_url = reverse('esp_web:proyecto_detalle', args=[proyecto.id]) + '?guardado=1'
 
-    return JsonResponse({
-        'success': True,
-        'redirect_url': redirect_url,
-        'especificacion_id': especificacion.id
-    })
+        return JsonResponse({
+            'success': True,
+            'redirect_url': redirect_url,
+            'especificacion_id': especificacion.id
+        })
+    except Exception as e:
+        import traceback
+        error_detail = str(e)
+        traceback.print_exc()
+        return JsonResponse({
+            'error': f'Error al guardar la especificación: {error_detail}',
+            'success': False
+        }, status=500)
 
 
 @csrf_exempt

@@ -1,0 +1,97 @@
+<!-- Modal para exportar a Word con campos editables -->
+<dialog id="exportar-word-modal" class="modal">
+  <div class="modal-box w-11/12 max-w-2xl">
+    <h3 class="font-bold text-lg mb-4">Exportar a Word - Configuración del Encabezado</h3>
+    
+    <form id="exportar-word-form" method="POST" action="{% url 'esp_web:exportar_proyecto_word' proyecto.id %}">
+      {% csrf_token %}
+      <div class="space-y-4">
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text font-semibold">PROYECTO</span>
+          </label>
+          <input 
+            type="text" 
+            id="export-proyecto" 
+            name="proyecto" 
+            value="{{ proyecto.nombre }}" 
+            class="input input-bordered w-full" 
+            required
+          />
+        </div>
+
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text font-semibold">SOLICITANTE</span>
+          </label>
+          <input 
+            type="text" 
+            id="export-solicitante" 
+            name="solicitante" 
+            value="{{ proyecto.solicitante }}" 
+            class="input input-bordered w-full" 
+            required
+          />
+        </div>
+
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text font-semibold">SERVICIO</span>
+          </label>
+          <input 
+            type="text" 
+            id="export-servicio" 
+            name="servicio" 
+            value="{% if proyecto.descripcion %}{{ proyecto.descripcion }}{% else %}{{ proyecto.ubicacion }}{% endif %}" 
+            class="input input-bordered w-full" 
+            required
+          />
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-semibold">REV.</span>
+            </label>
+            <input 
+              type="text" 
+              id="export-rev" 
+              name="revision" 
+              value="1" 
+              class="input input-bordered w-full" 
+              required
+            />
+          </div>
+
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-semibold">FECHA</span>
+            </label>
+            <input 
+              type="text" 
+              id="export-fecha" 
+              name="fecha" 
+              value="{{ proyecto.fecha_creacion|date:'d/m/Y' }}" 
+              class="input input-bordered w-full" 
+              required
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-action mt-6">
+        <button type="button" onclick="document.getElementById('exportar-word-modal').close()" class="btn btn-ghost">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd" image-rendering="optimizeQuality" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" viewBox="0 0 392 512.3" class="w-5 h-5 mr-2"><path fill="#26a9f1" d="M59 0h204l129 140v313c0 33-27 59-59 59H59c-32 0-59-26-59-59V59C0 26 26 0 59 0"/><path fill="#bce2f9" d="m263 0 129 140h-56q-69-3-73-63z"/><path fill="#1c7bb0" fill-rule="nonzero" d="M108 403a13 13 0 0 1 0-26h141a13 13 0 0 1 0 26zm0-152a13 13 0 0 1 0-26h176a13 13 0 0 1 0 26zm0 73a13 13 0 0 1 0-26h167a13 13 0 0 1 0 26z"/><path fill="#1f89c3" d="m310 137 82 68v-65h-56q-14 0-26-3"/></svg>
+          Exportar
+        </button>
+      </div>
+    </form>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button>close</button>
+  </form>
+</dialog>
+

@@ -15,6 +15,7 @@ urlpatterns = [
     path("accounts/logout/", LogoutView.as_view()),
     path('proyecto/', include('main.urls')),
     path('proyecto/', include('esp_web.urls')),
+    path('proyecto/', include('ubi_web.urls')),
     path('pliego/', include('pliego_esp.urls')),
     path('prepare-doc/', include('prep_doc_gen.urls')),
     path('esp-generica/', include('esp_generica.urls')),

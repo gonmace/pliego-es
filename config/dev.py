@@ -60,5 +60,5 @@ CORS_ALLOWED_ORIGINS = [
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:4321",  # dominio de tu frontend Astro
-    "https://16a6930abbaa.ngrok-free.app",  # ngrok tunnel
+    "https://36d2f6f941b2.ngrok-free.app",  # ngrok tunnel (sin barra final)
 ]

@@ -10,6 +10,9 @@ load_dotenv(dotenv_path=os.path.join(BASE_DIR, ".env"))
 
 SECRET_KEY = os.getenv('SECRET_KEY', default='your secret key')
 
+# Google Maps API Key
+GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY', '')
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -29,6 +32,7 @@ INSTALLED_APPS = [
     'embeddings',
     'main.apps.MainConfig',
     'esp_web.apps.EspWebConfig',
+    'ubi_web.apps.UbiWebConfig',
     'login.apps.LoginConfig',
 
 ]

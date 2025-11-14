@@ -27,36 +27,108 @@
 
   <div class="px-4 py-6 max-w-7xl mx-auto w-full">
     <div class="flex flex-col lg:flex-row gap-4">
-      <!-- Columna izquierda: Especificaciones -->
+      <!-- Columna izquierda: Ubicación y Especificaciones -->
       <div class="w-full lg:w-2/3">
-        <div class="card bg-base-100 shadow-xl h-full">
+        <!-- Contenedor de Ubicación (Colapsable) -->
+        <div class="collapse collapse-arrow bg-base-100 shadow-xl mb-4">
+          <input type="checkbox" />
+          <div class="collapse-title text-xl font-medium flex items-center justify-between pr-4 mx-2">
+            <h2 class="flex items-center gap-3">
+              <i class="fas fa-map-marker-alt"></i>
+              <span>Ubicación</span>
+              {% if tiene_ubicacion_con_pdf %}
+                <i class="fas fa-check-circle text-success ml-2"></i>
+              {% endif %}
+            </h2>
+            <div class="flex flex-wrap gap-2" onclick="event.stopPropagation()">
+            </div>
+          </div>
+          <div class="collapse-content">
+            {% if ubicaciones %}
+              <div class="space-y-2 pt-4">
+                {% for ubicacion in ubicaciones %}
+                  <div class="card bg-base-200/70 border border-base-300/60">
+                    <div class="card-body py-3 px-4">
+                      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                        <div class="flex items-center gap-2 flex-1 min-w-0">
+                          <h3 class="text-base font-semibold text-base-content flex-1 min-w-0 break-words">{{ ubicacion.nombre }}</h3>
+                        </div>
+                        {% if es_propietario %}
+                        <div class="flex items-center gap-1">
+                          {% if ubicacion.documento_pdf %}
+                          <a href="{% url 'ubi_web:descargar_pdf' ubicacion.id %}" 
+                             class="btn btn-ghost btn-sm text-red-600" 
+                             target="_blank"
+                             title="Descargar PDF">
+                            <i class="fas fa-file-pdf"></i>
+                          </a>
+                          {% endif %}
+                          <a href="{% url 'ubi_web:editar_contenido_ubicacion' ubicacion.id %}" class="btn btn-ghost btn-sm text-yellow-500" title="Editar contenido">
+                            <i class="fas fa-edit"></i>
+                          </a>
+                          <button type="button" 
+                                  class="btn btn-ghost btn-sm text-red-600 eliminar-ubicacion-btn" 
+                                  title="Eliminar"
+                                  data-ubicacion-id="{{ ubicacion.id }}"
+                                  data-ubicacion-nombre="{{ ubicacion.nombre|escape }}">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </div>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="flex flex-col items-center justify-center text-center py-8">
+                <i class="fas fa-map-marker-alt text-5xl text-base-300 mb-3"></i>
+                <h3 class="text-lg font-semibold mb-2">Sin ubicación registrada</h3>
+                <p class="text-base-content/70 text-sm max-w-md mb-4">
+                  Aún no se ha registrado una ubicación para este proyecto.
+                </p>
+                {% if es_propietario %}
+                  <a href="{% url 'ubi_web:crear_ubicacion' proyecto.id %}" class="btn btn-sm btn-success">
+                    <i class="fas fa-plus mr-2"></i>
+                    Crear ubicación
+                  </a>
+                {% endif %}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Contenedor de Especificaciones -->
+        <div class="card bg-base-100 shadow-xl">
           <div class="card-body">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
               <div class="flex items-center gap-3">
                 <h2 class="card-title text-2xl m-0">
                   <i class="fas fa-list-alt mr-2"></i>
-                  Especificaciones del Proyecto
+                  Especificaciones
+                  {% if especificaciones %}
+                    <span class="badge badge-success ml-2 rounded-full w-8 h-8 flex items-center justify-center p-0">{{ especificaciones|length }}</span>
+                  {% else %}
+                    <span class="badge badge-error ml-2 rounded-full w-8 h-8 flex items-center justify-center p-0">0</span>
+                  {% endif %}
                 </h2>
               </div>
               <div class="flex flex-wrap gap-2">
                 {% if es_propietario %}
-                  <a href="{% url 'esp_web:nueva_especificacion' proyecto.id %}" class="btn btn-sm btn-success">
-                    <i class="fas fa-plus mr-1"></i>
-                    Nueva
-                  </a>
-                  <label for="lista-especificaciones-modal" class="btn btn-sm btn-view cursor-pointer">
-                    <i class="fas fa-list mr-1"></i>
-                    Especificaciones Disponibles
-                  </label>
-                {% endif %}
-                <a href="{% url 'main:proyecto_main' %}" class="btn btn-sm btn-ghost text-base-content/60 hover:text-base-content" title="Ver página del proyecto">
-                  <i class="fas fa-arrow-left"></i>
+                <label for="lista-especificaciones-modal" class="btn btn-sm btn-view cursor-pointer">
+                  <i class="fas fa-list mr-1"></i>
+                  Especificaciones Disponibles
+                </label>
+                <a href="{% url 'esp_web:nueva_especificacion' proyecto.id %}" class="btn btn-sm btn-success">
+                  <i class="fas fa-plus mr-1"></i>
+                  Nueva
                 </a>
+                {% endif %}
               </div>
             </div>
 
             {% if especificaciones %}
-              <div id="especificaciones-list" class="space-y-2 overflow-y-auto max-h-[70vh] pr-1">
+              <div id="especificaciones-list" class="space-y-2 pr-1" style="overflow-y: auto;">
                 {% for especificacion in especificaciones %}
                   <div class="card bg-base-200/70 border border-base-300/60 especificacion-item" data-especificacion-id="{{ especificacion.id }}">
                     <div class="card-body py-2 px-4">
@@ -196,16 +268,14 @@
         <!-- Botón de exportar a Word -->
         <div class="card bg-base-100 shadow-xl">
           <div class="card-body">
-            <a href="{% url 'esp_web:exportar_proyecto_word' proyecto.id %}" 
-               class="btn w-full text-white hover:text-white" 
-               style="background-color: #2B579A; border-color: #2B579A;"
+            <button 
+               onclick="document.getElementById('exportar-word-modal').showModal()" 
+               class="btn btn-ghost w-full flex items-center justify-center gap-2" 
                title="Exportar todas las especificaciones a Word">
-              <i class="fab fa-microsoft-word mr-2 text-xl"></i>
-              Exportar a Word
-            </a>
-            <p class="text-sm text-base-content/60 mt-2 text-center">
-              Genera un documento Word con todas las especificaciones del proyecto en el orden actual
-            </p>
+               <svg xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd" image-rendering="optimizeQuality" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" viewBox="0 0 392 512.3" class="w-5 h-5 flex-shrink-0"><path fill="#26a9f1" d="M59 0h204l129 140v313c0 33-27 59-59 59H59c-32 0-59-26-59-59V59C0 26 26 0 59 0"/><path fill="#bce2f9" d="m263 0 129 140h-56q-69-3-73-63z"/><path fill="#1c7bb0" fill-rule="nonzero" d="M108 403a13 13 0 0 1 0-26h141a13 13 0 0 1 0 26zm0-152a13 13 0 0 1 0-26h176a13 13 0 0 1 0 26zm0 73a13 13 0 0 1 0-26h167a13 13 0 0 1 0 26z"/><path fill="#1f89c3" d="m310 137 82 68v-65h-56q-14 0-26-3"/></svg>
+              <span>Exportar a Word</span>
+            </button>
+
           </div>
         </div>
 
@@ -216,9 +286,112 @@
   {% include 'esp_web/modals/eliminar_especificacion_modal.html' %}
   {% include 'esp_web/modals/mover_especificacion_modal.html' %}
   {% include 'esp_web/modals/gestionar_imagenes_modal.html' %}
+  {% include 'esp_web/modals/exportar_word_modal.html' %}
+  {% include 'ubi_web/modals/eliminar_ubicacion_modal.html' %}
+  {% comment %} Modal de gestión de imágenes de ubicación eliminado {% endcomment %}
 {% endblock %}
 
 {% block js %}
+<script>
+  // Manejar el formulario de exportar a Word
+  document.addEventListener('DOMContentLoaded', function() {
+    const exportForm = document.getElementById('exportar-word-form');
+    if (exportForm) {
+      exportForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Mostrar indicador de carga
+        const submitBtn = exportForm.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="loading loading-spinner loading-sm"></span> Exportando...';
+        
+        // Crear FormData y enviar
+        const formData = new FormData(exportForm);
+        
+        fetch(exportForm.action, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Error al exportar el documento');
+          }
+          return response.blob();
+        })
+        .then(blob => {
+          // Obtener el nombre del proyecto del formulario para el nombre del archivo
+          const proyectoNombre = document.getElementById('export-proyecto').value;
+          const nombreArchivo = proyectoNombre.toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '') + '_especificaciones.docx';
+          
+          // Crear URL del blob y descargar
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = nombreArchivo;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+          
+          // Cerrar el modal
+          document.getElementById('exportar-word-modal').close();
+          
+          // Restaurar botón
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalText;
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Error al exportar el documento. Por favor, inténtelo de nuevo.');
+          
+          // Restaurar botón
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalText;
+        });
+      });
+    }
+  });
+  
+  // Ajustar altura del contenedor de especificaciones
+  document.addEventListener('DOMContentLoaded', function() {
+    const especificacionesList = document.getElementById('especificaciones-list');
+    if (especificacionesList) {
+      const items = especificacionesList.querySelectorAll('.especificacion-item');
+      const cantidadEspecificaciones = items.length;
+      
+      if (cantidadEspecificaciones > 0) {
+        // Calcular la altura total del contenido
+        let alturaTotal = 0;
+        items.forEach((item, index) => {
+          alturaTotal += item.offsetHeight;
+          if (index < items.length - 1) {
+            // Agregar espacio entre items (space-y-2 = 8px)
+            alturaTotal += 8;
+          }
+        });
+        
+        if (cantidadEspecificaciones <= 10) {
+          // Si hay 10 o menos, altura automática sin restricciones
+          especificacionesList.style.maxHeight = 'none';
+          especificacionesList.style.overflowY = 'visible';
+          especificacionesList.style.height = 'auto';
+        } else {
+          // Si hay más de 10, calcular altura de 10 especificaciones
+          const alturaPrimeraEspecificacion = items[0].offsetHeight;
+          const alturaMaxima = (alturaPrimeraEspecificacion * 10) + (8 * 9);
+          especificacionesList.style.maxHeight = alturaMaxima + 'px';
+          especificacionesList.style.overflowY = 'auto';
+        }
+      }
+    }
+  });
+</script>
 {% if es_propietario %}
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <script>
@@ -342,6 +515,21 @@
       }
     }
   });
+
+  // Manejar clics en botones de eliminar ubicación
+  document.addEventListener('click', function(event) {
+    const button = event.target.closest('.eliminar-ubicacion-btn');
+    if (button) {
+      event.preventDefault();
+      const ubicacionId = button.dataset.ubicacionId;
+      const ubicacionNombre = button.dataset.ubicacionNombre;
+      if (window.openEliminarUbicacionModal) {
+        window.openEliminarUbicacionModal(ubicacionId, ubicacionNombre);
+      }
+    }
+  });
+
+  {% comment %} Event listener de gestión de imágenes de ubicación eliminado {% endcomment %}
 </script>
 {% endblock %}
 

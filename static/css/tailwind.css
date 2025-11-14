@@ -548,6 +548,22 @@
   .menu .dropdown-content:before {
     display: none;
   }
+  .collapse-arrow > .collapse-title:after {
+    position: absolute;
+    display: block;
+    height: 0.5rem;
+    width: 0.5rem;
+    transform: translateY(-100%) rotate(45deg);
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 0.2s;
+    top: 1.9rem;
+    inset-inline-end: 1.4rem;
+    content: "";
+    transform-origin: 75% 75%;
+    box-shadow: 2px 2px;
+    pointer-events: none;
+  }
   .dropdown {
     position: relative;
     display: inline-block;
@@ -1036,6 +1052,18 @@
   }
   .collapse:is(details) summary {
     outline: none;
+  }
+  .collapse-content {
+    grid-column-start: 1;
+    grid-row-start: 1;
+    visibility: hidden;
+    grid-column-start: 1;
+    grid-row-start: 2;
+    min-height: 0;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    cursor: unset;
+    transition: visibility 0.2s, padding 0.2s ease-out, background-color 0.2s ease-out;
   }
   .collapse {
     visibility: collapse;
@@ -1799,6 +1827,16 @@
   .card:has(> :checked) {
     outline: 2px solid currentColor;
   }
+  .collapse-title {
+    grid-column-start: 1;
+    grid-row-start: 1;
+    position: relative;
+    width: 100%;
+    padding: 1rem;
+    padding-inline-end: 3rem;
+    min-height: 3.75rem;
+    transition: background-color 0.2s ease-out;
+  }
   .checkbox {
     border: var(--border) solid var(--input-color, var(--color-base-content));
   }
@@ -2407,6 +2445,9 @@
   }
   .m-6 {
     margin: calc(var(--spacing) * 6);
+  }
+  .mx-2 {
+    margin-inline: calc(var(--spacing) * 2);
   }
   .mx-auto {
     margin-inline: auto;
@@ -3182,6 +3223,15 @@
   .mr-2 {
     margin-right: calc(var(--spacing) * 2);
   }
+  .mr-3 {
+    margin-right: calc(var(--spacing) * 3);
+  }
+  .mr-4 {
+    margin-right: calc(var(--spacing) * 4);
+  }
+  .mr-6 {
+    margin-right: calc(var(--spacing) * 6);
+  }
   .mb-1 {
     margin-bottom: calc(var(--spacing) * 1);
   }
@@ -3199,6 +3249,9 @@
   }
   .mb-8 {
     margin-bottom: calc(var(--spacing) * 8);
+  }
+  .ml-2 {
+    margin-left: calc(var(--spacing) * 2);
   }
   .ml-64 {
     margin-left: calc(var(--spacing) * 64);
@@ -3652,6 +3705,9 @@
   .h-16 {
     height: calc(var(--spacing) * 16);
   }
+  .h-20 {
+    height: calc(var(--spacing) * 20);
+  }
   .h-48 {
     height: calc(var(--spacing) * 48);
   }
@@ -3753,6 +3809,9 @@
   }
   .flex-1 {
     flex: 1;
+  }
+  .flex-shrink-0 {
+    flex-shrink: 0;
   }
   .shrink-0 {
     flex-shrink: 0;
@@ -3921,6 +3980,10 @@
   .border-2 {
     border-style: var(--tw-border-style);
     border-width: 2px;
+  }
+  .border-t {
+    border-top-style: var(--tw-border-style);
+    border-top-width: 1px;
   }
   .border-t-4 {
     border-top-style: var(--tw-border-style);
@@ -4170,6 +4233,9 @@
   .px-20 {
     padding-inline: calc(var(--spacing) * 20);
   }
+  .py-0 {
+    padding-block: calc(var(--spacing) * 0);
+  }
   .py-1 {
     padding-block: calc(var(--spacing) * 1);
   }
@@ -4178,6 +4244,9 @@
   }
   .py-2\.5 {
     padding-block: calc(var(--spacing) * 2.5);
+  }
+  .py-3 {
+    padding-block: calc(var(--spacing) * 3);
   }
   .py-4 {
     padding-block: calc(var(--spacing) * 4);
@@ -4194,6 +4263,12 @@
   .py-12 {
     padding-block: calc(var(--spacing) * 12);
   }
+  .pt-3 {
+    padding-top: calc(var(--spacing) * 3);
+  }
+  .pt-4 {
+    padding-top: calc(var(--spacing) * 4);
+  }
   .pt-6 {
     padding-top: calc(var(--spacing) * 6);
   }
@@ -4202,6 +4277,9 @@
   }
   .pr-1 {
     padding-right: calc(var(--spacing) * 1);
+  }
+  .pr-4 {
+    padding-right: calc(var(--spacing) * 4);
   }
   .text-center {
     text-align: center;
@@ -4585,9 +4663,17 @@
     --btn-color: var(--color-primary) !important;
     --btn-fg: var(--color-primary-content) !important;
   }
+  .badge-error {
+    --badge-color: var(--color-error);
+    --badge-fg: var(--color-error-content);
+  }
   .badge-info {
     --badge-color: var(--color-info);
     --badge-fg: var(--color-info-content);
+  }
+  .badge-primary {
+    --badge-color: var(--color-primary);
+    --badge-fg: var(--color-primary-content);
   }
   .badge-success {
     --badge-color: var(--color-success);

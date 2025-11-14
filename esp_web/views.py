@@ -28,6 +28,85 @@ from .models import Proyecto, Especificacion, EspecificacionImagen
 from .forms import ProyectoForm, EspecificacionForm
 
 
+def replace_header_placeholders(doc, proyecto, proyecto_nombre=None, solicitante=None, servicio=None, revision="1", fecha=None):
+    """
+    Reemplaza los placeholders en el encabezado del documento Word con datos del proyecto.
+    
+    Args:
+        doc: Documento Word
+        proyecto: Instancia del modelo Proyecto
+        proyecto_nombre: Nombre del proyecto personalizado (opcional)
+        solicitante: Solicitante personalizado (opcional)
+        servicio: Servicio personalizado (opcional)
+        revision: Número de revisión (por defecto "1")
+        fecha: Fecha personalizada (opcional, formato DD/MM/YYYY)
+    """
+    # Usar valores personalizados si se proporcionan, sino usar los del proyecto
+    proyecto_val = proyecto_nombre if proyecto_nombre is not None else (proyecto.nombre or '')
+    solicitante_val = solicitante if solicitante is not None else (proyecto.solicitante or '')
+    servicio_val = servicio if servicio is not None else (proyecto.descripcion or proyecto.ubicacion or '')
+    fecha_val = fecha if fecha is not None else (proyecto.fecha_creacion.strftime("%d/%m/%Y") if proyecto.fecha_creacion else '')
+    
+    # Mapeo de placeholders a valores
+    replacements = {
+        '<<PROYECTO>>': proyecto_val,
+        '<<SOLICITANTE>>': solicitante_val,
+        '<<SERVICIO>>': servicio_val,
+        '<<REV>>': revision,
+        '<<REV.>>': revision,  # Por si tiene punto
+        '<<FECHA>>': fecha_val,
+    }
+    
+    def replace_in_element(element):
+        """Función auxiliar para reemplazar placeholders en un elemento"""
+        # Si es un párrafo, trabajar con su texto completo
+        if hasattr(element, 'runs'):
+            # Primero obtener todo el texto del párrafo
+            full_text = ''.join([run.text for run in element.runs])
+            
+            # Si hay algún placeholder, reemplazar
+            if any(ph in full_text for ph in replacements.keys()):
+                # Aplicar reemplazos
+                new_text = full_text
+                for placeholder, value in replacements.items():
+                    new_text = new_text.replace(placeholder, value)
+                
+                # Limpiar todos los runs y agregar el texto reemplazado
+                # Preservar el formato del primer run si existe
+                if element.runs:
+                    # Guardar formato del primer run
+                    first_run = element.runs[0]
+                    # Limpiar todos los runs
+                    for run in element.runs:
+                        run.text = ''
+                    # Agregar texto con el formato del primer run
+                    first_run.text = new_text
+                else:
+                    element.add_run(new_text)
+        elif hasattr(element, 'text'):
+            # Para otros elementos con texto directo
+            if element.text:
+                for placeholder, value in replacements.items():
+                    if placeholder in element.text:
+                        element.text = element.text.replace(placeholder, value)
+    
+    # Reemplazar en todas las secciones del documento
+    for section in doc.sections:
+        # Reemplazar en el encabezado
+        header = section.header
+        
+        # Reemplazar en párrafos del encabezado
+        for paragraph in header.paragraphs:
+            replace_in_element(paragraph)
+        
+        # También buscar en tablas del encabezado
+        for table in header.tables:
+            for row in table.rows:
+                for cell in row.cells:
+                    for paragraph in cell.paragraphs:
+                        replace_in_element(paragraph)
+
+
 def _get_especificaciones_accesibles(request):
     qs = (
         Especificacion.objects.filter(
@@ -143,6 +222,12 @@ def proyecto_detalle_view(request, proyecto_id):
             spec.save(update_fields=['orden'])
         # Recargar las especificaciones con el nuevo orden
         especificaciones = proyecto.especificaciones.prefetch_related('imagenes').all()
+    
+    # Obtener ubicaciones del proyecto
+    from ubi_web.models import Ubicacion
+    ubicaciones = proyecto.ubicaciones.prefetch_related('imagenes').all()
+    # Verificar si hay alguna ubicación con PDF generado
+    tiene_ubicacion_con_pdf = any(ubicacion.documento_pdf for ubicacion in ubicaciones)
 
     spec_sort_by = request.GET.get('spec_sort_by', 'titulo')
     spec_order = request.GET.get('spec_order', 'asc')
@@ -178,6 +263,8 @@ def proyecto_detalle_view(request, proyecto_id):
     return render(request, 'esp_web/proyecto_detalle.html', {
         'proyecto': proyecto,
         'especificaciones': especificaciones,
+        'tiene_ubicacion_con_pdf': tiene_ubicacion_con_pdf,
+        'ubicaciones': ubicaciones,
         'es_propietario': es_propietario,
         'especificaciones_accesibles': especificaciones_accesibles,
         'spec_sort_by': spec_sort_by,
@@ -187,7 +274,6 @@ def proyecto_detalle_view(request, proyecto_id):
 
 
 @login_required
-@require_http_methods(["GET"])
 def exportar_proyecto_word_view(request, proyecto_id):
     """
     Vista para exportar todas las especificaciones de un proyecto a un documento Word
@@ -199,11 +285,50 @@ def exportar_proyecto_word_view(request, proyecto_id):
         messages.error(request, 'No tienes permisos para exportar este proyecto.')
         return redirect('main:proyecto_main')
     
+    # Obtener valores personalizados del formulario si es POST
+    proyecto_nombre = None
+    solicitante = None
+    servicio = None
+    revision = "1"
+    fecha = None
+    
+    if request.method == 'POST':
+        proyecto_nombre = request.POST.get('proyecto', proyecto.nombre)
+        solicitante = request.POST.get('solicitante', proyecto.solicitante)
+        servicio = request.POST.get('servicio', proyecto.descripcion or proyecto.ubicacion)
+        revision = request.POST.get('revision', '1')
+        fecha = request.POST.get('fecha', proyecto.fecha_creacion.strftime("%d/%m/%Y") if proyecto.fecha_creacion else '')
+    
     # Obtener todas las especificaciones ordenadas
     especificaciones = proyecto.especificaciones.prefetch_related('imagenes').all().order_by('orden', '-fecha_creacion')
     
-    # Crear el documento Word
-    doc = Document()
+    # Obtener ubicaciones del proyecto
+    from ubi_web.models import Ubicacion
+    ubicaciones = proyecto.ubicaciones.all()
+    
+    # Intentar cargar template de Word si existe, sino crear documento nuevo
+    template_path = os.path.join(settings.BASE_DIR, 'esp_web', 'templates', 'word_templates', 'template_especificaciones.docx')
+    
+    # Crear directorio si no existe
+    template_dir = os.path.dirname(template_path)
+    os.makedirs(template_dir, exist_ok=True)
+    
+    if os.path.exists(template_path):
+        # Cargar el template (conserva encabezados y pies de página)
+        doc = Document(template_path)
+        # Reemplazar placeholders en el encabezado con datos del proyecto (o valores personalizados)
+        replace_header_placeholders(
+            doc, 
+            proyecto,
+            proyecto_nombre=proyecto_nombre,
+            solicitante=solicitante,
+            servicio=servicio,
+            revision=revision,
+            fecha=fecha
+        )
+    else:
+        # Crear documento nuevo sin template
+        doc = Document()
     
     # Configurar estilos
     style = doc.styles['Normal']
@@ -215,87 +340,158 @@ def exportar_proyecto_word_view(request, proyecto_id):
     title = doc.add_heading(proyecto.nombre, level=1)
     title.alignment = WD_ALIGN_PARAGRAPH.CENTER
     
-    # Información del proyecto
-    doc.add_paragraph(f'Solicitante: {proyecto.solicitante}')
-    doc.add_paragraph(f'Ubicación: {proyecto.ubicacion}')
-    doc.add_paragraph(f'Fecha de creación: {proyecto.fecha_creacion.strftime("%d/%m/%Y %H:%M")}')
-    if proyecto.descripcion:
-        doc.add_paragraph(f'Descripción: {proyecto.descripcion}')
-    
     doc.add_paragraph()  # Espacio
     
-    # Agregar cada especificación
-    for especificacion in especificaciones:
-        # Contenido de la especificación (convertir markdown a HTML y luego procesar)
-        contenido_html = markdown(especificacion.contenido or '', extensions=['extra'])
+    # Función para agregar texto con formato a un párrafo
+    def add_formatted_text(para, elem):
+        """Agrega texto con formato (negritas, cursivas, etc.) a un párrafo"""
+        if isinstance(elem, str):
+            para.add_run(elem)
+            return
         
-        # Parsear el HTML para detectar headings y otros elementos
+        if not hasattr(elem, 'name') or elem.name is None:
+            text = str(elem)
+            if text and text.strip():
+                para.add_run(text)
+            return
+        
+        tag_name = elem.name.lower() if elem.name else None
+        if not tag_name:
+            return
+        
+        # Procesar según el tipo de elemento
+        if tag_name in ['strong', 'b']:
+            # Negritas
+            for child in elem.children:
+                if isinstance(child, str):
+                    run = para.add_run(child)
+                    run.bold = True
+                elif hasattr(child, 'name') and child.name:
+                    add_formatted_text(para, child)
+                else:
+                    text = str(child).strip()
+                    if text:
+                        run = para.add_run(text)
+                        run.bold = True
+        elif tag_name in ['em', 'i']:
+            # Cursivas
+            for child in elem.children:
+                if isinstance(child, str):
+                    run = para.add_run(child)
+                    run.italic = True
+                elif hasattr(child, 'name') and child.name:
+                    add_formatted_text(para, child)
+                else:
+                    text = str(child).strip()
+                    if text:
+                        run = para.add_run(text)
+                        run.italic = True
+        elif tag_name == 'code':
+            text = elem.get_text()
+            if text:
+                run = para.add_run(text)
+                run.font.name = 'Courier New'
+        elif tag_name == 'a':
+            href = elem.get('href', '')
+            text = elem.get_text()
+            if text:
+                run = para.add_run(text if not href else f"{text} ({href})")
+                run.font.color.rgb = RGBColor(0, 0, 255)
+                run.underline = True
+        elif tag_name in ['u']:
+            text = elem.get_text()
+            if text:
+                run = para.add_run(text)
+                run.underline = True
+        else:
+            for child in elem.children:
+                add_formatted_text(para, child)
+    
+    def filtrar_plus_codes(texto):
+        """
+        Filtra Plus Codes de Google Maps (como "6VF4+2G4") del texto.
+        Los Plus Codes tienen formato: letras/números cortos con + seguido de más letras/números.
+        """
+        if not texto:
+            return texto
+        
+        import re
+        # Patrón principal para detectar Plus Codes completos con el símbolo +
+        # Formato típico: 4-6 caracteres alfanuméricos + 2-4 caracteres alfanuméricos
+        # Ejemplos: "6VF4+2G4", "6VF4+2G", "ABC123+XY"
+        patron_plus_code = r'\b[A-Z0-9]{4,6}\+[A-Z0-9]{2,4}\b'
+        texto_limpio = re.sub(patron_plus_code, '', texto)
+        
+        # También filtrar códigos cortos que parecen parte de Plus Codes sin el +
+        # Solo si están aislados (rodeados de espacios, comas, puntos, etc.)
+        # Ejemplos: "6VF4", "ABC123" cuando están solos y no son parte de direcciones
+        def filtrar_codigo_aislado(match):
+            codigo = match.group(0)
+            # No eliminar si tiene más de 6 caracteres (probablemente no es Plus Code)
+            if len(codigo) > 6:
+                return codigo
+            
+            # Obtener contexto alrededor del código
+            inicio = max(0, match.start() - 30)
+            fin = min(len(texto), match.end() + 30)
+            contexto = texto[inicio:fin].lower()
+            
+            # No eliminar si está cerca de palabras de dirección comunes
+            palabras_direccion = ['avenida', 'av.', 'av ', 'calle', 'ruta', 'carretera', 
+                                 'km', 'nro', 'número', 'numero', 'dirección', 'direccion',
+                                 'barrio', 'zona', 'distrito']
+            if any(palabra in contexto for palabra in palabras_direccion):
+                return codigo
+            
+            # No eliminar si está después de "N°", "Nro", "Número", etc.
+            if re.search(r'(n[°ºo]|numero|nro|número)\s*' + re.escape(codigo), contexto, re.IGNORECASE):
+                return codigo
+            
+            # Eliminar si es un código corto alfanumérico aislado (probablemente Plus Code)
+            return ''
+        
+        # Buscar códigos de 4-6 caracteres alfanuméricos que estén aislados
+        patron_codigo_aislado = r'\b[A-Z0-9]{4,6}\b(?=\s|$|,|\.|;|:|\n)'
+        texto_limpio = re.sub(patron_codigo_aislado, filtrar_codigo_aislado, texto_limpio)
+        
+        # Limpiar espacios múltiples pero preservar estructura de tablas markdown
+        # No reemplazar espacios múltiples dentro de líneas de tabla (que empiezan con |)
+        lineas = texto_limpio.split('\n')
+        lineas_limpias = []
+        for linea in lineas:
+            # Si es una línea de tabla (contiene |), preservarla tal cual
+            if '|' in linea:
+                lineas_limpias.append(linea)
+            else:
+                # Para otras líneas, limpiar espacios múltiples
+                linea_limpia = re.sub(r' +', ' ', linea)
+                lineas_limpias.append(linea_limpia)
+        
+        texto_limpio = '\n'.join(lineas_limpias)
+        
+        # Limpiar saltos de línea múltiples pero preservar al menos uno entre secciones
+        texto_limpio = re.sub(r'\n{3,}', '\n\n', texto_limpio)
+        
+        return texto_limpio.strip()
+    
+    # Función recursiva para procesar elementos markdown
+    def process_markdown_content(contenido_markdown, omitir_titulos=None):
+        """Procesa contenido markdown y lo agrega al documento Word
+        
+        Args:
+            contenido_markdown: Contenido en formato markdown
+            omitir_titulos: Lista de títulos a omitir (por defecto, None)
+        """
+        if not contenido_markdown or not contenido_markdown.strip():
+            return
+        
+        # Convertir markdown a HTML y luego procesar
+        contenido_html = markdown(contenido_markdown, extensions=['extra'])
         soup = BeautifulSoup(contenido_html, 'html.parser')
         
-        # Función para agregar texto con formato a un párrafo
-        def add_formatted_text(para, elem):
-            """Agrega texto con formato (negritas, cursivas, etc.) a un párrafo"""
-            if isinstance(elem, str):
-                para.add_run(elem)
-                return
-            
-            if not hasattr(elem, 'name') or elem.name is None:
-                text = str(elem)
-                if text and text.strip():
-                    para.add_run(text)
-                return
-            
-            tag_name = elem.name.lower() if elem.name else None
-            if not tag_name:
-                return
-            
-            # Procesar según el tipo de elemento
-            if tag_name in ['strong', 'b']:
-                # Negritas
-                for child in elem.children:
-                    if isinstance(child, str):
-                        run = para.add_run(child)
-                        run.bold = True
-                    elif hasattr(child, 'name') and child.name:
-                        add_formatted_text(para, child)
-                    else:
-                        text = str(child).strip()
-                        if text:
-                            run = para.add_run(text)
-                            run.bold = True
-            elif tag_name in ['em', 'i']:
-                # Cursivas
-                for child in elem.children:
-                    if isinstance(child, str):
-                        run = para.add_run(child)
-                        run.italic = True
-                    elif hasattr(child, 'name') and child.name:
-                        add_formatted_text(para, child)
-                    else:
-                        text = str(child).strip()
-                        if text:
-                            run = para.add_run(text)
-                            run.italic = True
-            elif tag_name == 'code':
-                text = elem.get_text()
-                if text:
-                    run = para.add_run(text)
-                    run.font.name = 'Courier New'
-            elif tag_name == 'a':
-                href = elem.get('href', '')
-                text = elem.get_text()
-                if text:
-                    run = para.add_run(text if not href else f"{text} ({href})")
-                    run.font.color.rgb = RGBColor(0, 0, 255)
-                    run.underline = True
-            elif tag_name in ['u']:
-                text = elem.get_text()
-                if text:
-                    run = para.add_run(text)
-                    run.underline = True
-            else:
-                for child in elem.children:
-                    add_formatted_text(para, child)
+        # Lista de títulos a omitir (si no se proporciona, usar lista vacía)
+        if omitir_titulos is None:
+            omitir_titulos = []
         
         # Función recursiva para procesar elementos
         def process_element(elem):
@@ -314,16 +510,88 @@ def exportar_proyecto_word_view(request, proyecto_id):
             
             # Detectar headings (h1-h6)
             if tag_name in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
-                level = int(tag_name[1])
-                heading = doc.add_heading(level=level)
-                for child in elem.children:
-                    add_formatted_text(heading, child)
+                # Obtener el texto del heading
+                heading_text = elem.get_text().strip()
+                # Verificar si este título debe omitirse
+                if heading_text not in omitir_titulos:
+                    # Solo agregar el heading si NO está en la lista de omitir
+                    level = int(tag_name[1])
+                    # Limitar el nivel máximo a 2 (heading 2)
+                    if level > 2:
+                        level = 2
+                    heading = doc.add_heading(level=level)
+                    for child in elem.children:
+                        add_formatted_text(heading, child)
+                # No hacer return aquí - permitir que el procesamiento continúe
+                # Los elementos siguientes se procesarán normalmente en el bucle principal
+                return
+                
             
             # Detectar párrafos
             elif tag_name == 'p':
-                para = doc.add_paragraph()
-                for child in elem.children:
-                    add_formatted_text(para, child)
+                # Verificar si este párrafo ya fue procesado (marcado con _processed)
+                if elem.get('_processed'):
+                    return
+                
+                # Verificar si este párrafo contiene una imagen
+                img_in_p = elem.find('img')
+                if img_in_p:
+                    # Si hay una imagen en el párrafo, procesarla primero
+                    process_element(img_in_p)
+                    # Luego procesar el resto del contenido del párrafo (si hay texto después de la imagen)
+                    for child in elem.children:
+                        if child != img_in_p and child.name != 'img':
+                            if isinstance(child, str):
+                                text = child.strip()
+                                if text:
+                                    para = doc.add_paragraph()
+                                    para.add_run(text)
+                            elif hasattr(child, 'name') and child.name:
+                                # Si es texto en cursiva que parece un pie de figura, procesarlo después
+                                if child.name.lower() in ['em', 'i']:
+                                    text = child.get_text().strip()
+                                    if text and ('Figura' in text or 'figura' in text):
+                                        caption_para = doc.add_paragraph(text)
+                                        caption_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                                        caption_para.style.font.size = Pt(9)
+                                        caption_para.style.font.italic = True
+                                    else:
+                                        para = doc.add_paragraph()
+                                        add_formatted_text(para, child)
+                                else:
+                                    para = doc.add_paragraph()
+                                    add_formatted_text(para, child)
+                else:
+                    # Verificar si este párrafo es un pie de figura (texto en cursiva que contiene "Figura")
+                    em_or_i = elem.find(['em', 'i'])
+                    if em_or_i:
+                        text = em_or_i.get_text().strip()
+                        if text and ('Figura' in text or 'figura' in text):
+                            # Este es un pie de figura, verificar si hay una imagen antes
+                            # Buscar el elemento anterior que pueda ser una imagen
+                            prev_elem = elem.find_previous_sibling(['p', 'img'])
+                            if prev_elem:
+                                if prev_elem.name == 'img':
+                                    # Ya se procesó la imagen, solo agregar el pie de figura
+                                    caption_para = doc.add_paragraph(text)
+                                    caption_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                                    caption_para.style.font.size = Pt(9)
+                                    caption_para.style.font.italic = True
+                                    return
+                                elif prev_elem.name == 'p':
+                                    prev_img = prev_elem.find('img')
+                                    if prev_img:
+                                        # Ya se procesó la imagen, solo agregar el pie de figura
+                                        caption_para = doc.add_paragraph(text)
+                                        caption_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                                        caption_para.style.font.size = Pt(9)
+                                        caption_para.style.font.italic = True
+                                        return
+                    
+                    # Procesamiento normal del párrafo
+                    para = doc.add_paragraph()
+                    for child in elem.children:
+                        add_formatted_text(para, child)
             
             # Detectar listas
             elif tag_name == 'ul':
@@ -346,6 +614,168 @@ def exportar_proyecto_word_view(request, proyecto_id):
             elif tag_name == 'br':
                 doc.add_paragraph()
             
+            # Detectar tablas
+            elif tag_name == 'table':
+                # Crear tabla en Word
+                rows = elem.find_all('tr', recursive=False)
+                if rows:
+                    num_rows = len(rows)
+                    # Contar columnas de la primera fila
+                    first_row = rows[0]
+                    num_cols = len(first_row.find_all(['td', 'th'], recursive=False))
+                    if num_cols > 0:
+                        table = doc.add_table(rows=num_rows, cols=num_cols)
+                        table.style = 'Light Grid Accent 1'
+                        
+                        # Llenar la tabla
+                        for row_idx, row in enumerate(rows):
+                            cells = row.find_all(['td', 'th'], recursive=False)
+                            for col_idx, cell in enumerate(cells):
+                                if col_idx < num_cols:
+                                    word_cell = table.rows[row_idx].cells[col_idx]
+                                    # Limpiar párrafos existentes
+                                    word_cell.text = ''
+                                    # Agregar contenido con formato
+                                    for child in cell.children:
+                                        add_formatted_text(word_cell.paragraphs[0], child)
+                        
+                        # Eliminar bordes de la tabla
+                        for row in table.rows:
+                            for cell in row.cells:
+                                tcPr = cell._element.tcPr
+                                if tcPr is None:
+                                    tcPr = OxmlElement('w:tcPr')
+                                    cell._element.append(tcPr)
+                                
+                                tcBorders = tcPr.find(qn('w:tcBorders'))
+                                if tcBorders is None:
+                                    tcBorders = OxmlElement('w:tcBorders')
+                                    tcPr.append(tcBorders)
+                                
+                                for border_name in ['top', 'left', 'bottom', 'right']:
+                                    border = tcBorders.find(qn(f'w:{border_name}'))
+                                    if border is None:
+                                        border = OxmlElement(f'w:{border_name}')
+                                        tcBorders.append(border)
+                                    border.set(qn('w:val'), 'nil')
+                                    border.set(qn('w:sz'), '0')
+                                    border.set(qn('w:space'), '0')
+            
+            # Detectar imágenes
+            elif tag_name == 'img':
+                src = elem.get('src', '')
+                alt = elem.get('alt', '')
+                if src:
+                    # Intentar obtener la ruta del archivo desde la URL
+                    try:
+                        # Si es una URL relativa (media), convertir a ruta de archivo
+                        if src.startswith('/media/'):
+                            # Remover /media/ del inicio
+                            media_path = src.replace('/media/', '')
+                            imagen_path = os.path.join(settings.MEDIA_ROOT, media_path)
+                        elif src.startswith('media/'):
+                            imagen_path = os.path.join(settings.MEDIA_ROOT, src.replace('media/', ''))
+                        else:
+                            # Intentar como ruta absoluta o relativa
+                            imagen_path = src
+                            if not os.path.isabs(imagen_path):
+                                imagen_path = os.path.join(settings.MEDIA_ROOT, imagen_path)
+                        
+                        if os.path.exists(imagen_path):
+                            para = doc.add_paragraph()
+                            para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                            
+                            img = Image.open(imagen_path)
+                            max_width_inches = 5.0
+                            max_height_inches = 4.0
+                            
+                            img_width_px = img.width
+                            img_height_px = img.height
+                            
+                            try:
+                                dpi = img.info.get('dpi', (96, 96))[0]
+                            except:
+                                dpi = 96
+                            
+                            width_inches = img_width_px / dpi
+                            height_inches = img_height_px / dpi
+                            
+                            if width_inches > max_width_inches or height_inches > max_height_inches:
+                                ratio = min(max_width_inches / width_inches, max_height_inches / height_inches)
+                                width_inches *= ratio
+                                height_inches *= ratio
+                            
+                            run = para.add_run()
+                            run.add_picture(imagen_path, width=Inches(width_inches))
+                            
+                            # Buscar si hay un párrafo siguiente con texto en cursiva que contenga "Figura"
+                            # Primero buscar en el mismo párrafo (si la imagen está dentro de un párrafo)
+                            parent_p = elem.find_parent('p')
+                            if parent_p:
+                                # Buscar texto en cursiva después de la imagen en el mismo párrafo
+                                em_or_i_after = None
+                                for sibling in elem.next_siblings:
+                                    if hasattr(sibling, 'name'):
+                                        if sibling.name in ['em', 'i']:
+                                            em_or_i_after = sibling
+                                            break
+                                        elif sibling.name == 'p':
+                                            break
+                                
+                                if em_or_i_after:
+                                    caption_text = em_or_i_after.get_text().strip()
+                                    if caption_text and ('Figura' in caption_text or 'figura' in caption_text):
+                                        # Agregar el pie de figura después de la imagen
+                                        caption_para = doc.add_paragraph(caption_text)
+                                        caption_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                                        caption_para.style.font.size = Pt(9)
+                                        caption_para.style.font.italic = True
+                                        return
+                                
+                                # Si no está en el mismo párrafo, buscar en el siguiente párrafo hermano
+                                next_p = parent_p.find_next_sibling('p')
+                                if next_p:
+                                    em_or_i = next_p.find(['em', 'i'])
+                                    if em_or_i:
+                                        caption_text = em_or_i.get_text().strip()
+                                        if caption_text and ('Figura' in caption_text or 'figura' in caption_text):
+                                            # Agregar el pie de figura después de la imagen
+                                            caption_para = doc.add_paragraph(caption_text)
+                                            caption_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                                            caption_para.style.font.size = Pt(9)
+                                            caption_para.style.font.italic = True
+                                            # Marcar este elemento para que no se procese de nuevo
+                                            next_p['_processed'] = True
+                                            return
+                            else:
+                                # Si la imagen no está dentro de un párrafo, buscar el siguiente elemento hermano
+                                next_elem = elem.find_next_sibling('p')
+                                if next_elem:
+                                    em_or_i = next_elem.find(['em', 'i'])
+                                    if em_or_i:
+                                        caption_text = em_or_i.get_text().strip()
+                                        if caption_text and ('Figura' in caption_text or 'figura' in caption_text):
+                                            # Agregar el pie de figura después de la imagen
+                                            caption_para = doc.add_paragraph(caption_text)
+                                            caption_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                                            caption_para.style.font.size = Pt(9)
+                                            caption_para.style.font.italic = True
+                                            # Marcar este elemento para que no se procese de nuevo
+                                            next_elem['_processed'] = True
+                                            return
+                            
+                            # Si no hay pie de figura siguiente, usar el texto alternativo si existe
+                            if alt:
+                                caption_para = doc.add_paragraph(alt)
+                                caption_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                                caption_para.style.font.size = Pt(9)
+                                caption_para.style.font.italic = True
+                    except Exception as e:
+                        # Si hay error, agregar texto alternativo
+                        para = doc.add_paragraph()
+                        para.add_run(f'[Imagen: {alt if alt else "No disponible"}]')
+                        para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            
             else:
                 if hasattr(elem, 'children') and list(elem.children):
                     for child in elem.children:
@@ -356,9 +786,94 @@ def exportar_proyecto_word_view(request, proyecto_id):
                         para = doc.add_paragraph()
                         add_formatted_text(para, elem)
         
-        # Procesar todos los elementos principales
+        # Procesar todos los elementos principales del HTML en orden
+        # Procesar todos los hijos directos del soup para mantener el orden
         for element in soup.children:
-            process_element(element)
+            if hasattr(element, 'name') and element.name:
+                process_element(element)
+            elif isinstance(element, str) and element.strip():
+                # Procesar texto suelto
+                para = doc.add_paragraph()
+                para.add_run(element.strip())
+    
+    # Agregar contenido de ubicación al principio si existe
+    if ubicaciones.exists():
+        ubicacion = ubicaciones.first()  # Tomar la primera ubicación
+        if ubicacion.contenido:
+            # Título de sección de ubicación
+            ubicacion_heading = doc.add_heading("Ubicación del Sitio", level=2)
+            
+            # Filtrar Plus Codes del contenido antes de procesarlo
+            contenido_limpio = filtrar_plus_codes(ubicacion.contenido)
+            
+            # Verificar si hay imágenes en el contenido markdown limpio
+            # Si hay imágenes en el markdown, asumimos que la imagen del mapa ya está incluida
+            imagen_en_markdown = False
+            if contenido_limpio:
+                contenido_html_temp = markdown(contenido_limpio, extensions=['extra'])
+                soup_temp = BeautifulSoup(contenido_html_temp, 'html.parser')
+                imagenes_en_markdown = soup_temp.find_all('img')
+                if imagenes_en_markdown:
+                    # Si hay al menos una imagen en el markdown, asumimos que es la del mapa
+                    imagen_en_markdown = True
+            
+            # Procesar el contenido markdown de la ubicación, omitiendo títulos específicos
+            process_markdown_content(
+                contenido_limpio, 
+                omitir_titulos=['Coordenadas del Sitio', 'Descripción de Acceso']
+            )
+            
+            # Agregar imagen del mapa solo si existe y NO está ya en el contenido markdown
+            # (si el markdown ya tiene imágenes, no agregar la imagen manualmente)
+            if ubicacion.mapa_imagen and ubicacion.mapa_imagen.name and not imagen_en_markdown:
+                try:
+                    mapa_path = ubicacion.mapa_imagen.path
+                    if os.path.exists(mapa_path):
+                        doc.add_paragraph()
+                        para = doc.add_paragraph()
+                        para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                        
+                        img = Image.open(mapa_path)
+                        max_width_inches = 5.0
+                        max_height_inches = 4.0
+                        
+                        img_width_px = img.width
+                        img_height_px = img.height
+                        
+                        try:
+                            dpi = img.info.get('dpi', (96, 96))[0]
+                        except:
+                            dpi = 96
+                        
+                        width_inches = img_width_px / dpi
+                        height_inches = img_height_px / dpi
+                        
+                        if width_inches > max_width_inches or height_inches > max_height_inches:
+                            ratio = min(max_width_inches / width_inches, max_height_inches / height_inches)
+                            width_inches *= ratio
+                            height_inches *= ratio
+                        
+                        run = para.add_run()
+                        run.add_picture(mapa_path, width=Inches(width_inches))
+                        
+                        # Agregar pie de figura
+                        caption_para = doc.add_paragraph(f"Mapa satelital del sitio {ubicacion.nombre}")
+                        caption_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                        caption_para.style.font.size = Pt(9)
+                        caption_para.style.font.italic = True
+                except Exception as e:
+                    # Si hay error al agregar la imagen, continuar sin ella
+                    pass
+            
+            # Espacio después de la ubicación
+            doc.add_paragraph()
+            doc.add_paragraph('─' * 50)
+            doc.add_paragraph()
+    
+    # Agregar cada especificación
+    for especificacion in especificaciones:
+        # Procesar el contenido markdown de la especificación usando la función común
+        process_markdown_content(especificacion.contenido)
         
         # Agregar imágenes si existen
         imagenes = especificacion.imagenes.all()
@@ -449,7 +964,9 @@ def exportar_proyecto_word_view(request, proyecto_id):
     
     # Preparar la respuesta
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
-    filename = f'{slugify(proyecto.nombre)}_especificaciones.docx'
+    # Usar nombre personalizado si está disponible
+    nombre_archivo = proyecto_nombre if proyecto_nombre else proyecto.nombre
+    filename = f'{slugify(nombre_archivo)}_especificaciones.docx'
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
     
     # Guardar el documento en memoria
@@ -494,8 +1011,20 @@ def seleccionar_proyecto_view(request, proyecto_id):
     request.session['proyecto_actual_nombre'] = proyecto.nombre
     
     next_url = request.GET.get('next')
-    if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
-        return redirect(next_url)
+    if next_url:
+        # Si la URL no tiene esquema, agregarlo para la validación
+        if not next_url.startswith(('http://', 'https://')):
+            # Construir URL completa con el host actual
+            scheme = 'https' if request.is_secure() else 'http'
+            full_next_url = f"{scheme}://{request.get_host()}{next_url}"
+        else:
+            full_next_url = next_url
+        
+        if url_has_allowed_host_and_scheme(full_next_url, allowed_hosts={request.get_host()}):
+            # Redirigir a la URL original (sin esquema) si es relativa
+            if not next_url.startswith(('http://', 'https://')):
+                return redirect(next_url)
+            return redirect(full_next_url)
 
     referer = request.META.get('HTTP_REFERER')
     if referer and url_has_allowed_host_and_scheme(referer, allowed_hosts={request.get_host()}):

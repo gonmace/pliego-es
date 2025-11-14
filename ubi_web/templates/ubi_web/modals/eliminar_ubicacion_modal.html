@@ -1,0 +1,237 @@
+{% load main_tags %}
+<dialog id="eliminar-ubicacion-modal" class="modal">
+  <div class="modal-box">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-2xl font-bold">¿Eliminar ubicación?</h3>
+      <form method="dialog">
+        <button class="btn btn-sm btn-circle btn-ghost">✕</button>
+      </form>
+    </div>
+    
+    <div class="flex flex-col items-center text-center space-y-4 mb-6">
+      <i class="fas fa-exclamation-triangle text-6xl text-error"></i>
+      <p class="text-base-content/70">
+        ¿Está seguro de que desea eliminar la ubicación
+        <span id="eliminar-ubicacion-nombre" class="font-semibold"></span>?
+        Esta acción eliminará todas las imágenes asociadas y no se podrá deshacer.
+      </p>
+    </div>
+
+    <div class="modal-action">
+      <form method="dialog">
+        <button type="button" class="btn btn-ghost" id="eliminar-ubicacion-cancel">
+          <i class="fas fa-times mr-2"></i>
+          Cancelar
+        </button>
+      </form>
+      <form id="eliminar-ubicacion-form" method="post">
+        {% csrf_token %}
+        <input type="hidden" id="eliminar-ubicacion-id" name="ubicacion_id" value="">
+        <button type="submit" class="btn btn-error">
+          <i class="fas fa-trash mr-2"></i>
+          Eliminar
+        </button>
+      </form>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button>Cerrar</button>
+  </form>
+</dialog>
+
+<script>
+  (function () {
+    const modal = document.getElementById('eliminar-ubicacion-modal');
+    const form = document.getElementById('eliminar-ubicacion-form');
+    const cancelButton = document.getElementById('eliminar-ubicacion-cancel');
+    const nombreElement = document.getElementById('eliminar-ubicacion-nombre');
+    const idInput = document.getElementById('eliminar-ubicacion-id');
+
+    // Función para restablecer el estado del botón
+    function resetSubmitButton() {
+      const submitButton = form.querySelector('button[type="submit"]');
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.innerHTML = '<i class="fas fa-trash mr-2"></i>Eliminar';
+      }
+    }
+
+    // Función para abrir el modal
+    function openEliminarUbicacionModal(ubicacionId, ubicacionNombre) {
+      if (!modal || !nombreElement || !idInput) {
+        console.error('Elementos del modal de eliminar ubicación no encontrados');
+        return;
+      }
+
+      // Restablecer el estado del botón antes de abrir
+      resetSubmitButton();
+
+      nombreElement.textContent = `"${ubicacionNombre}"`;
+      idInput.value = ubicacionId;
+
+      if (typeof modal.showModal === 'function') {
+        modal.showModal();
+      } else {
+        modal.setAttribute('open', '');
+        modal.classList.add('modal-open');
+      }
+
+      // Agregar listener para Enter después de abrir el modal
+      setTimeout(() => {
+        const handleEnterKey = function(e) {
+          // Solo procesar si el modal está abierto y visible
+          if (!modal.hasAttribute('open') && !modal.classList.contains('modal-open')) {
+            return;
+          }
+          
+          // Solo procesar Enter, no otras combinaciones
+          if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) {
+            // No procesar si el usuario está escribiendo en un input o textarea
+            const activeElement = document.activeElement;
+            if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+              return;
+            }
+            
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const submitButton = form.querySelector('button[type="submit"]');
+            if (submitButton && !submitButton.disabled) {
+              // Disparar el evento submit del formulario
+              form.requestSubmit();
+            }
+          }
+        };
+        
+        // Remover listener anterior si existe
+        if (modal._enterKeyHandler) {
+          document.removeEventListener('keydown', modal._enterKeyHandler);
+        }
+        
+        // Guardar referencia al handler para poder removerlo después
+        modal._enterKeyHandler = handleEnterKey;
+        // Agregar el listener al documento para capturar mejor los eventos
+        document.addEventListener('keydown', handleEnterKey);
+        
+        // Enfocar el modal para que capture mejor los eventos de teclado
+        modal.focus();
+      }, 100);
+    }
+
+    // Manejar el botón cancelar
+    if (cancelButton) {
+      cancelButton.addEventListener('click', function() {
+        resetSubmitButton();
+        if (modal._enterKeyHandler) {
+          document.removeEventListener('keydown', modal._enterKeyHandler);
+          modal._enterKeyHandler = null;
+        }
+        if (typeof modal.close === 'function') {
+          modal.close();
+        } else {
+          modal.removeAttribute('open');
+          modal.classList.remove('modal-open');
+        }
+      });
+    }
+
+    // Manejar el cierre del modal
+    modal.addEventListener('close', function() {
+      resetSubmitButton();
+      if (modal._enterKeyHandler) {
+        document.removeEventListener('keydown', modal._enterKeyHandler);
+        modal._enterKeyHandler = null;
+      }
+    });
+
+    // Manejar el envío del formulario
+    if (form) {
+      form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const ubicacionId = idInput.value;
+        if (!ubicacionId) {
+          console.error('ID de ubicación no encontrado');
+          return;
+        }
+
+        const submitButton = form.querySelector('button[type="submit"]');
+        const originalText = submitButton.innerHTML;
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Eliminando...';
+
+        try {
+          // Función para obtener el token CSRF
+          function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+              const cookies = document.cookie.split(';');
+              for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+                }
+              }
+            }
+            return cookieValue;
+          }
+
+          // Construir la URL usando el patrón correcto
+          const eliminarUrl = `/proyecto/ubicacion/eliminar/${ubicacionId}/`;
+          
+          const response = await fetch(eliminarUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': getCookie('csrftoken'),
+              'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({})
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success) {
+              // Cerrar el modal
+              if (typeof modal.close === 'function') {
+                modal.close();
+              } else {
+                modal.removeAttribute('open');
+                modal.classList.remove('modal-open');
+              }
+
+              // Mostrar mensaje de éxito
+              if (window.flashy) {
+                flashy.success(data.message || 'Ubicación eliminada correctamente.');
+              }
+
+              // Recargar la página después de un breve delay
+              setTimeout(() => {
+                window.location.reload();
+              }, 500);
+            } else {
+              throw new Error(data.error || 'Error al eliminar la ubicación');
+            }
+          } else {
+            const data = await response.json().catch(() => ({}));
+            throw new Error(data.error || 'Error al eliminar la ubicación');
+          }
+        } catch (error) {
+          console.error('Error al eliminar ubicación:', error);
+          if (window.flashy) {
+            flashy.error('Error al eliminar la ubicación. Por favor, inténtelo de nuevo.');
+          } else {
+            alert('Error al eliminar la ubicación. Por favor, inténtelo de nuevo.');
+          }
+          submitButton.disabled = false;
+          submitButton.innerHTML = originalText;
+        }
+      });
+    }
+
+    // Exponer la función para abrir el modal globalmente
+    window.openEliminarUbicacionModal = openEliminarUbicacionModal;
+  })();
+</script>
+
