@@ -1,0 +1,2118 @@
+[
+{
+  "model": "esp_web.especificacion",
+  "pk": 1,
+  "fields": {
+    "proyecto": 1,
+    "titulo": "Especificaciones de Instalaciones Sanitarias",
+    "contenido": "# Especificaciones Técnicas\n\n## 1. Generalidades\n\nEl presente proyecto contempla las especificaciones técnicas necesarias para la ejecución de las obras.\n\n### 1.1 Alcance\n- Obras de construcción\n- Instalaciones especiales\n- Obras exteriores\n\n### 1.2 Normativas Aplicables\n- Ordenanza General de Urbanismo y Construcciones\n- Normas técnicas de construcción\n- Reglamentos sectoriales\n\n## 2. Materiales\n\n### 2.1 Hormigón\n- Resistencia característica: f'c = 25 MPa\n- Agregados según norma NCh 163\n\n### 2.2 Acero\n- Barras de refuerzo: A630-420H\n- Estructuras metálicas: A36\n\n## 3. Ejecución\n\nLas obras deberán ejecutarse conforme a los planos y especificaciones técnicas aprobadas.\n",
+    "archivo": "",
+    "token_cost": "1.04",
+    "orden": 1,
+    "fecha_creacion": "2025-11-14T16:02:28.059Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.059Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 2,
+  "fields": {
+    "proyecto": 1,
+    "titulo": "Especificaciones de Seguridad y Protección",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "3.08",
+    "orden": 2,
+    "fecha_creacion": "2025-11-14T16:02:28.062Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.062Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 3,
+  "fields": {
+    "proyecto": 1,
+    "titulo": "Especificaciones de Instalaciones de Gas",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "2.45",
+    "orden": 3,
+    "fecha_creacion": "2025-11-14T16:02:28.065Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.065Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 4,
+  "fields": {
+    "proyecto": 1,
+    "titulo": "Especificaciones Técnicas Generales",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "0.75",
+    "orden": 4,
+    "fecha_creacion": "2025-11-14T16:02:28.068Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.068Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 5,
+  "fields": {
+    "proyecto": 1,
+    "titulo": "Especificaciones de Señalización",
+    "contenido": "# Especificaciones Técnicas\n\n## 1. Generalidades\n\nEl presente proyecto contempla las especificaciones técnicas necesarias para la ejecución de las obras.\n\n### 1.1 Alcance\n- Obras de construcción\n- Instalaciones especiales\n- Obras exteriores\n\n### 1.2 Normativas Aplicables\n- Ordenanza General de Urbanismo y Construcciones\n- Normas técnicas de construcción\n- Reglamentos sectoriales\n\n## 2. Materiales\n\n### 2.1 Hormigón\n- Resistencia característica: f'c = 25 MPa\n- Agregados según norma NCh 163\n\n### 2.2 Acero\n- Barras de refuerzo: A630-420H\n- Estructuras metálicas: A36\n\n## 3. Ejecución\n\nLas obras deberán ejecutarse conforme a los planos y especificaciones técnicas aprobadas.\n",
+    "archivo": "",
+    "token_cost": "1.41",
+    "orden": 5,
+    "fecha_creacion": "2025-11-14T16:02:28.071Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.071Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 6,
+  "fields": {
+    "proyecto": 1,
+    "titulo": "Especificaciones de Terminaciones",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "4.08",
+    "orden": 6,
+    "fecha_creacion": "2025-11-14T16:02:28.074Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.074Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 7,
+  "fields": {
+    "proyecto": 1,
+    "titulo": "Especificaciones de Aislación Térmica",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "2.28",
+    "orden": 7,
+    "fecha_creacion": "2025-11-14T16:02:28.076Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.076Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 8,
+  "fields": {
+    "proyecto": 1,
+    "titulo": "Especificaciones de Instalaciones Eléctricas",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "4.63",
+    "orden": 8,
+    "fecha_creacion": "2025-11-14T16:02:28.080Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.080Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 9,
+  "fields": {
+    "proyecto": 2,
+    "titulo": "Especificaciones de Instalaciones Mecánicas",
+    "contenido": "# Especificaciones Técnicas\n\n## 1. Generalidades\n\nEl presente proyecto contempla las especificaciones técnicas necesarias para la ejecución de las obras.\n\n### 1.1 Alcance\n- Obras de construcción\n- Instalaciones especiales\n- Obras exteriores\n\n### 1.2 Normativas Aplicables\n- Ordenanza General de Urbanismo y Construcciones\n- Normas técnicas de construcción\n- Reglamentos sectoriales\n\n## 2. Materiales\n\n### 2.1 Hormigón\n- Resistencia característica: f'c = 25 MPa\n- Agregados según norma NCh 163\n\n### 2.2 Acero\n- Barras de refuerzo: A630-420H\n- Estructuras metálicas: A36\n\n## 3. Ejecución\n\nLas obras deberán ejecutarse conforme a los planos y especificaciones técnicas aprobadas.\n",
+    "archivo": "",
+    "token_cost": "3.16",
+    "orden": 1,
+    "fecha_creacion": "2025-11-14T16:02:28.084Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.084Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 10,
+  "fields": {
+    "proyecto": 2,
+    "titulo": "Especificaciones de Seguridad y Protección",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "2.57",
+    "orden": 2,
+    "fecha_creacion": "2025-11-14T16:02:28.089Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.089Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 11,
+  "fields": {
+    "proyecto": 2,
+    "titulo": "Especificaciones de Instalaciones Eléctricas",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "4.45",
+    "orden": 3,
+    "fecha_creacion": "2025-11-14T16:02:28.092Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.092Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 12,
+  "fields": {
+    "proyecto": 2,
+    "titulo": "Especificaciones Técnicas Generales",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "4.77",
+    "orden": 4,
+    "fecha_creacion": "2025-11-14T16:02:28.094Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.094Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 13,
+  "fields": {
+    "proyecto": 2,
+    "titulo": "Especificaciones de Terminaciones",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "0.65",
+    "orden": 5,
+    "fecha_creacion": "2025-11-14T16:02:28.096Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.096Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 14,
+  "fields": {
+    "proyecto": 2,
+    "titulo": "Especificaciones de Instalaciones de Gas",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "4.62",
+    "orden": 6,
+    "fecha_creacion": "2025-11-14T16:02:28.098Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.098Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 15,
+  "fields": {
+    "proyecto": 2,
+    "titulo": "Memoria Descriptiva del Proyecto",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "1.23",
+    "orden": 7,
+    "fecha_creacion": "2025-11-14T16:02:28.099Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.099Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 16,
+  "fields": {
+    "proyecto": 2,
+    "titulo": "Especificaciones de Señalización",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "4.03",
+    "orden": 8,
+    "fecha_creacion": "2025-11-14T16:02:28.100Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.100Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 17,
+  "fields": {
+    "proyecto": 3,
+    "titulo": "Especificaciones de Terminaciones",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "3.91",
+    "orden": 1,
+    "fecha_creacion": "2025-11-14T16:02:28.103Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.103Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 18,
+  "fields": {
+    "proyecto": 3,
+    "titulo": "Especificaciones de Estructura",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "4.25",
+    "orden": 2,
+    "fecha_creacion": "2025-11-14T16:02:28.104Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.104Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 19,
+  "fields": {
+    "proyecto": 3,
+    "titulo": "Especificaciones de Instalaciones de Gas",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "2.23",
+    "orden": 3,
+    "fecha_creacion": "2025-11-14T16:02:28.106Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.106Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 20,
+  "fields": {
+    "proyecto": 3,
+    "titulo": "Memoria Descriptiva del Proyecto",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "2.15",
+    "orden": 4,
+    "fecha_creacion": "2025-11-14T16:02:28.107Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.107Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 21,
+  "fields": {
+    "proyecto": 3,
+    "titulo": "Especificaciones de Instalaciones Mecánicas",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "0.59",
+    "orden": 5,
+    "fecha_creacion": "2025-11-14T16:02:28.110Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.110Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 22,
+  "fields": {
+    "proyecto": 3,
+    "titulo": "Especificaciones de Obras Exteriores",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "4.32",
+    "orden": 6,
+    "fecha_creacion": "2025-11-14T16:02:28.112Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.112Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 23,
+  "fields": {
+    "proyecto": 3,
+    "titulo": "Especificaciones de Señalización",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "1.55",
+    "orden": 7,
+    "fecha_creacion": "2025-11-14T16:02:28.115Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.115Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 24,
+  "fields": {
+    "proyecto": 3,
+    "titulo": "Especificaciones de Accesibilidad",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "1.54",
+    "orden": 8,
+    "fecha_creacion": "2025-11-14T16:02:28.116Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.116Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 25,
+  "fields": {
+    "proyecto": 4,
+    "titulo": "Especificaciones de Señalización",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "3.30",
+    "orden": 1,
+    "fecha_creacion": "2025-11-14T16:02:28.120Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.120Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 26,
+  "fields": {
+    "proyecto": 4,
+    "titulo": "Especificaciones de Aislación Térmica",
+    "contenido": "# Especificaciones Técnicas\n\n## 1. Generalidades\n\nEl presente proyecto contempla las especificaciones técnicas necesarias para la ejecución de las obras.\n\n### 1.1 Alcance\n- Obras de construcción\n- Instalaciones especiales\n- Obras exteriores\n\n### 1.2 Normativas Aplicables\n- Ordenanza General de Urbanismo y Construcciones\n- Normas técnicas de construcción\n- Reglamentos sectoriales\n\n## 2. Materiales\n\n### 2.1 Hormigón\n- Resistencia característica: f'c = 25 MPa\n- Agregados según norma NCh 163\n\n### 2.2 Acero\n- Barras de refuerzo: A630-420H\n- Estructuras metálicas: A36\n\n## 3. Ejecución\n\nLas obras deberán ejecutarse conforme a los planos y especificaciones técnicas aprobadas.\n",
+    "archivo": "",
+    "token_cost": "3.47",
+    "orden": 2,
+    "fecha_creacion": "2025-11-14T16:02:28.123Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.123Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 27,
+  "fields": {
+    "proyecto": 4,
+    "titulo": "Especificaciones de Instalaciones de Gas",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "4.51",
+    "orden": 3,
+    "fecha_creacion": "2025-11-14T16:02:28.124Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.124Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 28,
+  "fields": {
+    "proyecto": 4,
+    "titulo": "Especificaciones de Seguridad y Protección",
+    "contenido": "# Especificaciones Técnicas\n\n## 1. Generalidades\n\nEl presente proyecto contempla las especificaciones técnicas necesarias para la ejecución de las obras.\n\n### 1.1 Alcance\n- Obras de construcción\n- Instalaciones especiales\n- Obras exteriores\n\n### 1.2 Normativas Aplicables\n- Ordenanza General de Urbanismo y Construcciones\n- Normas técnicas de construcción\n- Reglamentos sectoriales\n\n## 2. Materiales\n\n### 2.1 Hormigón\n- Resistencia característica: f'c = 25 MPa\n- Agregados según norma NCh 163\n\n### 2.2 Acero\n- Barras de refuerzo: A630-420H\n- Estructuras metálicas: A36\n\n## 3. Ejecución\n\nLas obras deberán ejecutarse conforme a los planos y especificaciones técnicas aprobadas.\n",
+    "archivo": "",
+    "token_cost": "1.72",
+    "orden": 4,
+    "fecha_creacion": "2025-11-14T16:02:28.127Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.127Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 29,
+  "fields": {
+    "proyecto": 4,
+    "titulo": "Especificaciones de Estructura",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "4.08",
+    "orden": 5,
+    "fecha_creacion": "2025-11-14T16:02:28.129Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.129Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 30,
+  "fields": {
+    "proyecto": 4,
+    "titulo": "Especificaciones de Accesibilidad",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "3.04",
+    "orden": 6,
+    "fecha_creacion": "2025-11-14T16:02:28.132Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.132Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 31,
+  "fields": {
+    "proyecto": 4,
+    "titulo": "Especificaciones de Paisajismo",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "2.27",
+    "orden": 7,
+    "fecha_creacion": "2025-11-14T16:02:28.134Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.135Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 32,
+  "fields": {
+    "proyecto": 4,
+    "titulo": "Especificaciones de Terminaciones",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "3.36",
+    "orden": 8,
+    "fecha_creacion": "2025-11-14T16:02:28.136Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.137Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 33,
+  "fields": {
+    "proyecto": 5,
+    "titulo": "Especificaciones de Instalaciones de Gas",
+    "contenido": "# Especificaciones Técnicas\n\n## 1. Generalidades\n\nEl presente proyecto contempla las especificaciones técnicas necesarias para la ejecución de las obras.\n\n### 1.1 Alcance\n- Obras de construcción\n- Instalaciones especiales\n- Obras exteriores\n\n### 1.2 Normativas Aplicables\n- Ordenanza General de Urbanismo y Construcciones\n- Normas técnicas de construcción\n- Reglamentos sectoriales\n\n## 2. Materiales\n\n### 2.1 Hormigón\n- Resistencia característica: f'c = 25 MPa\n- Agregados según norma NCh 163\n\n### 2.2 Acero\n- Barras de refuerzo: A630-420H\n- Estructuras metálicas: A36\n\n## 3. Ejecución\n\nLas obras deberán ejecutarse conforme a los planos y especificaciones técnicas aprobadas.\n",
+    "archivo": "",
+    "token_cost": "3.12",
+    "orden": 1,
+    "fecha_creacion": "2025-11-14T16:02:28.140Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.140Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 34,
+  "fields": {
+    "proyecto": 5,
+    "titulo": "Especificaciones de Paisajismo",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "1.92",
+    "orden": 2,
+    "fecha_creacion": "2025-11-14T16:02:28.141Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.141Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 35,
+  "fields": {
+    "proyecto": 5,
+    "titulo": "Especificaciones de Accesibilidad",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "2.75",
+    "orden": 3,
+    "fecha_creacion": "2025-11-14T16:02:28.142Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.142Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 36,
+  "fields": {
+    "proyecto": 5,
+    "titulo": "Especificaciones de Aislación Acústica",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "1.80",
+    "orden": 4,
+    "fecha_creacion": "2025-11-14T16:02:28.144Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.144Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 37,
+  "fields": {
+    "proyecto": 5,
+    "titulo": "Especificaciones de Seguridad y Protección",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "4.14",
+    "orden": 5,
+    "fecha_creacion": "2025-11-14T16:02:28.145Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.145Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 38,
+  "fields": {
+    "proyecto": 5,
+    "titulo": "Especificaciones de Aislación Térmica",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "4.57",
+    "orden": 6,
+    "fecha_creacion": "2025-11-14T16:02:28.146Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.146Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 39,
+  "fields": {
+    "proyecto": 5,
+    "titulo": "Especificaciones de Instalaciones Eléctricas",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "1.20",
+    "orden": 7,
+    "fecha_creacion": "2025-11-14T16:02:28.148Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.148Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 40,
+  "fields": {
+    "proyecto": 5,
+    "titulo": "Especificaciones de Estructura",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "1.66",
+    "orden": 8,
+    "fecha_creacion": "2025-11-14T16:02:28.149Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.149Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 41,
+  "fields": {
+    "proyecto": 6,
+    "titulo": "Especificaciones de Instalaciones de Gas",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "2.87",
+    "orden": 1,
+    "fecha_creacion": "2025-11-14T16:02:28.154Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.154Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 42,
+  "fields": {
+    "proyecto": 6,
+    "titulo": "Especificaciones de Terminaciones",
+    "contenido": "# Especificaciones Técnicas\n\n## 1. Generalidades\n\nEl presente proyecto contempla las especificaciones técnicas necesarias para la ejecución de las obras.\n\n### 1.1 Alcance\n- Obras de construcción\n- Instalaciones especiales\n- Obras exteriores\n\n### 1.2 Normativas Aplicables\n- Ordenanza General de Urbanismo y Construcciones\n- Normas técnicas de construcción\n- Reglamentos sectoriales\n\n## 2. Materiales\n\n### 2.1 Hormigón\n- Resistencia característica: f'c = 25 MPa\n- Agregados según norma NCh 163\n\n### 2.2 Acero\n- Barras de refuerzo: A630-420H\n- Estructuras metálicas: A36\n\n## 3. Ejecución\n\nLas obras deberán ejecutarse conforme a los planos y especificaciones técnicas aprobadas.\n",
+    "archivo": "",
+    "token_cost": "3.82",
+    "orden": 2,
+    "fecha_creacion": "2025-11-14T16:02:28.156Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.156Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 43,
+  "fields": {
+    "proyecto": 6,
+    "titulo": "Especificaciones de Seguridad y Protección",
+    "contenido": "# Especificaciones Técnicas\n\n## 1. Generalidades\n\nEl presente proyecto contempla las especificaciones técnicas necesarias para la ejecución de las obras.\n\n### 1.1 Alcance\n- Obras de construcción\n- Instalaciones especiales\n- Obras exteriores\n\n### 1.2 Normativas Aplicables\n- Ordenanza General de Urbanismo y Construcciones\n- Normas técnicas de construcción\n- Reglamentos sectoriales\n\n## 2. Materiales\n\n### 2.1 Hormigón\n- Resistencia característica: f'c = 25 MPa\n- Agregados según norma NCh 163\n\n### 2.2 Acero\n- Barras de refuerzo: A630-420H\n- Estructuras metálicas: A36\n\n## 3. Ejecución\n\nLas obras deberán ejecutarse conforme a los planos y especificaciones técnicas aprobadas.\n",
+    "archivo": "",
+    "token_cost": "0.56",
+    "orden": 3,
+    "fecha_creacion": "2025-11-14T16:02:28.159Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.159Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 44,
+  "fields": {
+    "proyecto": 6,
+    "titulo": "Memoria Descriptiva del Proyecto",
+    "contenido": "# Especificaciones Técnicas\n\n## 1. Generalidades\n\nEl presente proyecto contempla las especificaciones técnicas necesarias para la ejecución de las obras.\n\n### 1.1 Alcance\n- Obras de construcción\n- Instalaciones especiales\n- Obras exteriores\n\n### 1.2 Normativas Aplicables\n- Ordenanza General de Urbanismo y Construcciones\n- Normas técnicas de construcción\n- Reglamentos sectoriales\n\n## 2. Materiales\n\n### 2.1 Hormigón\n- Resistencia característica: f'c = 25 MPa\n- Agregados según norma NCh 163\n\n### 2.2 Acero\n- Barras de refuerzo: A630-420H\n- Estructuras metálicas: A36\n\n## 3. Ejecución\n\nLas obras deberán ejecutarse conforme a los planos y especificaciones técnicas aprobadas.\n",
+    "archivo": "",
+    "token_cost": "4.97",
+    "orden": 4,
+    "fecha_creacion": "2025-11-14T16:02:28.161Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.161Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 45,
+  "fields": {
+    "proyecto": 6,
+    "titulo": "Especificaciones de Instalaciones Sanitarias",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "4.73",
+    "orden": 5,
+    "fecha_creacion": "2025-11-14T16:02:28.162Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.162Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 46,
+  "fields": {
+    "proyecto": 6,
+    "titulo": "Especificaciones de Instalaciones Eléctricas",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "3.97",
+    "orden": 6,
+    "fecha_creacion": "2025-11-14T16:02:28.163Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.163Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 47,
+  "fields": {
+    "proyecto": 6,
+    "titulo": "Especificaciones de Señalización",
+    "contenido": "# Especificaciones Técnicas\n\n## 1. Generalidades\n\nEl presente proyecto contempla las especificaciones técnicas necesarias para la ejecución de las obras.\n\n### 1.1 Alcance\n- Obras de construcción\n- Instalaciones especiales\n- Obras exteriores\n\n### 1.2 Normativas Aplicables\n- Ordenanza General de Urbanismo y Construcciones\n- Normas técnicas de construcción\n- Reglamentos sectoriales\n\n## 2. Materiales\n\n### 2.1 Hormigón\n- Resistencia característica: f'c = 25 MPa\n- Agregados según norma NCh 163\n\n### 2.2 Acero\n- Barras de refuerzo: A630-420H\n- Estructuras metálicas: A36\n\n## 3. Ejecución\n\nLas obras deberán ejecutarse conforme a los planos y especificaciones técnicas aprobadas.\n",
+    "archivo": "",
+    "token_cost": "2.78",
+    "orden": 7,
+    "fecha_creacion": "2025-11-14T16:02:28.164Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.164Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 48,
+  "fields": {
+    "proyecto": 6,
+    "titulo": "Especificaciones de Aislación Térmica",
+    "contenido": "# Especificaciones Técnicas\n\n## 1. Generalidades\n\nEl presente proyecto contempla las especificaciones técnicas necesarias para la ejecución de las obras.\n\n### 1.1 Alcance\n- Obras de construcción\n- Instalaciones especiales\n- Obras exteriores\n\n### 1.2 Normativas Aplicables\n- Ordenanza General de Urbanismo y Construcciones\n- Normas técnicas de construcción\n- Reglamentos sectoriales\n\n## 2. Materiales\n\n### 2.1 Hormigón\n- Resistencia característica: f'c = 25 MPa\n- Agregados según norma NCh 163\n\n### 2.2 Acero\n- Barras de refuerzo: A630-420H\n- Estructuras metálicas: A36\n\n## 3. Ejecución\n\nLas obras deberán ejecutarse conforme a los planos y especificaciones técnicas aprobadas.\n",
+    "archivo": "",
+    "token_cost": "2.52",
+    "orden": 8,
+    "fecha_creacion": "2025-11-14T16:02:28.166Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.166Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 49,
+  "fields": {
+    "proyecto": 7,
+    "titulo": "Especificaciones de Terminaciones",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "4.61",
+    "orden": 1,
+    "fecha_creacion": "2025-11-14T16:02:28.168Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.168Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 50,
+  "fields": {
+    "proyecto": 7,
+    "titulo": "Especificaciones de Accesibilidad",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "0.80",
+    "orden": 2,
+    "fecha_creacion": "2025-11-14T16:02:28.169Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.169Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 51,
+  "fields": {
+    "proyecto": 7,
+    "titulo": "Especificaciones de Instalaciones de Gas",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "3.07",
+    "orden": 3,
+    "fecha_creacion": "2025-11-14T16:02:28.170Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.170Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 52,
+  "fields": {
+    "proyecto": 7,
+    "titulo": "Especificaciones de Aislación Acústica",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "4.58",
+    "orden": 4,
+    "fecha_creacion": "2025-11-14T16:02:28.172Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.172Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 53,
+  "fields": {
+    "proyecto": 7,
+    "titulo": "Especificaciones de Instalaciones Mecánicas",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "1.19",
+    "orden": 5,
+    "fecha_creacion": "2025-11-14T16:02:28.174Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.174Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 54,
+  "fields": {
+    "proyecto": 7,
+    "titulo": "Especificaciones de Paisajismo",
+    "contenido": "# Especificaciones Técnicas\n\n## 1. Generalidades\n\nEl presente proyecto contempla las especificaciones técnicas necesarias para la ejecución de las obras.\n\n### 1.1 Alcance\n- Obras de construcción\n- Instalaciones especiales\n- Obras exteriores\n\n### 1.2 Normativas Aplicables\n- Ordenanza General de Urbanismo y Construcciones\n- Normas técnicas de construcción\n- Reglamentos sectoriales\n\n## 2. Materiales\n\n### 2.1 Hormigón\n- Resistencia característica: f'c = 25 MPa\n- Agregados según norma NCh 163\n\n### 2.2 Acero\n- Barras de refuerzo: A630-420H\n- Estructuras metálicas: A36\n\n## 3. Ejecución\n\nLas obras deberán ejecutarse conforme a los planos y especificaciones técnicas aprobadas.\n",
+    "archivo": "",
+    "token_cost": "1.36",
+    "orden": 6,
+    "fecha_creacion": "2025-11-14T16:02:28.177Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.177Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 55,
+  "fields": {
+    "proyecto": 7,
+    "titulo": "Especificaciones de Estructura",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "2.61",
+    "orden": 7,
+    "fecha_creacion": "2025-11-14T16:02:28.179Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.179Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 56,
+  "fields": {
+    "proyecto": 7,
+    "titulo": "Especificaciones de Instalaciones Eléctricas",
+    "contenido": "# Especificaciones Técnicas\n\n## 1. Generalidades\n\nEl presente proyecto contempla las especificaciones técnicas necesarias para la ejecución de las obras.\n\n### 1.1 Alcance\n- Obras de construcción\n- Instalaciones especiales\n- Obras exteriores\n\n### 1.2 Normativas Aplicables\n- Ordenanza General de Urbanismo y Construcciones\n- Normas técnicas de construcción\n- Reglamentos sectoriales\n\n## 2. Materiales\n\n### 2.1 Hormigón\n- Resistencia característica: f'c = 25 MPa\n- Agregados según norma NCh 163\n\n### 2.2 Acero\n- Barras de refuerzo: A630-420H\n- Estructuras metálicas: A36\n\n## 3. Ejecución\n\nLas obras deberán ejecutarse conforme a los planos y especificaciones técnicas aprobadas.\n",
+    "archivo": "",
+    "token_cost": "3.33",
+    "orden": 8,
+    "fecha_creacion": "2025-11-14T16:02:28.180Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.180Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 57,
+  "fields": {
+    "proyecto": 8,
+    "titulo": "Especificaciones de Instalaciones Mecánicas",
+    "contenido": "# Especificaciones Técnicas\n\n## 1. Generalidades\n\nEl presente proyecto contempla las especificaciones técnicas necesarias para la ejecución de las obras.\n\n### 1.1 Alcance\n- Obras de construcción\n- Instalaciones especiales\n- Obras exteriores\n\n### 1.2 Normativas Aplicables\n- Ordenanza General de Urbanismo y Construcciones\n- Normas técnicas de construcción\n- Reglamentos sectoriales\n\n## 2. Materiales\n\n### 2.1 Hormigón\n- Resistencia característica: f'c = 25 MPa\n- Agregados según norma NCh 163\n\n### 2.2 Acero\n- Barras de refuerzo: A630-420H\n- Estructuras metálicas: A36\n\n## 3. Ejecución\n\nLas obras deberán ejecutarse conforme a los planos y especificaciones técnicas aprobadas.\n",
+    "archivo": "",
+    "token_cost": "0.68",
+    "orden": 1,
+    "fecha_creacion": "2025-11-14T16:02:28.184Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.184Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 58,
+  "fields": {
+    "proyecto": 8,
+    "titulo": "Especificaciones de Obras Exteriores",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "3.63",
+    "orden": 2,
+    "fecha_creacion": "2025-11-14T16:02:28.186Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.186Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 59,
+  "fields": {
+    "proyecto": 8,
+    "titulo": "Especificaciones de Aislación Acústica",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "3.96",
+    "orden": 3,
+    "fecha_creacion": "2025-11-14T16:02:28.187Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.187Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 60,
+  "fields": {
+    "proyecto": 8,
+    "titulo": "Especificaciones de Accesibilidad",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "2.82",
+    "orden": 4,
+    "fecha_creacion": "2025-11-14T16:02:28.188Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.188Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 61,
+  "fields": {
+    "proyecto": 8,
+    "titulo": "Memoria Descriptiva del Proyecto",
+    "contenido": "# Especificaciones Técnicas\n\n## 1. Generalidades\n\nEl presente proyecto contempla las especificaciones técnicas necesarias para la ejecución de las obras.\n\n### 1.1 Alcance\n- Obras de construcción\n- Instalaciones especiales\n- Obras exteriores\n\n### 1.2 Normativas Aplicables\n- Ordenanza General de Urbanismo y Construcciones\n- Normas técnicas de construcción\n- Reglamentos sectoriales\n\n## 2. Materiales\n\n### 2.1 Hormigón\n- Resistencia característica: f'c = 25 MPa\n- Agregados según norma NCh 163\n\n### 2.2 Acero\n- Barras de refuerzo: A630-420H\n- Estructuras metálicas: A36\n\n## 3. Ejecución\n\nLas obras deberán ejecutarse conforme a los planos y especificaciones técnicas aprobadas.\n",
+    "archivo": "",
+    "token_cost": "3.75",
+    "orden": 5,
+    "fecha_creacion": "2025-11-14T16:02:28.189Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.189Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 62,
+  "fields": {
+    "proyecto": 8,
+    "titulo": "Especificaciones de Señalización",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "1.20",
+    "orden": 6,
+    "fecha_creacion": "2025-11-14T16:02:28.190Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.190Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 63,
+  "fields": {
+    "proyecto": 8,
+    "titulo": "Especificaciones de Terminaciones",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "2.09",
+    "orden": 7,
+    "fecha_creacion": "2025-11-14T16:02:28.192Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.192Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 64,
+  "fields": {
+    "proyecto": 8,
+    "titulo": "Especificaciones de Seguridad y Protección",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "1.47",
+    "orden": 8,
+    "fecha_creacion": "2025-11-14T16:02:28.193Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.193Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 65,
+  "fields": {
+    "proyecto": 9,
+    "titulo": "Especificaciones de Seguridad y Protección",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "3.44",
+    "orden": 1,
+    "fecha_creacion": "2025-11-14T16:02:28.198Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.198Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 66,
+  "fields": {
+    "proyecto": 9,
+    "titulo": "Especificaciones de Terminaciones",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "4.14",
+    "orden": 2,
+    "fecha_creacion": "2025-11-14T16:02:28.200Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.200Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 67,
+  "fields": {
+    "proyecto": 9,
+    "titulo": "Especificaciones de Instalaciones Sanitarias",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "1.71",
+    "orden": 3,
+    "fecha_creacion": "2025-11-14T16:02:28.202Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.202Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 68,
+  "fields": {
+    "proyecto": 9,
+    "titulo": "Especificaciones de Aislación Acústica",
+    "contenido": "# Especificaciones Técnicas\n\n## 1. Generalidades\n\nEl presente proyecto contempla las especificaciones técnicas necesarias para la ejecución de las obras.\n\n### 1.1 Alcance\n- Obras de construcción\n- Instalaciones especiales\n- Obras exteriores\n\n### 1.2 Normativas Aplicables\n- Ordenanza General de Urbanismo y Construcciones\n- Normas técnicas de construcción\n- Reglamentos sectoriales\n\n## 2. Materiales\n\n### 2.1 Hormigón\n- Resistencia característica: f'c = 25 MPa\n- Agregados según norma NCh 163\n\n### 2.2 Acero\n- Barras de refuerzo: A630-420H\n- Estructuras metálicas: A36\n\n## 3. Ejecución\n\nLas obras deberán ejecutarse conforme a los planos y especificaciones técnicas aprobadas.\n",
+    "archivo": "",
+    "token_cost": "2.25",
+    "orden": 4,
+    "fecha_creacion": "2025-11-14T16:02:28.203Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.203Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 69,
+  "fields": {
+    "proyecto": 9,
+    "titulo": "Especificaciones de Señalización",
+    "contenido": "# Especificaciones Técnicas\n\n## 1. Generalidades\n\nEl presente proyecto contempla las especificaciones técnicas necesarias para la ejecución de las obras.\n\n### 1.1 Alcance\n- Obras de construcción\n- Instalaciones especiales\n- Obras exteriores\n\n### 1.2 Normativas Aplicables\n- Ordenanza General de Urbanismo y Construcciones\n- Normas técnicas de construcción\n- Reglamentos sectoriales\n\n## 2. Materiales\n\n### 2.1 Hormigón\n- Resistencia característica: f'c = 25 MPa\n- Agregados según norma NCh 163\n\n### 2.2 Acero\n- Barras de refuerzo: A630-420H\n- Estructuras metálicas: A36\n\n## 3. Ejecución\n\nLas obras deberán ejecutarse conforme a los planos y especificaciones técnicas aprobadas.\n",
+    "archivo": "",
+    "token_cost": "2.29",
+    "orden": 5,
+    "fecha_creacion": "2025-11-14T16:02:28.204Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.204Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 70,
+  "fields": {
+    "proyecto": 9,
+    "titulo": "Especificaciones de Instalaciones Eléctricas",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "0.89",
+    "orden": 6,
+    "fecha_creacion": "2025-11-14T16:02:28.206Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.206Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 71,
+  "fields": {
+    "proyecto": 9,
+    "titulo": "Memoria Descriptiva del Proyecto",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "3.87",
+    "orden": 7,
+    "fecha_creacion": "2025-11-14T16:02:28.207Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.207Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 72,
+  "fields": {
+    "proyecto": 9,
+    "titulo": "Especificaciones de Obras Exteriores",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "4.18",
+    "orden": 8,
+    "fecha_creacion": "2025-11-14T16:02:28.208Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.208Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 73,
+  "fields": {
+    "proyecto": 10,
+    "titulo": "Memoria Descriptiva del Proyecto",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "1.33",
+    "orden": 1,
+    "fecha_creacion": "2025-11-14T16:02:28.210Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.210Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 74,
+  "fields": {
+    "proyecto": 10,
+    "titulo": "Especificaciones de Instalaciones Sanitarias",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "4.81",
+    "orden": 2,
+    "fecha_creacion": "2025-11-14T16:02:28.211Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.211Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 75,
+  "fields": {
+    "proyecto": 10,
+    "titulo": "Especificaciones de Estructura",
+    "contenido": "# Especificaciones Técnicas\n\n## 1. Generalidades\n\nEl presente proyecto contempla las especificaciones técnicas necesarias para la ejecución de las obras.\n\n### 1.1 Alcance\n- Obras de construcción\n- Instalaciones especiales\n- Obras exteriores\n\n### 1.2 Normativas Aplicables\n- Ordenanza General de Urbanismo y Construcciones\n- Normas técnicas de construcción\n- Reglamentos sectoriales\n\n## 2. Materiales\n\n### 2.1 Hormigón\n- Resistencia característica: f'c = 25 MPa\n- Agregados según norma NCh 163\n\n### 2.2 Acero\n- Barras de refuerzo: A630-420H\n- Estructuras metálicas: A36\n\n## 3. Ejecución\n\nLas obras deberán ejecutarse conforme a los planos y especificaciones técnicas aprobadas.\n",
+    "archivo": "",
+    "token_cost": "2.12",
+    "orden": 3,
+    "fecha_creacion": "2025-11-14T16:02:28.212Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.212Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 76,
+  "fields": {
+    "proyecto": 10,
+    "titulo": "Especificaciones de Instalaciones de Gas",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "2.99",
+    "orden": 4,
+    "fecha_creacion": "2025-11-14T16:02:28.213Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.213Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 77,
+  "fields": {
+    "proyecto": 10,
+    "titulo": "Especificaciones de Accesibilidad",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "2.11",
+    "orden": 5,
+    "fecha_creacion": "2025-11-14T16:02:28.214Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.214Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 78,
+  "fields": {
+    "proyecto": 10,
+    "titulo": "Especificaciones de Paisajismo",
+    "contenido": "# Especificaciones Técnicas\n\n## 1. Generalidades\n\nEl presente proyecto contempla las especificaciones técnicas necesarias para la ejecución de las obras.\n\n### 1.1 Alcance\n- Obras de construcción\n- Instalaciones especiales\n- Obras exteriores\n\n### 1.2 Normativas Aplicables\n- Ordenanza General de Urbanismo y Construcciones\n- Normas técnicas de construcción\n- Reglamentos sectoriales\n\n## 2. Materiales\n\n### 2.1 Hormigón\n- Resistencia característica: f'c = 25 MPa\n- Agregados según norma NCh 163\n\n### 2.2 Acero\n- Barras de refuerzo: A630-420H\n- Estructuras metálicas: A36\n\n## 3. Ejecución\n\nLas obras deberán ejecutarse conforme a los planos y especificaciones técnicas aprobadas.\n",
+    "archivo": "",
+    "token_cost": "0.83",
+    "orden": 6,
+    "fecha_creacion": "2025-11-14T16:02:28.216Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.216Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 79,
+  "fields": {
+    "proyecto": 10,
+    "titulo": "Especificaciones de Seguridad y Protección",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "1.04",
+    "orden": 7,
+    "fecha_creacion": "2025-11-14T16:02:28.219Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.219Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 80,
+  "fields": {
+    "proyecto": 10,
+    "titulo": "Especificaciones de Instalaciones Mecánicas",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "1.36",
+    "orden": 8,
+    "fecha_creacion": "2025-11-14T16:02:28.221Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.221Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 81,
+  "fields": {
+    "proyecto": 11,
+    "titulo": "Especificaciones de Terminaciones",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "1.36",
+    "orden": 1,
+    "fecha_creacion": "2025-11-14T16:02:28.227Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.227Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 82,
+  "fields": {
+    "proyecto": 11,
+    "titulo": "Especificaciones de Paisajismo",
+    "contenido": "# Especificaciones Técnicas\n\n## 1. Generalidades\n\nEl presente proyecto contempla las especificaciones técnicas necesarias para la ejecución de las obras.\n\n### 1.1 Alcance\n- Obras de construcción\n- Instalaciones especiales\n- Obras exteriores\n\n### 1.2 Normativas Aplicables\n- Ordenanza General de Urbanismo y Construcciones\n- Normas técnicas de construcción\n- Reglamentos sectoriales\n\n## 2. Materiales\n\n### 2.1 Hormigón\n- Resistencia característica: f'c = 25 MPa\n- Agregados según norma NCh 163\n\n### 2.2 Acero\n- Barras de refuerzo: A630-420H\n- Estructuras metálicas: A36\n\n## 3. Ejecución\n\nLas obras deberán ejecutarse conforme a los planos y especificaciones técnicas aprobadas.\n",
+    "archivo": "",
+    "token_cost": "4.33",
+    "orden": 2,
+    "fecha_creacion": "2025-11-14T16:02:28.228Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.228Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 83,
+  "fields": {
+    "proyecto": 11,
+    "titulo": "Especificaciones de Instalaciones Sanitarias",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "3.92",
+    "orden": 3,
+    "fecha_creacion": "2025-11-14T16:02:28.230Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.230Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 84,
+  "fields": {
+    "proyecto": 11,
+    "titulo": "Especificaciones de Estructura",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "3.26",
+    "orden": 4,
+    "fecha_creacion": "2025-11-14T16:02:28.231Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.231Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 85,
+  "fields": {
+    "proyecto": 11,
+    "titulo": "Especificaciones de Accesibilidad",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "4.12",
+    "orden": 5,
+    "fecha_creacion": "2025-11-14T16:02:28.232Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.232Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 86,
+  "fields": {
+    "proyecto": 11,
+    "titulo": "Especificaciones Técnicas Generales",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "1.71",
+    "orden": 6,
+    "fecha_creacion": "2025-11-14T16:02:28.233Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.233Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 87,
+  "fields": {
+    "proyecto": 11,
+    "titulo": "Especificaciones de Aislación Térmica",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "2.67",
+    "orden": 7,
+    "fecha_creacion": "2025-11-14T16:02:28.235Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.235Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 88,
+  "fields": {
+    "proyecto": 11,
+    "titulo": "Especificaciones de Instalaciones de Gas",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "1.28",
+    "orden": 8,
+    "fecha_creacion": "2025-11-14T16:02:28.236Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.236Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 89,
+  "fields": {
+    "proyecto": 12,
+    "titulo": "Especificaciones de Instalaciones Mecánicas",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "1.23",
+    "orden": 1,
+    "fecha_creacion": "2025-11-14T16:02:28.242Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.242Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 90,
+  "fields": {
+    "proyecto": 12,
+    "titulo": "Especificaciones de Aislación Térmica",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "3.00",
+    "orden": 2,
+    "fecha_creacion": "2025-11-14T16:02:28.244Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.244Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 91,
+  "fields": {
+    "proyecto": 12,
+    "titulo": "Especificaciones Técnicas Generales",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "3.03",
+    "orden": 3,
+    "fecha_creacion": "2025-11-14T16:02:28.245Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.245Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 92,
+  "fields": {
+    "proyecto": 12,
+    "titulo": "Especificaciones de Aislación Acústica",
+    "contenido": "# Especificaciones Técnicas\n\n## 1. Generalidades\n\nEl presente proyecto contempla las especificaciones técnicas necesarias para la ejecución de las obras.\n\n### 1.1 Alcance\n- Obras de construcción\n- Instalaciones especiales\n- Obras exteriores\n\n### 1.2 Normativas Aplicables\n- Ordenanza General de Urbanismo y Construcciones\n- Normas técnicas de construcción\n- Reglamentos sectoriales\n\n## 2. Materiales\n\n### 2.1 Hormigón\n- Resistencia característica: f'c = 25 MPa\n- Agregados según norma NCh 163\n\n### 2.2 Acero\n- Barras de refuerzo: A630-420H\n- Estructuras metálicas: A36\n\n## 3. Ejecución\n\nLas obras deberán ejecutarse conforme a los planos y especificaciones técnicas aprobadas.\n",
+    "archivo": "",
+    "token_cost": "4.14",
+    "orden": 4,
+    "fecha_creacion": "2025-11-14T16:02:28.246Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.246Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 93,
+  "fields": {
+    "proyecto": 12,
+    "titulo": "Especificaciones de Instalaciones Eléctricas",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "1.16",
+    "orden": 5,
+    "fecha_creacion": "2025-11-14T16:02:28.248Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.248Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 94,
+  "fields": {
+    "proyecto": 12,
+    "titulo": "Especificaciones de Terminaciones",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "1.53",
+    "orden": 6,
+    "fecha_creacion": "2025-11-14T16:02:28.249Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.249Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 95,
+  "fields": {
+    "proyecto": 12,
+    "titulo": "Especificaciones de Accesibilidad",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "3.35",
+    "orden": 7,
+    "fecha_creacion": "2025-11-14T16:02:28.250Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.250Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 96,
+  "fields": {
+    "proyecto": 12,
+    "titulo": "Especificaciones de Paisajismo",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "4.54",
+    "orden": 8,
+    "fecha_creacion": "2025-11-14T16:02:28.251Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.251Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 97,
+  "fields": {
+    "proyecto": 13,
+    "titulo": "Especificaciones de Instalaciones Eléctricas",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "3.59",
+    "orden": 1,
+    "fecha_creacion": "2025-11-14T16:02:28.253Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.253Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 98,
+  "fields": {
+    "proyecto": 13,
+    "titulo": "Especificaciones de Paisajismo",
+    "contenido": "# Especificaciones Técnicas\n\n## 1. Generalidades\n\nEl presente proyecto contempla las especificaciones técnicas necesarias para la ejecución de las obras.\n\n### 1.1 Alcance\n- Obras de construcción\n- Instalaciones especiales\n- Obras exteriores\n\n### 1.2 Normativas Aplicables\n- Ordenanza General de Urbanismo y Construcciones\n- Normas técnicas de construcción\n- Reglamentos sectoriales\n\n## 2. Materiales\n\n### 2.1 Hormigón\n- Resistencia característica: f'c = 25 MPa\n- Agregados según norma NCh 163\n\n### 2.2 Acero\n- Barras de refuerzo: A630-420H\n- Estructuras metálicas: A36\n\n## 3. Ejecución\n\nLas obras deberán ejecutarse conforme a los planos y especificaciones técnicas aprobadas.\n",
+    "archivo": "",
+    "token_cost": "0.56",
+    "orden": 2,
+    "fecha_creacion": "2025-11-14T16:02:28.254Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.254Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 99,
+  "fields": {
+    "proyecto": 13,
+    "titulo": "Especificaciones de Instalaciones de Gas",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "1.84",
+    "orden": 3,
+    "fecha_creacion": "2025-11-14T16:02:28.255Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.255Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 100,
+  "fields": {
+    "proyecto": 13,
+    "titulo": "Especificaciones de Instalaciones Sanitarias",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "1.08",
+    "orden": 4,
+    "fecha_creacion": "2025-11-14T16:02:28.256Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.256Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 101,
+  "fields": {
+    "proyecto": 13,
+    "titulo": "Especificaciones de Accesibilidad",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "3.70",
+    "orden": 5,
+    "fecha_creacion": "2025-11-14T16:02:28.257Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.257Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 102,
+  "fields": {
+    "proyecto": 13,
+    "titulo": "Especificaciones Técnicas Generales",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "0.66",
+    "orden": 6,
+    "fecha_creacion": "2025-11-14T16:02:28.258Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.258Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 103,
+  "fields": {
+    "proyecto": 13,
+    "titulo": "Especificaciones de Seguridad y Protección",
+    "contenido": "# Especificaciones Técnicas\n\n## 1. Generalidades\n\nEl presente proyecto contempla las especificaciones técnicas necesarias para la ejecución de las obras.\n\n### 1.1 Alcance\n- Obras de construcción\n- Instalaciones especiales\n- Obras exteriores\n\n### 1.2 Normativas Aplicables\n- Ordenanza General de Urbanismo y Construcciones\n- Normas técnicas de construcción\n- Reglamentos sectoriales\n\n## 2. Materiales\n\n### 2.1 Hormigón\n- Resistencia característica: f'c = 25 MPa\n- Agregados según norma NCh 163\n\n### 2.2 Acero\n- Barras de refuerzo: A630-420H\n- Estructuras metálicas: A36\n\n## 3. Ejecución\n\nLas obras deberán ejecutarse conforme a los planos y especificaciones técnicas aprobadas.\n",
+    "archivo": "",
+    "token_cost": "1.86",
+    "orden": 7,
+    "fecha_creacion": "2025-11-14T16:02:28.260Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.260Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 104,
+  "fields": {
+    "proyecto": 13,
+    "titulo": "Especificaciones de Señalización",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "2.43",
+    "orden": 8,
+    "fecha_creacion": "2025-11-14T16:02:28.262Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.262Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 105,
+  "fields": {
+    "proyecto": 14,
+    "titulo": "Especificaciones de Seguridad y Protección",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "2.01",
+    "orden": 1,
+    "fecha_creacion": "2025-11-14T16:02:28.266Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.266Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 106,
+  "fields": {
+    "proyecto": 14,
+    "titulo": "Especificaciones de Obras Exteriores",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "0.60",
+    "orden": 2,
+    "fecha_creacion": "2025-11-14T16:02:28.267Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.267Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 107,
+  "fields": {
+    "proyecto": 14,
+    "titulo": "Especificaciones Técnicas Generales",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "3.72",
+    "orden": 3,
+    "fecha_creacion": "2025-11-14T16:02:28.268Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.268Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 108,
+  "fields": {
+    "proyecto": 14,
+    "titulo": "Especificaciones de Accesibilidad",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "3.30",
+    "orden": 4,
+    "fecha_creacion": "2025-11-14T16:02:28.269Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.269Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 109,
+  "fields": {
+    "proyecto": 14,
+    "titulo": "Especificaciones de Instalaciones Eléctricas",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "2.30",
+    "orden": 5,
+    "fecha_creacion": "2025-11-14T16:02:28.270Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.270Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 110,
+  "fields": {
+    "proyecto": 14,
+    "titulo": "Especificaciones de Terminaciones",
+    "contenido": "# Especificaciones Técnicas\n\n## 1. Generalidades\n\nEl presente proyecto contempla las especificaciones técnicas necesarias para la ejecución de las obras.\n\n### 1.1 Alcance\n- Obras de construcción\n- Instalaciones especiales\n- Obras exteriores\n\n### 1.2 Normativas Aplicables\n- Ordenanza General de Urbanismo y Construcciones\n- Normas técnicas de construcción\n- Reglamentos sectoriales\n\n## 2. Materiales\n\n### 2.1 Hormigón\n- Resistencia característica: f'c = 25 MPa\n- Agregados según norma NCh 163\n\n### 2.2 Acero\n- Barras de refuerzo: A630-420H\n- Estructuras metálicas: A36\n\n## 3. Ejecución\n\nLas obras deberán ejecutarse conforme a los planos y especificaciones técnicas aprobadas.\n",
+    "archivo": "",
+    "token_cost": "3.91",
+    "orden": 6,
+    "fecha_creacion": "2025-11-14T16:02:28.271Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.271Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 111,
+  "fields": {
+    "proyecto": 14,
+    "titulo": "Especificaciones de Aislación Térmica",
+    "contenido": "# Especificaciones Técnicas\n\n## 1. Generalidades\n\nEl presente proyecto contempla las especificaciones técnicas necesarias para la ejecución de las obras.\n\n### 1.1 Alcance\n- Obras de construcción\n- Instalaciones especiales\n- Obras exteriores\n\n### 1.2 Normativas Aplicables\n- Ordenanza General de Urbanismo y Construcciones\n- Normas técnicas de construcción\n- Reglamentos sectoriales\n\n## 2. Materiales\n\n### 2.1 Hormigón\n- Resistencia característica: f'c = 25 MPa\n- Agregados según norma NCh 163\n\n### 2.2 Acero\n- Barras de refuerzo: A630-420H\n- Estructuras metálicas: A36\n\n## 3. Ejecución\n\nLas obras deberán ejecutarse conforme a los planos y especificaciones técnicas aprobadas.\n",
+    "archivo": "",
+    "token_cost": "2.96",
+    "orden": 7,
+    "fecha_creacion": "2025-11-14T16:02:28.272Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.272Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 112,
+  "fields": {
+    "proyecto": 14,
+    "titulo": "Memoria Descriptiva del Proyecto",
+    "contenido": "# Especificaciones Técnicas\n\n## 1. Generalidades\n\nEl presente proyecto contempla las especificaciones técnicas necesarias para la ejecución de las obras.\n\n### 1.1 Alcance\n- Obras de construcción\n- Instalaciones especiales\n- Obras exteriores\n\n### 1.2 Normativas Aplicables\n- Ordenanza General de Urbanismo y Construcciones\n- Normas técnicas de construcción\n- Reglamentos sectoriales\n\n## 2. Materiales\n\n### 2.1 Hormigón\n- Resistencia característica: f'c = 25 MPa\n- Agregados según norma NCh 163\n\n### 2.2 Acero\n- Barras de refuerzo: A630-420H\n- Estructuras metálicas: A36\n\n## 3. Ejecución\n\nLas obras deberán ejecutarse conforme a los planos y especificaciones técnicas aprobadas.\n",
+    "archivo": "",
+    "token_cost": "4.74",
+    "orden": 8,
+    "fecha_creacion": "2025-11-14T16:02:28.273Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.273Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 113,
+  "fields": {
+    "proyecto": 15,
+    "titulo": "Memoria Descriptiva del Proyecto",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "1.48",
+    "orden": 1,
+    "fecha_creacion": "2025-11-14T16:02:28.275Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.275Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 114,
+  "fields": {
+    "proyecto": 15,
+    "titulo": "Especificaciones de Obras Exteriores",
+    "contenido": "# Especificaciones Técnicas\n\n## 1. Generalidades\n\nEl presente proyecto contempla las especificaciones técnicas necesarias para la ejecución de las obras.\n\n### 1.1 Alcance\n- Obras de construcción\n- Instalaciones especiales\n- Obras exteriores\n\n### 1.2 Normativas Aplicables\n- Ordenanza General de Urbanismo y Construcciones\n- Normas técnicas de construcción\n- Reglamentos sectoriales\n\n## 2. Materiales\n\n### 2.1 Hormigón\n- Resistencia característica: f'c = 25 MPa\n- Agregados según norma NCh 163\n\n### 2.2 Acero\n- Barras de refuerzo: A630-420H\n- Estructuras metálicas: A36\n\n## 3. Ejecución\n\nLas obras deberán ejecutarse conforme a los planos y especificaciones técnicas aprobadas.\n",
+    "archivo": "",
+    "token_cost": "4.65",
+    "orden": 2,
+    "fecha_creacion": "2025-11-14T16:02:28.276Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.276Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 115,
+  "fields": {
+    "proyecto": 15,
+    "titulo": "Especificaciones de Paisajismo",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "3.48",
+    "orden": 3,
+    "fecha_creacion": "2025-11-14T16:02:28.277Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.277Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 116,
+  "fields": {
+    "proyecto": 15,
+    "titulo": "Especificaciones de Instalaciones Mecánicas",
+    "contenido": "# Especificaciones Técnicas\n\n## 1. Generalidades\n\nEl presente proyecto contempla las especificaciones técnicas necesarias para la ejecución de las obras.\n\n### 1.1 Alcance\n- Obras de construcción\n- Instalaciones especiales\n- Obras exteriores\n\n### 1.2 Normativas Aplicables\n- Ordenanza General de Urbanismo y Construcciones\n- Normas técnicas de construcción\n- Reglamentos sectoriales\n\n## 2. Materiales\n\n### 2.1 Hormigón\n- Resistencia característica: f'c = 25 MPa\n- Agregados según norma NCh 163\n\n### 2.2 Acero\n- Barras de refuerzo: A630-420H\n- Estructuras metálicas: A36\n\n## 3. Ejecución\n\nLas obras deberán ejecutarse conforme a los planos y especificaciones técnicas aprobadas.\n",
+    "archivo": "",
+    "token_cost": "4.39",
+    "orden": 4,
+    "fecha_creacion": "2025-11-14T16:02:28.278Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.278Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 117,
+  "fields": {
+    "proyecto": 15,
+    "titulo": "Especificaciones de Aislación Acústica",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "4.29",
+    "orden": 5,
+    "fecha_creacion": "2025-11-14T16:02:28.279Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.279Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 118,
+  "fields": {
+    "proyecto": 15,
+    "titulo": "Especificaciones de Terminaciones",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "3.46",
+    "orden": 6,
+    "fecha_creacion": "2025-11-14T16:02:28.280Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.280Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 119,
+  "fields": {
+    "proyecto": 15,
+    "titulo": "Especificaciones de Seguridad y Protección",
+    "contenido": "# Memoria Descriptiva\n\n## Descripción del Proyecto\n\nEl proyecto consiste en la construcción de [tipo de construcción] ubicado en [ubicación].\n\n## Características Principales\n\n- Superficie construida: [área] m²\n- Número de pisos: [pisos]\n- Estructura: [tipo de estructura]\n\n## Objetivos\n\n- Mejorar la infraestructura existente\n- Proporcionar servicios a la comunidad\n- Contribuir al desarrollo urbano\n\n## Consideraciones Especiales\n\n- Cumplimiento de normativas vigentes\n- Respeto al medio ambiente\n- Eficiencia energética\n",
+    "archivo": "",
+    "token_cost": "1.69",
+    "orden": 7,
+    "fecha_creacion": "2025-11-14T16:02:28.282Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.282Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 120,
+  "fields": {
+    "proyecto": 15,
+    "titulo": "Especificaciones de Instalaciones de Gas",
+    "contenido": "# Especificaciones de Estructura\n\n## Sistema Estructural\n\nEl sistema estructural está compuesto por:\n\n### Elementos Principales\n- Fundaciones: Losas de fundación y pilotes\n- Estructura: Pórticos de hormigón armado\n- Losas: Losas alivianadas\n\n### Materiales Estructurales\n- Hormigón: f'c = 25 MPa\n- Acero: A630-420H\n- Mampostería: Bloques de hormigón\n\n## Diseño Estructural\n\nEl diseño estructural cumple con las normativas vigentes y considera:\n- Cargas permanentes\n- Sobrecargas de uso\n- Cargas de viento y sismo\n",
+    "archivo": "",
+    "token_cost": "4.57",
+    "orden": 8,
+    "fecha_creacion": "2025-11-14T16:02:28.284Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.284Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 133,
+  "fields": {
+    "proyecto": 16,
+    "titulo": "Muro de Drywall",
+    "contenido": "## Muro de Drywall\n    \n### Descripción.\n\nLa actividad consiste en la construcción de muros interiores utilizando paneles de yeso laminado, comúnmente conocidos como drywall. Estos muros son ampliamente utilizados en proyectos de construcción debido a su rapidez de instalación, versatilidad y acabado liso. La construcción de muros de drywall permite la creación de espacios funcionales y estéticamente agradables, además de ofrecer propiedades de aislamiento acústico y térmico, dependiendo de los materiales utilizados. Esta técnica es adecuada para diversas aplicaciones en entornos residenciales, comerciales e industriales.\n\n### Materiales, Herramientas y Equipo.\n\n- **Materiales**: Paneles de yeso laminado (drywall) de **10 cm** de espesor, perfiles de **acero galvanizado**, cintas de papel, **pasta para juntas de drywall**, tornillos para drywall, material de aislamiento acústico y/o térmico (opcional), material de limpieza y protección.\n- **Equipo**: Taladro atornillador, sierra circular o sierra caladora, llave de impacto, nivel láser o nivel de burbuja.\n- **Herramientas**: Cuchilla para cortar drywall, espátula para aplicación de pasta de juntas.\n- **EPP**: Casco, guantes, gafas de seguridad, mascarilla, chaleco reflectante.\n\n### Procedimiento.\n\nEl proceso de construcción del muro de drywall se inicia con la **limpieza y nivelación** del área donde se instalará el muro, asegurando que la base sea sólida y libre de humedad para permitir una correcta fijación de los **perfiles de acero galvanizado**. A continuación, se fijan los perfiles de acero galvanizado a las paredes y al techo, siguiendo el diseño y las dimensiones especificadas en los planos del proyecto. Para ello, se utilizan herramientas adecuadas como el **taladro atornillador** y la **llave de impacto** para asegurar los perfiles en su lugar.\n\nUna vez que la estructura de soporte está instalada, se procede a cortar los paneles de **drywall de 10 cm** de espesor a las medidas requeridas, utilizando herramientas de corte apropiadas. Los paneles se fijan a los perfiles de acero utilizando tornillos diseñados para drywall, asegurando una correcta alineación y nivelación mediante el uso de un **nivel láser** o un **nivel de burbuja**.\n\nPosteriormente, se aplican **cinta de papel** y **pasta para juntas de drywall** en las uniones entre los paneles de drywall, garantizando una superficie lisa y uniforme. La aplicación de la pasta de juntas se realiza con una **espátula**, eliminando los excesos para asegurar un acabado de alta calidad. Una vez que la pasta de juntas ha secado, se procede a lijar las superficies para obtener un acabado suave y uniforme.\n\nFinalmente, se puede aplicar una capa de pintura o revestimiento según las especificaciones del proyecto, asegurando un aspecto final estético y duradero. Es fundamental realizar una inspección detallada de la estructura de soporte antes de la instalación del drywall para asegurar su integridad y capacidad de carga, así como utilizar herramientas de corte y fijación adecuadas para evitar daños en los paneles y garantizar una instalación precisa y segura.\n\n\nLos trabajos deben ser realizados por personal calificado y capacitado, siguiendo estrictamente las normas de seguridad y contando con los equipos de protección personal necesarios para cada etapa del proceso.\n\n> **Nota:** EMBOL S.A. se deslinda de cualquier responsabilidad asociada a la actividad de transporte y disposición de los residuos generados. La empresa contratista es responsable de llevar a cabo la actividad de manera segura y conforme a todas las normativas y regulaciones aplicables.\n\n### Medición y Forma de Pago.\n\nLa **medición** de la actividad se realizará en función de la superficie construida de muros interiores utilizando paneles de yeso laminado, expresada en **metros cuadrados (m²)**. Para **verificar** el resultado, se llevarán a cabo controles de nivel y alineación, así como inspecciones de la calidad del acabado final. La verificación de la correcta instalación y acabado será realizada por **EMBOL S.A.**, asegurando que se cumplan todas las especificaciones técnicas establecidas en el proyecto.\n\nLa **forma de pago** se realizará de acuerdo con los avances de obra, estableciendo hitos de pago que estarán sujetos a la **verificación** técnica de cada etapa completada. Los pagos se efectuarán una vez que se confirme la correcta ejecución de la actividad, garantizando así que se cumplan los estándares de calidad requeridos en el proyecto.",
+    "archivo": "especificaciones/16/muro-de-drywall-20251114212955.md",
+    "token_cost": "0.01",
+    "orden": 1,
+    "fecha_creacion": "2025-11-14T21:29:55.706Z",
+    "fecha_actualizacion": "2025-11-14T21:29:55.706Z"
+  }
+},
+{
+  "model": "esp_web.especificacion",
+  "pk": 134,
+  "fields": {
+    "proyecto": 16,
+    "titulo": "Piso de Hormigón Armado H30, e=20 cm",
+    "contenido": "## Piso de Hormigón Armado H30, e=20 cm\n\n### Descripción.\n\nLa actividad consiste en la construcción de un piso de losa de hormigón armado (H°A°) utilizando hormigón de **30 Mpa (H30)**. Este proceso incluye la preparación del terreno mediante nivelado y compactado, así como la provisión de material para una base adecuada. La losa se reforzará con **parrillas de acero** de **8 mm** de diámetro, dispuestas con un espaciado de **15 cm** para garantizar su resistencia y durabilidad. Además, se incorporará una barrera contra la humedad utilizando hule de **200 micrones** y se realizarán cortes y sellados de juntas para asegurar la funcionalidad del piso.\n\n### Materiales, Herramientas y Equipo.\n\n- **Materiales**: Hormigón H30, parrillas de acero de 8 mm, caballetes de acero, barras de transmisión de acero de 20 mm, material de relleno para base, Sikaflex para sellado de juntas.\n- **Equipo**: Maquinaria de compactación, hormigoneras, equipos de bombeo de hormigón, equipos de vibrado.\n- **Herramientas**: Herramientas de corte y doblado de acero, herramientas de colocación de hule y sellado de juntas, herramientas de nivelación.\n- **EPP**: Casco, guantes, gafas de seguridad, botas con punta de acero, chaleco reflectante.\n\n### Procedimiento.\n\nEl proceso comienza con la **preparación del terreno**, que incluye la limpieza, nivelación y compactación de la superficie destinada para el piso de losa. Utilizando **maquinaria de compactación** adecuada, se asegurará una base sólida y uniforme. Posteriormente, se procederá con la **provisión y colocación del material de relleno** para la base, compactándolo en capas sucesivas hasta alcanzar la densidad requerida.\n\nUna vez preparada la base, se colocará una **barrera contra la humedad** sobre toda la superficie, asegurando que esté bien extendida y sin arrugas, lo que proporcionará una protección adecuada contra agentes externos.\n\nLa siguiente etapa involucra la **instalación de los refuerzos de acero**, los cuales serán posicionados y asegurados con soportes colocados a intervalos regulares para mantener la altura y alineación correcta de la armadura. Además, se instalarán elementos adicionales de acero, como las **barras de transmisión de 20 mm**, aseguradas y sostenidas adecuadamente con un espaciado de **40 cm** para garantizar la transferencia de cargas entre secciones de la losa.\n\nEl **vaciado del hormigón** se realizará utilizando **equipos de bombeo**, vertiendo el hormigón sobre la armadura de acero en capas uniformes. Durante el vaciado, se emplearán **equipos de vibrado** para asegurar la eliminación de burbujas de aire y la compactación adecuada del hormigón. Una vez vertido y nivelado el hormigón, se procederá con el acabado superficial.\n\nDespués del fraguado inicial del hormigón, se realizarán los **cortes para las juntas de dilatación** según las especificaciones del diseño. Las juntas serán selladas utilizando un material adecuado, asegurando la durabilidad y funcionalidad del piso de losa de hormigón armado.\n\nDurante todo el proceso, se implementarán medidas de **control de calidad** para verificar que cada etapa cumpla con los estándares especificados. El contratista es responsable de hacer cumplir las normas de seguridad, supervisión y todas las normativas vigentes referentes a esta actividad.\n\n\nLos trabajos deben ser realizados por personal calificado y capacitado, siguiendo estrictamente las normas de seguridad y contando con los equipos de protección personal necesarios para cada etapa del proceso.\n\n> **Nota:** EMBOL S.A. se deslinda de cualquier responsabilidad asociada a la actividad de transporte y disposición de los residuos generados. La empresa contratista es responsable de llevar a cabo la actividad de manera segura y conforme a todas las normativas y regulaciones aplicables.\n\n### Medición y Forma de Pago.\n\nLa **medición de la actividad** se realizará en función de la superficie del piso de losa de hormigón armado (H°A°) construida, expresada en **metros cuadrados (m²)**. Para verificar el resultado, se llevarán a cabo controles de nivel, espesor y resistencia del hormigón, así como la revisión de la correcta instalación de los refuerzos de acero y la barrera contra la humedad. La **verificación** será realizada por **EMBOL S.A.**, asegurando que se cumplan todos los estándares de calidad establecidos.\n\nLa **forma de pago** se realizará de acuerdo con los avances de obra, donde se establecerán hitos específicos que deberán ser verificados técnicamente antes de proceder con cada desembolso. Los pagos estarán sujetos a la presentación de informes de avance y a la conformidad de los trabajos realizados, garantizando así que se cumplan las especificaciones técnicas y los plazos acordados.",
+    "archivo": "especificaciones/16/piso-de-hormigon-armado-h30-e20-cm-20251114213446.md",
+    "token_cost": "0.01",
+    "orden": 3,
+    "fecha_creacion": "2025-11-14T21:34:46.936Z",
+    "fecha_actualizacion": "2025-11-14T21:34:46.936Z"
+  }
+},
+{
+  "model": "ubi_web.ubicacion",
+  "pk": 24,
+  "fields": {
+    "proyecto": 16,
+    "nombre": "Planta embol",
+    "descripcion": "Se debe ingresar por el portón antiguo",
+    "contenido": "Las coordenadas geográficas del sitio son Latitud -17.777066° y Longitud -63.144030°. El área presenta un terreno predominantemente plano, característico de la región, con un tipo de suelo que permite diversas actividades industriales. En las cercanías, se encuentran infraestructuras de servicios básicos, aunque no se especifican detalles sobre su disponibilidad o características. La ubicación se sitúa dentro de un entorno industrial, lo que implica la presencia de otras instalaciones relacionadas con la actividad económica de la zona.\n## Coordenadas del Sitio\n\n| Parámetro | Valor |\n|-----------|-------|\n| Latitud | -17.777066° |\n| Longitud | -63.144030° |\n| Distancia al centro | 5.64 km |\n## Mapa Satelital\n\n![Mapa satelital del sitio Planta embol](/media/ubicaciones/mapas/mapa_24.png)\n\n*Figura 1: Mapa satelital del sitio Planta embol, ubicado en Distrito Industrial, Santa Cruz de la Sierra. Coordenadas: -17.777066°N, -63.144030°W.*\n\n\n## Descripción de Acceso\n\nEl sitio se encuentra ubicado en el Distrito Industrial de Santa Cruz de la Sierra, a una distancia de 5.64 kilómetros del centro de la ciudad. El acceso principal se realiza a través de la Avenida Cristo Redentor, que conecta con el Tercer Anillo Externo. Desde allí, se puede acceder a la dirección específica 6VF4+2G4, donde se debe ingresar por el portón antiguo.\n",
+    "latitud": "-17.777066",
+    "longitud": "-63.144030",
+    "ciudad": "Santa Cruz",
+    "documento_pdf": "ubicaciones/documentos/ubicacion_24.pdf",
+    "mapa_imagen": "ubicaciones/mapas/mapa_24.png",
+    "fecha_creacion": "2025-11-14T20:44:22.338Z",
+    "fecha_actualizacion": "2025-11-14T20:44:30.413Z"
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$3gR06KrDdEGnQt8c1HNHm2$9fDcf+8EGoUnqk/rwzXNwgmkL4qzEiHKO2NlNuULwWo=",
+    "last_login": "2025-11-13T01:19:19.011Z",
+    "is_superuser": true,
+    "username": "gonzalo",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-11-08T14:17:28.924Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$CMUxMuClQlIUxBF4kOB5YK$PPBdoiN6v+xDsneLw1YB1oVIU4cEt6w/nRJ35KEr8yU=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "alice",
+    "first_name": "Alice",
+    "last_name": "García",
+    "email": "alice@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-11-08T14:42:06.325Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$Du9R5h6g3FXXV0phI0U9DX$OZyRxo5B3Be589CtETtVmCmEf4QuYD66jQkxxJcsxy4=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "bob",
+    "first_name": "Bob",
+    "last_name": "Martínez",
+    "email": "bob@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-11-08T14:42:06.546Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$MqFAqLQ57jPOidMa8RWDDb$CqvKuFaEANTqGSkbRkvUdXw7eixNzx8Az2/YONKttJc=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "carla",
+    "first_name": "Carla",
+    "last_name": "Pérez",
+    "email": "carla@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-11-08T14:42:06.770Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$yQ13Ls3UWQyeZwoV6jGdg4$dNFowCVeG7yy8gVXZMXrEzbVjzlNjgCtOQzcZR9wstA=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "diego",
+    "first_name": "Diego",
+    "last_name": "Suárez",
+    "email": "diego@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-11-08T14:42:06.994Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$3LLaruBWmvagx3dT1BsBmp$p3C2QnmTTmruTQrnT8Uf5F76Z7B1PlesFbgNapnMB2M=",
+    "last_login": "2025-11-15T23:20:28.216Z",
+    "is_superuser": false,
+    "username": "gmartinez",
+    "first_name": "Gonzalo",
+    "last_name": "Martínez",
+    "email": "gmartinez@ip-40.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-11-08T14:42:07.213Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$IXdb3r2mxqDDTZbihgPMKo$8a0DsyNJPgSPRNTd+1NSaOVH9qnZ32l8G2jSb1jeK/0=",
+    "last_login": "2025-11-13T01:26:49.893Z",
+    "is_superuser": false,
+    "username": "galdunate",
+    "first_name": "Gonzalo",
+    "last_name": "Aldunate",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-11-13T01:20:10Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "esp_web.proyecto",
+  "pk": 1,
+  "fields": {
+    "nombre": "Centro de Convenciones",
+    "solicitante": "Municipalidad de Santiago",
+    "ubicacion": "Valparaíso, Región de Valparaíso",
+    "descripcion": "Desarrollo inmobiliario de carácter residencial con áreas verdes y servicios comunitarios.",
+    "creado_por": [
+      "alice"
+    ],
+    "fecha_creacion": "2025-11-14T16:02:28.054Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.054Z",
+    "activo": true,
+    "publico": false
+  }
+},
+{
+  "model": "esp_web.proyecto",
+  "pk": 2,
+  "fields": {
+    "nombre": "Oficinas Corporativas TechHub",
+    "solicitante": "Consorcio de Empresas",
+    "ubicacion": "Valparaíso, Región de Valparaíso",
+    "descripcion": "Desarrollo inmobiliario de carácter residencial con áreas verdes y servicios comunitarios.",
+    "creado_por": [
+      "bob"
+    ],
+    "fecha_creacion": "2025-11-14T16:02:28.082Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.082Z",
+    "activo": true,
+    "publico": true
+  }
+},
+{
+  "model": "esp_web.proyecto",
+  "pk": 3,
+  "fields": {
+    "nombre": "Mercado de Abastos",
+    "solicitante": "Gobierno Regional",
+    "ubicacion": "Talca, Región del Maule",
+    "descripcion": "Proyecto de infraestructura urbana destinado a mejorar la calidad de vida de los habitantes.",
+    "creado_por": [
+      "carla"
+    ],
+    "fecha_creacion": "2025-11-14T16:02:28.101Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.101Z",
+    "activo": true,
+    "publico": true
+  }
+},
+{
+  "model": "esp_web.proyecto",
+  "pk": 4,
+  "fields": {
+    "nombre": "Centro Comercial Plaza Norte",
+    "solicitante": "Corporación de Desarrollo",
+    "ubicacion": "Antofagasta, Región de Antofagasta",
+    "descripcion": "Proyecto turístico destinado a promover el desarrollo económico local.",
+    "creado_por": [
+      "carla"
+    ],
+    "fecha_creacion": "2025-11-14T16:02:28.118Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.118Z",
+    "activo": true,
+    "publico": false
+  }
+},
+{
+  "model": "esp_web.proyecto",
+  "pk": 5,
+  "fields": {
+    "nombre": "Hospital Regional Sur",
+    "solicitante": "Empresa Estatal de Construcción",
+    "ubicacion": "Rancagua, Región de O'Higgins",
+    "descripcion": "Infraestructura educativa con tecnología de punta y espacios modernos.",
+    "creado_por": [
+      "bob"
+    ],
+    "fecha_creacion": "2025-11-14T16:02:28.138Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.138Z",
+    "activo": true,
+    "publico": true
+  }
+},
+{
+  "model": "esp_web.proyecto",
+  "pk": 6,
+  "fields": {
+    "nombre": "Centro de Convenciones",
+    "solicitante": "Corporación de Desarrollo",
+    "ubicacion": "Punta Arenas, Región de Magallanes",
+    "descripcion": "Proyecto de vivienda social para familias de escasos recursos.",
+    "creado_por": [
+      "alice"
+    ],
+    "fecha_creacion": "2025-11-14T16:02:28.152Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.152Z",
+    "activo": true,
+    "publico": true
+  }
+},
+{
+  "model": "esp_web.proyecto",
+  "pk": 7,
+  "fields": {
+    "nombre": "Puente sobre Río Grande",
+    "solicitante": "Inversiones Inmobiliarias XYZ",
+    "ubicacion": "Valparaíso, Región de Valparaíso",
+    "descripcion": "Desarrollo inmobiliario de carácter residencial con áreas verdes y servicios comunitarios.",
+    "creado_por": [
+      "galdunate"
+    ],
+    "fecha_creacion": "2025-11-14T16:02:28.167Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.167Z",
+    "activo": true,
+    "publico": true
+  }
+},
+{
+  "model": "esp_web.proyecto",
+  "pk": 8,
+  "fields": {
+    "nombre": "Puente sobre Río Grande",
+    "solicitante": "Fondo de Infraestructura",
+    "ubicacion": "Antofagasta, Región de Antofagasta",
+    "descripcion": "Proyecto de infraestructura urbana destinado a mejorar la calidad de vida de los habitantes.",
+    "creado_por": [
+      "alice"
+    ],
+    "fecha_creacion": "2025-11-14T16:02:28.182Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.182Z",
+    "activo": true,
+    "publico": false
+  }
+},
+{
+  "model": "esp_web.proyecto",
+  "pk": 9,
+  "fields": {
+    "nombre": "Aeropuerto Internacional Norte",
+    "solicitante": "Gobierno Regional",
+    "ubicacion": "Talca, Región del Maule",
+    "descripcion": "Proyecto arquitectónico moderno con enfoque en sostenibilidad y eficiencia energética.",
+    "creado_por": [
+      "galdunate"
+    ],
+    "fecha_creacion": "2025-11-14T16:02:28.195Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.195Z",
+    "activo": true,
+    "publico": false
+  }
+},
+{
+  "model": "esp_web.proyecto",
+  "pk": 10,
+  "fields": {
+    "nombre": "Centro Comercial Plaza Norte",
+    "solicitante": "Inversiones Inmobiliarias XYZ",
+    "ubicacion": "Rancagua, Región de O'Higgins",
+    "descripcion": "Infraestructura educativa con tecnología de punta y espacios modernos.",
+    "creado_por": [
+      "gonzalo"
+    ],
+    "fecha_creacion": "2025-11-14T16:02:28.209Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.209Z",
+    "activo": true,
+    "publico": false
+  }
+},
+{
+  "model": "esp_web.proyecto",
+  "pk": 11,
+  "fields": {
+    "nombre": "Centro de Convenciones",
+    "solicitante": "Ministerio de Obras Públicas",
+    "ubicacion": "Arica, Región de Arica y Parinacota",
+    "descripcion": "Desarrollo inmobiliario de carácter residencial con áreas verdes y servicios comunitarios.",
+    "creado_por": [
+      "galdunate"
+    ],
+    "fecha_creacion": "2025-11-14T16:02:28.225Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.225Z",
+    "activo": true,
+    "publico": false
+  }
+},
+{
+  "model": "esp_web.proyecto",
+  "pk": 12,
+  "fields": {
+    "nombre": "Centro de Convenciones",
+    "solicitante": "Empresa Constructora ABC S.A.",
+    "ubicacion": "Concepción, Región del Biobío",
+    "descripcion": "Inversión en infraestructura pública para el desarrollo económico regional.",
+    "creado_por": [
+      "bob"
+    ],
+    "fecha_creacion": "2025-11-14T16:02:28.239Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.239Z",
+    "activo": true,
+    "publico": true
+  }
+},
+{
+  "model": "esp_web.proyecto",
+  "pk": 13,
+  "fields": {
+    "nombre": "Biblioteca Pública Municipal",
+    "solicitante": "Consorcio de Empresas",
+    "ubicacion": "Antofagasta, Región de Antofagasta",
+    "descripcion": "Inversión en infraestructura pública para el desarrollo económico regional.",
+    "creado_por": [
+      "gonzalo"
+    ],
+    "fecha_creacion": "2025-11-14T16:02:28.252Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.252Z",
+    "activo": true,
+    "publico": true
+  }
+},
+{
+  "model": "esp_web.proyecto",
+  "pk": 14,
+  "fields": {
+    "nombre": "Edificio Residencial Las Flores",
+    "solicitante": "Inversiones Inmobiliarias XYZ",
+    "ubicacion": "Antofagasta, Región de Antofagasta",
+    "descripcion": "Proyecto de infraestructura urbana destinado a mejorar la calidad de vida de los habitantes.",
+    "creado_por": [
+      "bob"
+    ],
+    "fecha_creacion": "2025-11-14T16:02:28.264Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.264Z",
+    "activo": true,
+    "publico": true
+  }
+},
+{
+  "model": "esp_web.proyecto",
+  "pk": 15,
+  "fields": {
+    "nombre": "Parque Tecnológico Industrial",
+    "solicitante": "Sociedad de Inversiones",
+    "ubicacion": "Arica, Región de Arica y Parinacota",
+    "descripcion": "Desarrollo de complejo comercial con múltiples tiendas y servicios.",
+    "creado_por": [
+      "diego"
+    ],
+    "fecha_creacion": "2025-11-14T16:02:28.274Z",
+    "fecha_actualizacion": "2025-11-14T16:02:28.274Z",
+    "activo": true,
+    "publico": true
+  }
+},
+{
+  "model": "esp_web.proyecto",
+  "pk": 16,
+  "fields": {
+    "nombre": "Cambio de Piso Industrial",
+    "solicitante": "Operaciones",
+    "ubicacion": "Santa Cruz de la Sierra",
+    "descripcion": "",
+    "creado_por": [
+      "gmartinez"
+    ],
+    "fecha_creacion": "2025-11-14T16:04:25.773Z",
+    "fecha_actualizacion": "2025-11-14T22:48:25.319Z",
+    "activo": true,
+    "publico": true
+  }
+}
+]
