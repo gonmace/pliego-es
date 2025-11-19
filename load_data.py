@@ -160,12 +160,14 @@ def main():
     if len(sys.argv) < 2:
         print("\n✗ Error: Debes especificar el archivo de backup")
         print("\nUso:")
-        print("  python load_data.py <archivo_backup.json>")
+        print("  python load_data.py <archivo_backup.json> [--yes|-y]")
         print("\nEjemplo:")
         print("  python load_data.py backup_data_20241118_120000.json")
+        print("  python load_data.py backup_data_20241118_120000.json --yes")
         sys.exit(1)
     
     input_file = sys.argv[1]
+    skip_confirmation = '--yes' in sys.argv or '-y' in sys.argv
     
     # Verificar que el archivo existe
     if not os.path.exists(input_file):
@@ -178,18 +180,22 @@ def main():
     print("  2. Proyectos")
     print("  3. Especificaciones")
     
-    # Confirmación
-    print("\n⚠ ADVERTENCIA: Este proceso cargará datos en la base de datos actual.")
-    print("   Asegúrate de que la base de datos esté lista.")
-    
-    try:
-        response = input("\n¿Continuar? (s/N): ").strip().lower()
-        if response not in ['s', 'si', 'sí', 'y', 'yes']:
-            print("\nOperación cancelada")
+    # Confirmación (saltar si se usa --yes o -y)
+    if not skip_confirmation:
+        print("\n⚠ ADVERTENCIA: Este proceso cargará datos en la base de datos actual.")
+        print("   Asegúrate de que la base de datos esté lista.")
+        print("\n   Escribe 's' o 'si' para continuar, cualquier otra cosa para cancelar.")
+        
+        try:
+            response = input("\n¿Continuar? (s/N): ").strip().lower()
+            if response not in ['s', 'si', 'sí', 'y', 'yes']:
+                print("\nOperación cancelada")
+                sys.exit(0)
+        except (KeyboardInterrupt, EOFError):
+            print("\n\nOperación cancelada")
             sys.exit(0)
-    except KeyboardInterrupt:
-        print("\n\nOperación cancelada")
-        sys.exit(0)
+    else:
+        print("\n⚠ Modo no interactivo: se procederá sin confirmación")
     
     # Cargar datos en orden
     users_loaded = load_users_from_file(input_file)

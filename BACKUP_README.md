@@ -4,14 +4,33 @@ Este directorio contiene scripts para hacer backup y restaurar datos importantes
 
 ## Scripts Disponibles
 
+### Opción A: Ejecutar desde el Host (Recomendado)
+
+Si tienes acceso directo a la base de datos desde el host, puedes ejecutar los scripts directamente.
+
+### Opción B: Ejecutar desde Docker
+
+Si estás usando Docker, usa los scripts wrapper que copian los archivos al contenedor automáticamente.
+
+---
+
 ### 1. `backup_data.py` - Script de Backup
 
 Crea un backup de usuarios, proyectos y especificaciones en el orden correcto.
 
-**Uso:**
+**Uso (desde el host):**
 ```bash
 source .venv/bin/activate
 python backup_data.py
+```
+
+**Uso (desde Docker):**
+```bash
+./backup_data_docker.sh
+# O manualmente:
+docker compose cp backup_data.py pliego-django:/app/
+docker compose exec pliego-django python backup_data.py
+docker compose cp pliego-django:/app/backup_data_*.json .
 ```
 
 **Qué hace:**
@@ -29,7 +48,7 @@ python backup_data.py
 
 Carga datos desde un archivo de backup en el orden correcto.
 
-**Uso:**
+**Uso (desde el host):**
 ```bash
 source .venv/bin/activate
 python load_data.py <archivo_backup.json>
@@ -38,6 +57,15 @@ python load_data.py <archivo_backup.json>
 **Ejemplo:**
 ```bash
 python load_data.py backup_data_20251118_202433.json
+```
+
+**Uso (desde Docker):**
+```bash
+./load_data_docker.sh backup_data_20251118_202433.json
+# O manualmente:
+docker compose cp load_data.py pliego-django:/app/
+docker compose cp backup_data_20251118_202433.json pliego-django:/app/
+docker compose exec pliego-django python load_data.py backup_data_20251118_202433.json
 ```
 
 **Qué hace:**
@@ -126,7 +154,35 @@ El script pedirá confirmación antes de proceder.
 
 ## Archivos Relacionados
 
-- `backup_data.py` - Script de backup
-- `load_data.py` - Script de restauración
+- `backup_data.py` - Script de backup (Python)
+- `load_data.py` - Script de restauración (Python)
+- `backup_data_docker.sh` - Wrapper para ejecutar backup desde Docker
+- `load_data_docker.sh` - Wrapper para ejecutar carga desde Docker
 - `fix_migration.py` - Script de diagnóstico de migraciones (creado anteriormente)
+
+---
+
+## Solución de Problemas con Docker
+
+### Error: "can't open file '/app/load_data.py'"
+
+Los scripts no están en el contenedor porque fueron creados después de construir la imagen. Soluciones:
+
+**Opción 1: Usar los scripts wrapper (Recomendado)**
+```bash
+./load_data_docker.sh backup_data_20251118_202433.json
+```
+
+**Opción 2: Copiar manualmente los scripts**
+```bash
+docker compose cp backup_data.py pliego-django:/app/
+docker compose cp load_data.py pliego-django:/app/
+docker compose exec pliego-django python load_data.py backup_data_20251118_202433.json
+```
+
+**Opción 3: Reconstruir la imagen Docker**
+```bash
+docker compose build pliego-django
+docker compose up -d pliego-django
+```
 
