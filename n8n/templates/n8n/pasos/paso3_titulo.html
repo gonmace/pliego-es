@@ -1,0 +1,66 @@
+{% load static crispy_forms_tags tailwind_tags %}
+
+<!-- Paso 3: Ajustar Título - Modal -->
+<dialog id="modal-respuesta-api" class="modal fixed inset-0 z-50 flex items-start justify-center pt-16">
+  <div class="modal-box max-w-4xl max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-2xl font-bold">
+        <div class="flex items-center gap-4">
+          <div class="badge badge-primary badge-lg w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg animate-pulse-glow">
+            3
+          </div>
+          <span class="text-primary flex items-center gap-3">
+            <i class="fas fa-edit mr-2"></i>
+            Ajustar título
+          </span>
+        </div>
+      </h3>
+      <form method="dialog">
+        <button class="btn btn-sm btn-circle btn-ghost">✕</button>
+      </form>
+    </div>
+    <div class="divider my-4"></div>
+    
+    <div class="mb-4">
+      <label class="label">
+        <span class="label-text font-semibold">Título Inicial</span>
+      </label>
+      <input 
+        type="text" 
+        id="modal-titulo-inicial" 
+        class="input input-bordered w-full" 
+        readonly
+        disabled
+      >
+    </div>
+    
+    <div class="mb-6">
+      <label class="label">
+        <span class="label-text font-semibold">Título Propuesto</span>
+      </label>
+      <input 
+        type="text" 
+        id="modal-titulo-propuesto" 
+        class="input input-bordered w-full" 
+        placeholder="Ingrese el título propuesto"
+      >
+    </div>
+    
+    <div class="modal-action">
+      <form method="dialog">
+        <button class="btn btn-outline" id="modal-rechazar-btn">
+          <i class="fas fa-times mr-2"></i>
+          Rechazar
+        </button>
+        <button class="btn btn-primary" id="modal-aceptar-btn">
+          <i class="fas fa-check mr-2"></i>
+          Aceptar sugerencia
+        </button>
+      </form>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button>Cerrar</button>
+  </form>
+</dialog>
+

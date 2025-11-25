@@ -1,0 +1,494 @@
+{% load static crispy_forms_tags tailwind_tags %}
+
+<div class="flex flex-col items-center justify-center mt-6">
+  <div class="card max-w-6xl bg-base-100 shadow-xl w-full">
+    <div class="card-body">
+      <h2 class="card-title text-xl font-bold mb-4">
+        <i class="fas fa-table mr-2 text-primary"></i>
+        Parámetros Técnicos - {{ respuesta_completa.output.actividad|default:"Actividad" }}
+      </h2>
+      
+      {% if respuesta_completa.output %}
+        <!-- Spinner container -->
+        <div id="spinner-container-paso2" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-base-100 bg-opacity-75">
+          <div class="flex flex-col items-center">
+            <span class="loading loading-spinner loading-lg text-primary"></span>
+            <p class="mt-4 text-lg font-semibold">Enviando parámetros...</p>
+          </div>
+        </div>
+        
+        <div class="mb-4">
+          <p class="text-base-content/70 mb-4">
+            Seleccione los parámetros que desea incluir en la especificación técnica:
+          </p>
+          
+          <div class="overflow-x-auto">
+            <table class="table table-zebra w-full">
+              <thead>
+                <tr>
+                  <th class="w-12">
+                    <input type="checkbox" id="select-all" class="checkbox checkbox-primary">
+                  </th>
+                  <th class="w-1/5">Parámetro</th>
+                  <th class="w-2/5">Valor Recomendado</th>
+                  <th class="w-2/5">Detalle</th>
+                </tr>
+              </thead>
+              <tbody id="parametros-table-body">
+                {% for parametro in respuesta_completa.output.parametros %}
+                  <tr class="parametro-row" data-index="{{ forloop.counter0 }}">
+                    <td>
+                      <input 
+                        type="checkbox" 
+                        class="checkbox checkbox-primary parametro-checkbox" 
+                        data-parametro='{{ parametro.parametro|escapejs }}'
+                        data-valor='{{ parametro.valor_recomendado|escapejs }}'
+                        data-detalle='{{ parametro.detalle|escapejs }}'
+                        id="param-{{ forloop.counter0 }}"
+                        {% if parametro.check %}checked{% endif %}
+                      >
+                    </td>
+                    <td class="font-semibold">{{ parametro.parametro }}</td>
+                    <td>
+                      <input 
+                        type="text" 
+                        class="input input-bordered input-sm w-full valor-recomendado-input" 
+                        value="{{ parametro.valor_recomendado }}"
+                        data-original-value="{{ parametro.valor_recomendado }}"
+                      >
+                    </td>
+                    <td class="text-sm text-base-content/70 leading-tight" style="max-width: 300px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.2;">{{ parametro.detalle }}</td>
+                  </tr>
+                {% endfor %}
+                <!-- Fila para agregar nuevo parámetro -->
+                <tr id="nuevo-parametro-row" class="bg-base-200">
+                  <td>
+                    <button class="btn btn-sm btn-success" id="agregar-parametro-btn" title="Agregar parámetro">
+                      <i class="fas fa-plus"></i>
+                    </button>
+                  </td>
+                  <td>
+                    <input 
+                      type="text" 
+                      class="input input-bordered input-sm w-full" 
+                      id="nuevo-parametro-nombre"
+                      placeholder="Nombre del parámetro"
+                    >
+                  </td>
+                  <td>
+                    <input 
+                      type="text" 
+                      class="input input-bordered input-sm w-full" 
+                      id="nuevo-parametro-valor"
+                      placeholder="Valor recomendado"
+                    >
+                  </td>
+                  <td>
+                    <input 
+                      type="text" 
+                      class="input input-bordered input-sm w-full" 
+                      id="nuevo-parametro-detalle"
+                      placeholder="Detalle (opcional)"
+                    >
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="mt-6 flex justify-between items-center">
+            <button class="btn btn-outline" onclick="window.location.href='{% url 'n8n:pasos' %}?paso=1'">
+              <i class="fas fa-arrow-left mr-2"></i>
+              Volver
+            </button>
+            <button class="btn btn-primary" id="enviar-parametros-btn">
+              <i class="fas fa-arrow-right mr-2"></i>
+              Continuar
+            </button>
+          </div>
+        </div>
+      {% else %}
+        <div class="alert alert-warning">
+          <i class="fas fa-exclamation-triangle mr-2"></i>
+          <span>No hay parámetros disponibles. Por favor, complete el paso 1 primero.</span>
+        </div>
+        <div class="card-actions justify-end mt-6">
+          <button class="btn btn-outline" onclick="window.location.href='{% url 'n8n:pasos' %}?paso=1'">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Volver al Paso 1
+          </button>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const selectAllCheckbox = document.getElementById('select-all');
+  let parametrosCheckboxes = document.querySelectorAll('.parametro-checkbox');
+  const enviarBtn = document.getElementById('enviar-parametros-btn');
+  
+  // Manejar seleccionar/deseleccionar todos
+  if (selectAllCheckbox) {
+    selectAllCheckbox.addEventListener('change', function() {
+      const allCheckboxes = document.querySelectorAll('.parametro-checkbox');
+      allCheckboxes.forEach(checkbox => {
+        checkbox.checked = this.checked;
+      });
+      updateEnviarButton();
+    });
+  }
+  
+  // Manejar cambios en checkboxes individuales
+  parametrosCheckboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+      // Actualizar el estado de "seleccionar todos"
+      if (selectAllCheckbox) {
+        const allCheckboxes = document.querySelectorAll('.parametro-checkbox');
+        const allChecked = Array.from(allCheckboxes).every(cb => cb.checked);
+        const someChecked = Array.from(allCheckboxes).some(cb => cb.checked);
+        selectAllCheckbox.checked = allChecked;
+        selectAllCheckbox.indeterminate = someChecked && !allChecked;
+      }
+      updateEnviarButton();
+    });
+  });
+  
+  // Actualizar estado del botón de enviar
+  function updateEnviarButton() {
+    // Obtener todos los checkboxes actualizados
+    const allCheckboxes = document.querySelectorAll('.parametro-checkbox');
+    const selectedCount = Array.from(allCheckboxes).filter(cb => cb.checked).length;
+    if (enviarBtn) {
+      enviarBtn.disabled = selectedCount === 0;
+      enviarBtn.innerHTML = `<i class="fas fa-arrow-right mr-2"></i> Continuar`;
+    }
+  }
+  
+  // Manejar agregar nuevo parámetro
+  const agregarParametroBtn = document.getElementById('agregar-parametro-btn');
+  const nuevoParametroNombre = document.getElementById('nuevo-parametro-nombre');
+  const nuevoParametroValor = document.getElementById('nuevo-parametro-valor');
+  const nuevoParametroDetalle = document.getElementById('nuevo-parametro-detalle');
+  const nuevoParametroRow = document.getElementById('nuevo-parametro-row');
+  const parametrosTableBody = document.getElementById('parametros-table-body');
+  
+  if (agregarParametroBtn) {
+    agregarParametroBtn.addEventListener('click', function() {
+      const nombre = nuevoParametroNombre.value.trim();
+      const valor = nuevoParametroValor.value.trim();
+      const detalle = nuevoParametroDetalle.value.trim();
+      
+      if (!nombre || !valor) {
+        alert('Por favor, complete al menos el nombre y el valor del parámetro');
+        return;
+      }
+      
+      // Crear nueva fila
+      const newRow = document.createElement('tr');
+      newRow.className = 'parametro-row nuevo-parametro-row';
+      const index = parametrosCheckboxes.length;
+      
+      newRow.innerHTML = `
+        <td>
+          <input 
+            type="checkbox" 
+            class="checkbox checkbox-primary parametro-checkbox" 
+            data-parametro="${nombre}"
+            data-valor="${valor}"
+            data-detalle="${detalle}"
+            id="param-${index}"
+            checked
+          >
+        </td>
+        <td class="font-semibold">${nombre}</td>
+        <td>
+          <input 
+            type="text" 
+            class="input input-bordered input-sm w-full valor-recomendado-input" 
+            value="${valor}"
+            data-original-value="${valor}"
+          >
+        </td>
+        <td class="text-sm text-base-content/70 leading-tight" style="max-width: 300px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.2;">${detalle || ''}</td>
+      `;
+      
+      // Insertar antes de la fila de nuevo parámetro
+      parametrosTableBody.insertBefore(newRow, nuevoParametroRow);
+      
+      // Limpiar campos
+      nuevoParametroNombre.value = '';
+      nuevoParametroValor.value = '';
+      nuevoParametroDetalle.value = '';
+      
+      // Re-inicializar eventos para el nuevo checkbox
+      const newCheckbox = newRow.querySelector('.parametro-checkbox');
+      newCheckbox.addEventListener('change', function() {
+        if (selectAllCheckbox) {
+          const allCheckboxes = document.querySelectorAll('.parametro-checkbox');
+          const allChecked = Array.from(allCheckboxes).every(cb => cb.checked);
+          const someChecked = Array.from(allCheckboxes).some(cb => cb.checked);
+          selectAllCheckbox.checked = allChecked;
+          selectAllCheckbox.indeterminate = someChecked && !allChecked;
+        }
+        updateEnviarButton();
+      });
+      
+      // Actualizar lista de checkboxes
+      parametrosCheckboxes = document.querySelectorAll('.parametro-checkbox');
+      
+      // Actualizar estado de "seleccionar todos" y botón
+      if (selectAllCheckbox) {
+        const allCheckboxes = document.querySelectorAll('.parametro-checkbox');
+        const allChecked = Array.from(allCheckboxes).every(cb => cb.checked);
+        const someChecked = Array.from(allCheckboxes).some(cb => cb.checked);
+        selectAllCheckbox.checked = allChecked;
+        selectAllCheckbox.indeterminate = someChecked && !allChecked;
+      }
+      updateEnviarButton();
+    });
+  }
+  
+  // Permitir agregar parámetro con Enter
+  if (nuevoParametroNombre) {
+    nuevoParametroNombre.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        agregarParametroBtn.click();
+      }
+    });
+  }
+  if (nuevoParametroValor) {
+    nuevoParametroValor.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        agregarParametroBtn.click();
+      }
+    });
+  }
+  if (nuevoParametroDetalle) {
+    nuevoParametroDetalle.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        agregarParametroBtn.click();
+      }
+    });
+  }
+  
+  // Manejar envío de parámetros seleccionados
+  if (enviarBtn) {
+    enviarBtn.addEventListener('click', async function() {
+      const selectedParametros = [];
+      
+      // Obtener todos los checkboxes (incluyendo los nuevos)
+      const allCheckboxes = document.querySelectorAll('.parametro-checkbox');
+      
+      allCheckboxes.forEach(checkbox => {
+        if (checkbox.checked) {
+          // Obtener el valor actualizado del input de valor recomendado
+          const row = checkbox.closest('tr');
+          const valorInput = row.querySelector('.valor-recomendado-input');
+          const valorActualizado = valorInput ? valorInput.value : checkbox.getAttribute('data-valor');
+          
+          const parametroData = {
+            parametro: checkbox.getAttribute('data-parametro'),
+            valor_recomendado: valorActualizado,
+            detalle: checkbox.getAttribute('data-detalle')
+          };
+          selectedParametros.push(parametroData);
+        }
+      });
+      
+      if (selectedParametros.length === 0) {
+        alert('Por favor, seleccione al menos un parámetro');
+        return;
+      }
+      
+      // Mostrar spinner
+      const spinnerContainer = document.getElementById('spinner-container-paso2');
+      if (spinnerContainer) {
+        spinnerContainer.classList.remove('hidden');
+      }
+      
+      // Deshabilitar botón
+      enviarBtn.disabled = true;
+      const originalText = enviarBtn.innerHTML;
+      enviarBtn.innerHTML = '<span class="loading loading-spinner loading-sm mr-2"></span> Enviando...';
+      
+      try {
+        const response = await fetch('{% url "n8n:enviar_parametros" %}', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+          },
+          body: JSON.stringify({
+            parametros: selectedParametros
+          })
+        });
+        
+        const result = await response.json();
+        
+        // Ocultar spinner
+        if (spinnerContainer) {
+          spinnerContainer.classList.add('hidden');
+        }
+        
+        if (!response.ok || !result.success) {
+          throw new Error(result.error || 'Error al enviar los parámetros');
+        }
+        
+        // Mostrar respuesta en modal
+        const modalRespuestaApi = document.getElementById('modal-respuesta-api');
+        const modalTituloInicial = document.getElementById('modal-titulo-inicial');
+        const modalTituloPropuesto = document.getElementById('modal-titulo-propuesto');
+        const modalAceptarBtn = document.getElementById('modal-aceptar-btn');
+        const modalRechazarBtn = document.getElementById('modal-rechazar-btn');
+        
+        // Console log de la información recibida
+        console.log('=== Información recibida al abrir modal de ajustar título ===');
+        console.log('Resultado completo:', result);
+        console.log('Título inicial:', result.titulo_inicial);
+        console.log('Título propuesto:', result.titulo_propuesto);
+        console.log('Resume URL:', result.resume_url);
+        console.log('Response JSON:', result.response_json);
+        console.log('Response data (string):', result.response_data);
+        console.log('==============================================================');
+        
+        if (modalRespuestaApi && modalTituloInicial && modalTituloPropuesto) {
+          // Llenar los campos del modal
+          modalTituloInicial.value = result.titulo_inicial || '';
+          modalTituloPropuesto.value = result.titulo_propuesto || '';
+          
+          // Guardar resume_url en el modal para usarla después
+          modalRespuestaApi.dataset.resumeUrl = result.resume_url || '';
+          modalRespuestaApi.dataset.tituloInicial = result.titulo_inicial || '';
+          
+          // Manejar clic en Aceptar
+          if (modalAceptarBtn) {
+            modalAceptarBtn.onclick = async function() {
+              const tituloFinal = modalTituloPropuesto.value.trim() || result.titulo_propuesto || '';
+              await enviarTituloAjustado(tituloFinal, true, result.resume_url, result.titulo_inicial, result.titulo_propuesto);
+            };
+          }
+          
+          // Manejar clic en Rechazar
+          if (modalRechazarBtn) {
+            modalRechazarBtn.onclick = async function() {
+              const tituloFinal = result.titulo_inicial || '';
+              await enviarTituloAjustado(tituloFinal, false, result.resume_url, result.titulo_inicial, result.titulo_propuesto);
+            };
+          }
+          
+          // Abrir el modal
+          if (typeof modalRespuestaApi.showModal === 'function') {
+            modalRespuestaApi.showModal();
+          } else {
+            modalRespuestaApi.setAttribute('open', '');
+            modalRespuestaApi.classList.add('modal-open');
+          }
+        } else {
+          // Si no hay modal, mostrar alerta
+          alert('Parámetros enviados exitosamente');
+          console.log('Respuesta:', result.response_data);
+        }
+        
+      } catch (error) {
+        console.error('Error:', error);
+        
+        // Ocultar spinner
+        if (spinnerContainer) {
+          spinnerContainer.classList.add('hidden');
+        }
+        
+        alert('Hubo un error al enviar los parámetros: ' + error.message);
+      } finally {
+        // Restaurar botón
+        enviarBtn.disabled = false;
+        enviarBtn.innerHTML = originalText;
+      }
+    });
+  }
+  
+  // Función para enviar título ajustado
+  async function enviarTituloAjustado(tituloFinal, aceptar, resumeUrl, tituloInicial, tituloPropuesto) {
+    const modalRespuestaApi = document.getElementById('modal-respuesta-api');
+    const modalAceptarBtn = document.getElementById('modal-aceptar-btn');
+    const modalRechazarBtn = document.getElementById('modal-rechazar-btn');
+    
+    // Deshabilitar botones
+    if (modalAceptarBtn) modalAceptarBtn.disabled = true;
+    if (modalRechazarBtn) modalRechazarBtn.disabled = true;
+    
+    const originalAceptarText = modalAceptarBtn ? modalAceptarBtn.innerHTML : '';
+    const originalRechazarText = modalRechazarBtn ? modalRechazarBtn.innerHTML : '';
+    
+    if (modalAceptarBtn) {
+      modalAceptarBtn.innerHTML = '<span class="loading loading-spinner loading-sm mr-2"></span> Enviando...';
+    }
+    if (modalRechazarBtn) {
+      modalRechazarBtn.innerHTML = '<span class="loading loading-spinner loading-sm mr-2"></span> Enviando...';
+    }
+    
+    try {
+      const response = await fetch('{% url "n8n:enviar_titulo_ajustado" %}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+          titulo_final: tituloFinal,
+          aceptar: aceptar,
+          resume_url: resumeUrl,
+          titulo_inicial: tituloInicial,
+          titulo_propuesto: tituloPropuesto
+        })
+      });
+      
+      const result = await response.json();
+      
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || 'Error al enviar el título');
+      }
+      
+      // Cerrar modal
+      if (modalRespuestaApi) {
+        modalRespuestaApi.close();
+      }
+      
+      // Si hay actividades adicionales, redirigir al paso 3
+      if (result.has_actividades) {
+        window.location.href = '{% url "n8n:pasos" %}?paso=3';
+      } else {
+        // Mostrar mensaje de éxito
+        alert(aceptar ? 'Título aceptado exitosamente' : 'Título rechazado exitosamente');
+      }
+      
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Hubo un error al enviar el título: ' + error.message);
+    } finally {
+      // Restaurar botones
+      if (modalAceptarBtn) {
+        modalAceptarBtn.disabled = false;
+        modalAceptarBtn.innerHTML = originalAceptarText;
+      }
+      if (modalRechazarBtn) {
+        modalRechazarBtn.disabled = false;
+        modalRechazarBtn.innerHTML = originalRechazarText;
+      }
+    }
+  }
+  
+  // Inicializar estado del botón y "seleccionar todos"
+  updateEnviarButton();
+  
+  // Inicializar estado de "seleccionar todos" basado en checkboxes existentes
+  if (selectAllCheckbox) {
+    const allCheckboxes = document.querySelectorAll('.parametro-checkbox');
+    const allChecked = Array.from(allCheckboxes).every(cb => cb.checked);
+    const someChecked = Array.from(allCheckboxes).some(cb => cb.checked);
+    selectAllCheckbox.checked = allChecked;
+    selectAllCheckbox.indeterminate = someChecked && !allChecked;
+  }
+});
+</script>

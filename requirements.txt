@@ -33,3 +33,4 @@ gunicorn
 django-redis
 django-multiupload-plus
 Pillow==12.0.0
+requests==2.31.0

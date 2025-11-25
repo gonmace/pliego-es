@@ -1,0 +1,1286 @@
+{% load static crispy_forms_tags tailwind_tags %}
+
+<div class="space-y-4">
+  <!-- Mensaje de razón si hay incoherencia -->
+  <div id="razon-alert" class="alert alert-warning mb-4 hidden">
+    <i class="fas fa-exclamation-triangle mr-2"></i>
+    <div>
+      <div class="font-semibold mb-1">Razón de incoherencia:</div>
+      <div id="razon-text"></div>
+    </div>
+  </div>
+  
+  {% if datos_paso1.pregunta %}
+    <div class="alert alert-warning mb-4">
+      <i class="fas fa-exclamation-triangle mr-2"></i>
+      <div>
+        <div>{{ datos_paso1.pregunta }}</div>
+      </div>
+    </div>
+  {% endif %}
+  
+  <form id="datos-generales-form" class="space-y-6">
+        <!-- Título y Tipo de Servicio en una fila -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Título -->
+        <div class="form-control w-full">
+          <label class="label" for="titulo">
+              <span class="label-text font-semibold flex items-center gap-2">
+                <i class="fas fa-heading text-primary"></i>
+                Título
+              </span>
+              <span class="label-text-alt text-error font-bold">*</span>
+          </label>
+          <input 
+            type="text" 
+            name="titulo" 
+            id="titulo"
+              class="input input-bordered input-primary w-full focus:input-primary" 
+            placeholder="Ingrese el título"
+            value="{{ datos_paso1.titulo|default:'' }}"
+            required
+          >
+          <label class="label hidden" id="titulo-error-label">
+            <span class="label-text-alt text-error" id="titulo-error"></span>
+          </label>
+          </div>
+          
+          <!-- Tipo de Servicio -->
+          <div class="form-control w-full">
+            <label class="label" for="tipo_servicio">
+              <span class="label-text font-semibold flex items-center gap-2">
+                <i class="fas fa-cogs text-primary"></i>
+                Tipo de Servicio
+              </span>
+              <span class="label-text-alt text-error font-bold">*</span>
+            </label>
+            <select 
+              name="tipo_servicio" 
+              id="tipo_servicio"
+              class="select select-bordered select-primary w-full focus:select-primary" 
+              required
+            >
+              <option value="">Seleccione un tipo de servicio</option>
+              <option value="Mecánico" {% if datos_paso1.tipo_servicio == "Mecánico" %}selected{% endif %}>Mecánico</option>
+              <option value="Eléctrico" {% if datos_paso1.tipo_servicio == "Eléctrico" %}selected{% endif %}>Eléctrico</option>
+              <option value="Instrumentación" {% if datos_paso1.tipo_servicio == "Instrumentación" %}selected{% endif %}>Instrumentación</option>
+              <option value="SSMA (Seguridad, Salud y Medio Ambiente)" {% if datos_paso1.tipo_servicio == "SSMA (Seguridad, Salud y Medio Ambiente)" %}selected{% endif %}>SSMA (Seguridad, Salud y Medio Ambiente)</option>
+              <option value="Infraestructura / Obras Civiles" {% if datos_paso1.tipo_servicio == "Infraestructura / Obras Civiles (OOCC)" %}selected{% endif %}>Infraestructura / Obras Civiles (OOCC)</option>
+              <option value="Mantenimiento de Vehículos" {% if datos_paso1.tipo_servicio == "Mantenimiento de Vehículos" %}selected{% endif %}>Mantenimiento de Vehículos</option>
+              <option value="Laboratorio y Aseguramiento de la Calidad" {% if datos_paso1.tipo_servicio == "Laboratorio y Aseguramiento de la Calidad" %}selected{% endif %}>Laboratorio y Aseguramiento de la Calidad</option>
+              <option value="Logística y Distribución" {% if datos_paso1.tipo_servicio == "Logística y Distribución" %}selected{% endif %}>Logística y Distribución</option>
+            </select>
+            <label class="label hidden" id="tipo-servicio-error-label">
+              <span class="label-text-alt text-error" id="tipo-servicio-error"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Descripción -->
+        <div class="form-control w-full">
+          <label class="label" for="descripcion">
+            <span class="label-text font-semibold flex items-center gap-2">
+              <i class="fas fa-align-left text-primary"></i>
+              Descripción
+            </span>
+            <span class="label-text-alt text-error font-bold">*</span>
+          </label>
+          <textarea 
+            name="descripcion" 
+            id="descripcion"
+            class="textarea textarea-bordered textarea-primary w-full focus:textarea-primary" 
+            rows="3"
+            placeholder="Ingrese la descripción detallada..."
+            required
+          >{{ datos_paso1.descripcion|default:'' }}</textarea>
+          <label class="label hidden" id="descripcion-error-label">
+            <span class="label-text-alt text-error" id="descripcion-error"></span>
+          </label>
+        </div>
+
+        <!-- Botón de acción -->
+        <div class="flex justify-end mt-8 pt-6 border-t border-base-300">
+          <button type="button" id="btn-continuar-datos" class="btn btn-primary btn-lg">
+            <span class="normal-text flex items-center gap-2">
+              <i class="fas fa-arrow-right"></i>
+              Continuar
+            </span>
+            <span class="loading loading-spinner loading-sm hidden"></span>
+          </button>
+        </div>
+      </form>
+</div>
+
+<script>
+(function() {
+  'use strict';
+  
+  console.log('Script de paso1_datos_iniciales cargado');
+  
+  // Usar delegación de eventos en el documento para asegurar que funcione
+  document.addEventListener('click', async function(e) {
+    // Verificar si el click fue en el botón o en sus hijos
+    const btn = e.target.closest('#btn-continuar-datos');
+    if (!btn) return;
+    
+    console.log('BOTÓN CLICKEADO - Event listener funcionando!');
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const form = document.getElementById('datos-generales-form');
+    const submitBtn = document.getElementById('btn-continuar-datos');
+    const normalText = submitBtn ? submitBtn.querySelector('.normal-text') : null;
+    const loadingSpinner = submitBtn ? submitBtn.querySelector('.loading-spinner') : null;
+    
+    // Buscar los inputs dentro del formulario específico usando name
+    // IMPORTANTE: Buscar solo dentro del formulario visible, no en modales ocultos
+    const tituloInput = form ? form.querySelector('input[name="titulo"]') : null;
+    const descripcionInput = form ? form.querySelector('textarea[name="descripcion"]') : null;
+    const tipoServicioInput = form ? form.querySelector('select[name="tipo_servicio"]') : null;
+    
+    // Si no se encuentran en el form, buscar solo elementos visibles (no en modales ocultos)
+    const tituloInputFinal = tituloInput || Array.from(document.querySelectorAll('input[name="titulo"]')).find(el => {
+      const modal = el.closest('dialog');
+      return !modal || modal.hasAttribute('open') || !modal.classList.contains('modal');
+    });
+    
+    const descripcionInputFinal = descripcionInput || Array.from(document.querySelectorAll('textarea[name="descripcion"]')).find(el => {
+      const modal = el.closest('dialog');
+      return !modal || modal.hasAttribute('open') || !modal.classList.contains('modal');
+    });
+    
+    const tipoServicioInputFinal = tipoServicioInput || Array.from(document.querySelectorAll('select[name="tipo_servicio"]')).find(el => {
+      const modal = el.closest('dialog');
+      return !modal || modal.hasAttribute('open') || !modal.classList.contains('modal');
+    });
+    
+    console.log('Elementos encontrados:', {
+      form: !!form,
+      submitBtn: !!submitBtn,
+      normalText: !!normalText,
+      loadingSpinner: !!loadingSpinner,
+      tituloInput: !!tituloInputFinal,
+      descripcionInput: !!descripcionInputFinal,
+      tipoServicioInput: !!tipoServicioInputFinal
+    });
+    
+    console.log('Detalles de inputs FINALES:', {
+      tituloInput: tituloInputFinal,
+      tituloInputType: tituloInputFinal ? tituloInputFinal.tagName : 'null',
+      tituloInputName: tituloInputFinal ? tituloInputFinal.name : 'null',
+      tituloInputValue: tituloInputFinal ? tituloInputFinal.value : 'null',
+      tituloInputValueLength: tituloInputFinal ? tituloInputFinal.value.length : 0,
+      tituloInputVisible: tituloInputFinal ? tituloInputFinal.offsetParent !== null : false,
+      descripcionInputValue: descripcionInputFinal ? descripcionInputFinal.value : 'null',
+      tipoServicioInputValue: tipoServicioInputFinal ? tipoServicioInputFinal.value : 'null',
+      tipoServicioSelectedIndex: tipoServicioInputFinal ? tipoServicioInputFinal.selectedIndex : 'null'
+    });
+  
+  // Ocultar errores anteriores
+    const tituloErrorLabel = document.getElementById('titulo-error-label');
+    const descripcionErrorLabel = document.getElementById('descripcion-error-label');
+    const tipoServicioErrorLabel = document.getElementById('tipo-servicio-error-label');
+    
+    if (tituloErrorLabel) tituloErrorLabel.classList.add('hidden');
+    if (descripcionErrorLabel) descripcionErrorLabel.classList.add('hidden');
+    if (tipoServicioErrorLabel) tipoServicioErrorLabel.classList.add('hidden');
+  
+  try {
+    // Mostrar loading
+      if (normalText) normalText.classList.add('hidden');
+      if (loadingSpinner) loadingSpinner.classList.remove('hidden');
+      if (submitBtn) submitBtn.disabled = true;
+      
+      // Validar campos - obtener valores directamente de los inputs encontrados
+      const titulo = tituloInputFinal ? (tituloInputFinal.value || '').trim() : '';
+      const descripcion = descripcionInputFinal ? (descripcionInputFinal.value || '').trim() : '';
+      const tipoServicio = tipoServicioInputFinal ? (tipoServicioInputFinal.value || '').trim() : '';
+      
+      console.log('Valores obtenidos después de trim:', {
+        titulo: titulo,
+        descripcion: descripcion,
+        tipoServicio: tipoServicio,
+        tituloLength: titulo.length,
+        descripcionLength: descripcion.length,
+        tipoServicioLength: tipoServicio.length
+      });
+      
+      if (!titulo || titulo.length === 0) {
+        const tituloError = document.getElementById('titulo-error');
+        const tituloErrorLabel = document.getElementById('titulo-error-label');
+        if (tituloError) tituloError.textContent = 'El título es requerido';
+        if (tituloErrorLabel) tituloErrorLabel.classList.remove('hidden');
+      throw new Error('Título requerido');
+    }
+      
+      if (!tipoServicio) {
+        const tipoServicioError = document.getElementById('tipo-servicio-error');
+        const tipoServicioErrorLabel = document.getElementById('tipo-servicio-error-label');
+        if (tipoServicioError) tipoServicioError.textContent = 'El tipo de servicio es requerido';
+        if (tipoServicioErrorLabel) tipoServicioErrorLabel.classList.remove('hidden');
+        throw new Error('Tipo de servicio requerido');
+    }
+    
+    if (!descripcion) {
+        const descripcionError = document.getElementById('descripcion-error');
+        const descripcionErrorLabel = document.getElementById('descripcion-error-label');
+        if (descripcionError) descripcionError.textContent = 'La descripción es requerida';
+        if (descripcionErrorLabel) descripcionErrorLabel.classList.remove('hidden');
+      throw new Error('Descripción requerida');
+    }
+    
+      // Guardar título, descripción y tipo de servicio en variables JavaScript para usarlas después
+      window.n8nTitulo = titulo;
+      window.n8nDescripcion = descripcion;
+      window.n8nTipoServicio = tipoServicio;
+      
+      // Obtener sessionID (si está disponible)
+      const sessionID = '{{ request.session.session_key|default:"" }}';
+      
+      // Ocultar el contenedor del formulario (el card completo)
+      const formCardContainer = form ? form.closest('.card') : null;
+      const formCardWrapper = formCardContainer ? formCardContainer.closest('.flex.flex-col.items-center.justify-center.mt-8') : null;
+      
+      if (formCardWrapper) {
+        formCardWrapper.style.display = 'none';
+      } else if (formCardContainer) {
+        formCardContainer.style.display = 'none';
+      }
+      
+      // Obtener referencia al spinner container y mostrarlo
+      const spinnerContainer = document.getElementById('spinner-container');
+      const spinnerText = spinnerContainer ? spinnerContainer.querySelector('p') : null;
+      
+      if (spinnerContainer) {
+        spinnerContainer.classList.remove('hidden');
+        if (spinnerText) {
+          spinnerText.textContent = 'Generando parámetros...';
+        }
+      }
+      
+      // Enviar directamente a la API de n8n
+      try {
+      console.log('Enviando datos a la API:', {
+        titulo: titulo,
+        descripcion: descripcion,
+        tipo_servicio: tipoServicio,
+        sessionID: sessionID
+      });
+      
+      // Crear AbortController para timeout de 2 minutos (120 segundos)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 120000); // 120000 ms = 2 minutos
+      
+      let apiResponse;
+      try {
+        apiResponse = await fetch('https://jaimemc.app.n8n.cloud/webhook-test/parametros', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            titulo: titulo,
+            descripcion: descripcion,
+            tipo_servicio: tipoServicio,
+            sessionID: sessionID
+          }),
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+      } catch (error) {
+        clearTimeout(timeoutId);
+        if (error.name === 'AbortError') {
+          throw new Error('La solicitud tardó más de 2 minutos. Por favor, intente nuevamente.');
+        }
+        throw error;
+      }
+      
+      console.log('Respuesta recibida:', apiResponse.status, apiResponse.statusText);
+      
+      if (!apiResponse.ok) {
+        const errorText = await apiResponse.text();
+        console.error('Error en respuesta:', errorText);
+        throw new Error(`Error HTTP: ${apiResponse.status} - ${errorText}`);
+      }
+      
+      const apiResult = await apiResponse.json();
+      console.log('Resultado de la API:', apiResult);
+      
+      // Ocultar spinner
+      if (spinnerContainer) spinnerContainer.classList.add('hidden');
+      
+      // PRIMERO: Verificar si la respuesta es un array con formato de coherencia
+      let coherente = true;
+      let razon = null;
+      
+      // Verificar formato de array
+      if (Array.isArray(apiResult) && apiResult.length > 0) {
+        const firstItem = apiResult[0];
+        if (firstItem.content && Array.isArray(firstItem.content) && firstItem.content.length > 0) {
+          const textContent = firstItem.content[0].text;
+          if (textContent && typeof textContent.coherente === 'boolean') {
+            coherente = textContent.coherente;
+            razon = textContent.razon || null;
+          }
+        }
+      }
+      // Verificar formato de objeto directo con coherente
+      else if (apiResult && typeof apiResult.coherente === 'boolean') {
+        coherente = apiResult.coherente;
+        razon = apiResult.razon || apiResult.observacion || null;
+      }
+      
+      console.log('Análisis de coherencia:', {
+        coherente: coherente,
+        razon: razon,
+        apiResult: apiResult,
+        isArray: Array.isArray(apiResult),
+        hasCoherente: apiResult && typeof apiResult.coherente !== 'undefined'
+      });
+      
+      // Si no es coherente, mostrar el formulario nuevamente con la razón y SALIR
+      if (!coherente && razon) {
+        console.log('No es coherente, mostrando formulario con razón');
+        
+        // Ocultar spinner
+        if (spinnerContainer) spinnerContainer.classList.add('hidden');
+        
+        // Mostrar el formulario nuevamente usando la función de observación
+        // Crear un objeto con la estructura esperada
+        const apiResultConObservacion = {
+          observacion: razon,
+          titulo: apiResult.titulo || titulo,
+          descripcion: apiResult.descripcion || descripcion
+        };
+        
+        mostrarFormularioConObservacion(apiResultConObservacion, apiResultConObservacion.titulo, apiResultConObservacion.descripcion, tipoServicio);
+        
+        // IMPORTANTE: Salir aquí para evitar cualquier recarga o redirección
+        return;
+      }
+      
+      // Si llegamos aquí, es coherente o no tiene formato de coherencia
+      // Verificar si requiere respuesta o hay observación (formato anterior)
+      if (apiResult.requiere_respuesta || apiResult.observacion) {
+        // Si requiere respuesta o hay observación, mostrar el formulario con los datos prellenados
+        mostrarFormularioConObservacion(apiResult, titulo, descripcion, tipoServicio);
+        return;
+      }
+      
+      // Verificar nueva estructura: array con body.parametros
+      let parametrosData = null;
+      if (Array.isArray(apiResult) && apiResult.length > 0 && apiResult[0].body && apiResult[0].body.parametros) {
+        parametrosData = {
+          parametros: apiResult[0].body.parametros,
+          actividad: null // No hay actividad en esta estructura
+        };
+      } else if (apiResult.body && apiResult.body.parametros) {
+        // Formato: objeto directo con body.parametros
+        parametrosData = {
+          parametros: apiResult.body.parametros,
+          actividad: null
+        };
+      } else if (apiResult.output && apiResult.output.parametros) {
+        // Formato anterior: output.parametros
+        parametrosData = apiResult.output;
+      }
+      
+      console.log('Verificando parámetros:', {
+        tieneParametros: !!(parametrosData && parametrosData.parametros),
+        parametrosData: parametrosData,
+        estructura: Array.isArray(apiResult) ? 'array' : 'objeto',
+        tieneBody: !!(apiResult.body),
+        tieneOutput: !!(apiResult.output)
+      });
+      
+      if (parametrosData && parametrosData.parametros && parametrosData.parametros.length > 0) {
+        // Si tiene parámetros, renderizar la tabla dinámicamente sin recargar
+        console.log('Renderizando tabla de parámetros con', parametrosData.parametros.length, 'parámetros');
+        renderizarTablaParametros(parametrosData, titulo, descripcion, tipoServicio);
+        return;
+      } else {
+        // Para otros tipos de respuestas, mostrar modal con JSON
+        console.log('Respuesta recibida (sin parámetros detectados):', apiResult);
+        mostrarModalJSON(apiResult);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      
+      // Ocultar spinner
+      if (spinnerContainer) spinnerContainer.classList.add('hidden');
+      
+      // Restaurar el formulario (habilitarlo nuevamente)
+      if (form) {
+        form.style.opacity = '1';
+        form.style.pointerEvents = 'auto';
+      }
+      
+      // Habilitar todos los inputs del formulario
+      const allInputs = form ? form.querySelectorAll('input, textarea, select, button') : [];
+      allInputs.forEach(input => {
+        input.disabled = false;
+      });
+      
+        throw error;
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Hubo un error: ' + error.message);
+    } finally {
+      // Restaurar el botón
+      if (normalText) normalText.classList.remove('hidden');
+      if (loadingSpinner) loadingSpinner.classList.add('hidden');
+      if (submitBtn) submitBtn.disabled = false;
+    }
+  });
+  
+  console.log('Delegación de eventos configurada para btn-continuar-datos');
+})();
+
+// Función global para mostrar modal con JSON
+function mostrarModalJSON(data) {
+  // Intentar encontrar modal existente primero
+  let modalRespuestaJson = document.getElementById('modal-respuesta-json');
+  let modalRespuestaJsonContent = document.getElementById('modal-respuesta-json-content');
+  
+  // Si no existe, crearlo
+  if (!modalRespuestaJson) {
+    console.log('Creando modal dinámicamente');
+    const modalDiv = document.createElement('dialog');
+    modalDiv.id = 'modal-respuesta-json';
+    modalDiv.className = 'modal fixed inset-0 z-50 flex items-start justify-center pt-16';
+    
+    modalDiv.innerHTML = `
+      <div class="modal-box max-w-4xl max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-2xl font-bold">
+            <i class="fas fa-code mr-2 text-primary"></i>
+            Respuesta del Servidor
+          </h3>
+          <form method="dialog">
+            <button class="btn btn-sm btn-circle btn-ghost">✕</button>
+          </form>
+        </div>
+        <div class="divider my-4"></div>
+        
+        <div class="mb-4">
+          <div class="bg-base-200 rounded-lg p-4 overflow-x-auto max-h-96">
+            <pre id="modal-respuesta-json-content" class="text-sm font-mono whitespace-pre text-left"></pre>
+          </div>
+        </div>
+        
+        <div class="modal-action">
+          <form method="dialog">
+            <button class="btn btn-primary">
+              <i class="fas fa-times mr-2"></i>
+              Cerrar
+            </button>
+          </form>
+        </div>
+      </div>
+      <form method="dialog" class="modal-backdrop">
+        <button>Cerrar</button>
+      </form>
+    `;
+    
+    document.body.appendChild(modalDiv);
+    modalRespuestaJson = modalDiv;
+    modalRespuestaJsonContent = document.getElementById('modal-respuesta-json-content');
+  }
+  
+  // Llenar el contenido
+  if (modalRespuestaJsonContent) {
+    modalRespuestaJsonContent.textContent = JSON.stringify(data, null, 2);
+  }
+  
+  // Mostrar el modal
+  if (modalRespuestaJson) {
+    console.log('Mostrando modal de respuesta');
+    if (typeof modalRespuestaJson.showModal === 'function') {
+      modalRespuestaJson.showModal();
+    } else {
+      modalRespuestaJson.setAttribute('open', '');
+      modalRespuestaJson.classList.add('modal-open');
+    }
+    return true;
+  }
+  
+  return false;
+}
+
+// Función para renderizar la tabla de parámetros dinámicamente
+function renderizarTablaParametros(output, titulo, descripcion, tipoServicio) {
+  console.log('Renderizando tabla de parámetros:', output);
+  
+  // Guardar valores en variables globales
+  window.n8nTitulo = titulo;
+  window.n8nDescripcion = descripcion;
+  window.n8nTipoServicio = tipoServicio;
+  
+  // Ocultar spinner primero
+  const spinnerContainer = document.getElementById('spinner-container');
+  if (spinnerContainer) spinnerContainer.classList.add('hidden');
+  
+  // Buscar el contenedor principal de contenido (donde se renderiza todo)
+  // Este es el contenedor principal en pasos.html: <div class="flex flex-col items-center">
+  let mainContainer = document.querySelector('.flex.flex-col.items-center');
+  
+  if (!mainContainer) {
+    console.error('No se encontró el contenedor principal .flex.flex-col.items-center');
+    // Buscar alternativas
+    mainContainer = document.querySelector('div.flex.flex-col') || document.body;
+    console.log('Usando contenedor alternativo:', mainContainer.tagName);
+  }
+  
+  // Buscar si hay un contenedor específico del formulario que esté oculto
+  let formCardContainer = document.querySelector('.flex.flex-col.items-center.justify-center.mt-8');
+  
+  // Si existe pero está oculto, mostrarlo
+  if (formCardContainer && formCardContainer.style.display === 'none') {
+    console.log('Contenedor encontrado pero oculto, mostrándolo...');
+    formCardContainer.style.display = 'flex';
+  }
+  // Si no existe, crear uno nuevo dentro del contenedor principal
+  else if (!formCardContainer) {
+    console.log('Creando nuevo contenedor para la tabla...');
+    formCardContainer = document.createElement('div');
+    formCardContainer.className = 'flex flex-col items-center justify-center mt-8 w-full';
+    
+    // Limpiar contenido existente del contenedor principal si es necesario
+    // (por ejemplo, si hay un formulario oculto)
+    const existingForm = mainContainer.querySelector('.flex.flex-col.items-center.justify-center.mt-8');
+    if (existingForm && existingForm.style.display === 'none') {
+      existingForm.remove();
+    }
+    
+    mainContainer.appendChild(formCardContainer);
+    console.log('Contenedor creado y agregado al DOM');
+  }
+  
+  // Asegurarse de que el contenedor esté visible
+  if (formCardContainer) {
+    formCardContainer.style.display = 'flex';
+    console.log('Contenedor listo:', {
+      existe: !!formCardContainer,
+      display: formCardContainer.style.display,
+      className: formCardContainer.className,
+      parentElement: formCardContainer.parentElement?.tagName,
+      childrenCount: formCardContainer.children.length
+    });
+  } else {
+    console.error('No se pudo encontrar o crear el contenedor del formulario');
+    // Mostrar modal con la respuesta como fallback
+    mostrarModalJSON({output: output, mensaje: 'No se pudo renderizar la tabla, mostrando respuesta completa'});
+    return;
+  }
+  
+  // Restaurar el formulario si estaba deshabilitado
+  const form = document.getElementById('datos-generales-form');
+  if (form) {
+    form.style.opacity = '1';
+    form.style.pointerEvents = 'auto';
+  }
+  
+  // Obtener datos de parámetros
+  const actividad = output.actividad || '';
+  const parametros = output.parametros || [];
+  
+  // Escapar HTML para prevenir XSS
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+  
+  console.log('Llenando tabla con', parametros.length, 'parámetros');
+  
+  // Obtener el modal (debe existir en el HTML)
+  const modalParametros = document.getElementById('modal-parametros-tecnicos');
+  if (!modalParametros) {
+    console.error('No se encontró el modal modal-parametros-tecnicos');
+    mostrarModalJSON({error: 'No se encontró el modal de parámetros', output: output});
+    return;
+  }
+  
+  // Actualizar título del modal si hay actividad
+  const modalTitulo = document.getElementById('modal-parametros-titulo');
+  if (modalTitulo) {
+    modalTitulo.textContent = actividad ? `Parámetros Técnicos - ${escapeHtml(actividad)}` : 'Parámetros Técnicos';
+  }
+  
+  // Obtener el tbody de la tabla
+  const tableBody = document.getElementById('parametros-table-body');
+  if (!tableBody) {
+    console.error('No se encontró el tbody de la tabla');
+    mostrarModalJSON({error: 'No se encontró el cuerpo de la tabla', output: output});
+    return;
+  }
+  
+  // Limpiar el tbody antes de llenarlo
+  tableBody.innerHTML = '';
+  
+  // Agregar filas de parámetros
+  parametros.forEach((parametro, index) => {
+    const checked = parametro.check ? 'checked' : '';
+    const unidadMedida = parametro.unidad_medida || '';
+    
+    const row = document.createElement('tr');
+    row.className = 'parametro-row';
+    row.setAttribute('data-index', index);
+    
+    row.innerHTML = `
+      <td>
+        <input 
+          type="checkbox" 
+          class="checkbox checkbox-primary parametro-checkbox" 
+          data-parametro="${escapeHtml(parametro.parametro || '')}"
+          data-valor="${escapeHtml(parametro.valor_recomendado || '')}"
+          data-detalle="${escapeHtml(parametro.detalle || '')}"
+          data-unidad="${escapeHtml(unidadMedida)}"
+          id="param-${index}"
+          ${checked}
+        >
+      </td>
+      <td class="font-semibold">${escapeHtml(parametro.parametro || '')}</td>
+      <td class="text-right">
+        <input 
+          type="text" 
+          class="input input-bordered input-primary input-sm w-full valor-recomendado-input focus:input-primary text-right" 
+          value="${escapeHtml(parametro.valor_recomendado || '')}"
+          data-original-value="${escapeHtml(parametro.valor_recomendado || '')}"
+        >
+      </td>
+      <td class="text-sm text-base-content/70 font-medium text-center">${escapeHtml(unidadMedida)}</td>
+      <td class="text-sm text-base-content/70 leading-tight p-0 m-0 align-middle" style="max-width: 300px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.2;">${escapeHtml(parametro.detalle || '')}</td>
+    `;
+    
+    tableBody.appendChild(row);
+  });
+  
+  // Agregar fila para nuevo parámetro
+  const nuevaFilaRow = document.createElement('tr');
+  nuevaFilaRow.id = 'nuevo-parametro-row';
+  nuevaFilaRow.className = 'bg-base-200';
+  nuevaFilaRow.innerHTML = `
+    <td>
+      <button class="btn btn-sm btn-success" id="agregar-parametro-btn" title="Agregar parámetro">
+        <i class="fas fa-plus"></i>
+      </button>
+    </td>
+    <td>
+      <input 
+        type="text" 
+        class="input input-bordered input-sm w-full" 
+        id="nuevo-parametro-nombre"
+        placeholder="Nombre del parámetro"
+      >
+    </td>
+    <td class="text-right">
+      <input 
+        type="text" 
+        class="input input-bordered input-sm w-full text-right" 
+        id="nuevo-parametro-valor"
+        placeholder="Valor recomendado"
+      >
+    </td>
+    <td class="text-center">
+      <input 
+        type="text" 
+        class="input input-bordered input-sm w-full text-center" 
+        id="nuevo-parametro-unidad"
+        placeholder="Unidad de medida"
+      >
+    </td>
+    <td>
+      <input 
+        type="text" 
+        class="input input-bordered input-sm w-full" 
+        id="nuevo-parametro-detalle"
+        placeholder="Detalle (opcional)"
+      >
+    </td>
+  `;
+  tableBody.appendChild(nuevaFilaRow);
+  
+  // Mostrar el modal
+  console.log('Mostrando modal de parámetros');
+  if (typeof modalParametros.showModal === 'function') {
+    modalParametros.showModal();
+  } else {
+    modalParametros.setAttribute('open', '');
+    modalParametros.classList.add('modal-open');
+  }
+  
+  // Verificar que los elementos se insertaron correctamente y cargar script
+  setTimeout(() => {
+    const selectAll = document.getElementById('select-all');
+    const enviarBtn = document.getElementById('enviar-parametros-btn');
+    const checkboxes = document.querySelectorAll('.parametro-checkbox');
+    
+    console.log('Verificación de elementos después de llenar tabla:', {
+      selectAll: !!selectAll,
+      enviarBtn: !!enviarBtn,
+      tableBody: !!tableBody,
+      checkboxesCount: checkboxes.length,
+      expectedCount: parametros.length
+    });
+    
+    if (!selectAll || !enviarBtn || !tableBody) {
+      console.error('ERROR: No se encontraron elementos críticos después de llenar la tabla');
+      mostrarModalJSON({
+        error: 'Error al renderizar tabla',
+        detalle: 'Los elementos de la tabla no se encontraron después de llenar el HTML',
+        elementosEncontrados: {
+          selectAll: !!selectAll,
+          enviarBtn: !!enviarBtn,
+          tableBody: !!tableBody
+        },
+        output: output
+      });
+      return;
+    }
+    
+    console.log('Tabla llenada correctamente, cargando script de parámetros...');
+    
+    // Cargar el script de manejo de parámetros
+    try {
+      cargarScriptParametros();
+      console.log('Script de parámetros cargado exitosamente');
+    } catch (error) {
+      console.error('Error al cargar script de parámetros:', error);
+      mostrarModalJSON({error: 'Error al cargar script de parámetros', detalle: error.message, output: output});
+    }
+  }, 100);
+  
+  console.log('=== FIN DE LLENADO DE TABLA ===');
+}
+
+// Función para mostrar el formulario con observación
+function mostrarFormularioConObservacion(apiResult, tituloOriginal, descripcionOriginal, tipoServicioOriginal) {
+  console.log('Mostrando formulario con observación:', apiResult);
+  
+  // Obtener valores de la respuesta o usar los originales
+  const titulo = apiResult.titulo || apiResult.titulo_actual || tituloOriginal || '';
+  const descripcion = apiResult.descripcion || apiResult.descripcion_actual || descripcionOriginal || '';
+  const tipoServicio = tipoServicioOriginal || '';
+  const observacion = apiResult.observacion || apiResult.pregunta || '';
+  
+  // Ocultar spinner primero
+    const spinnerContainer = document.getElementById('spinner-container');
+  if (spinnerContainer) spinnerContainer.classList.add('hidden');
+  
+  // Obtener el contenedor del formulario (puede estar oculto)
+  let formCardContainer = document.querySelector('.flex.flex-col.items-center.justify-center.mt-8');
+  
+  // Si no existe o está oculto, buscar en el contenedor principal
+  if (!formCardContainer || formCardContainer.style.display === 'none') {
+    // Buscar en el contenedor principal de contenido
+    const contentContainer = document.querySelector('.flex.flex-col.items-center');
+    if (contentContainer) {
+      formCardContainer = contentContainer;
+    } else {
+      // Crear un nuevo contenedor si no existe
+      const mainContainer = document.querySelector('div.flex.flex-col.items-center') || document.body;
+      formCardContainer = document.createElement('div');
+      formCardContainer.className = 'flex flex-col items-center justify-center mt-8 w-full';
+      mainContainer.appendChild(formCardContainer);
+    }
+  }
+  
+  // Asegurarse de que el contenedor esté visible
+  if (formCardContainer) {
+    formCardContainer.style.display = 'flex';
+  }
+  
+  console.log('Contenedor encontrado:', !!formCardContainer);
+  
+  // Generar HTML del formulario con observación
+  const observacionHTML = observacion ? `
+    <div class="alert alert-warning mb-4">
+      <i class="fas fa-exclamation-triangle mr-2"></i>
+      <div>
+        <div class="font-semibold mb-1">Observación:</div>
+        <div>${observacion.replace(/\n/g, '<br>')}</div>
+      </div>
+    </div>
+  ` : '';
+  
+  let formHTML = `
+    <div class="flex flex-col items-center justify-center mt-8 w-full max-w-5xl">
+      <div class="card bg-base-100 shadow-2xl w-full hover:shadow-3xl transition-shadow">
+        <div class="card-body p-8">
+          <div class="mb-6">
+            <h2 class="card-title text-2xl mb-2">
+              <div class="flex items-center gap-4">
+                <div class="badge badge-primary badge-lg w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg animate-pulse-glow">
+                  1
+                </div>
+                <span class="text-primary">
+                  <i class="fas fa-database mr-2"></i>
+                  Datos Iniciales
+                </span>
+              </div>
+            </h2>
+            <p class="text-sm text-base-content/60 ml-14">Complete los datos para generar la especificación técnica</p>
+          </div>
+          
+          ${observacionHTML}
+          
+          <form id="datos-generales-form" class="space-y-6">
+            <!-- Título y Tipo de Servicio en una fila -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Título -->
+              <div class="form-control w-full">
+                <label class="label" for="titulo">
+                  <span class="label-text font-semibold flex items-center gap-2">
+                    <i class="fas fa-heading text-primary"></i>
+                    Título
+                  </span>
+                  <span class="label-text-alt text-error font-bold">*</span>
+                </label>
+                <input 
+                  type="text" 
+                  name="titulo" 
+                  id="titulo"
+                  class="input input-bordered input-primary w-full focus:input-primary" 
+                  placeholder="Ingrese el título"
+                  value="${titulo.replace(/"/g, '&quot;')}"
+                  required
+                >
+                <label class="label hidden" id="titulo-error-label">
+                  <span class="label-text-alt text-error" id="titulo-error"></span>
+                </label>
+              </div>
+              
+              <!-- Tipo de Servicio -->
+              <div class="form-control w-full">
+                <label class="label" for="tipo_servicio">
+                  <span class="label-text font-semibold flex items-center gap-2">
+                    <i class="fas fa-cogs text-primary"></i>
+                    Tipo de Servicio
+                  </span>
+                  <span class="label-text-alt text-error font-bold">*</span>
+                </label>
+                <select 
+                  name="tipo_servicio" 
+                  id="tipo_servicio"
+                  class="select select-bordered select-primary w-full focus:select-primary" 
+                  required
+                >
+                  <option value="">Seleccione un tipo de servicio</option>
+                  <option value="Mecánico" ${tipoServicio === 'Mecánico' ? 'selected' : ''}>Mecánico</option>
+                  <option value="Eléctrico" ${tipoServicio === 'Eléctrico' ? 'selected' : ''}>Eléctrico</option>
+                  <option value="Instrumentación" ${tipoServicio === 'Instrumentación' ? 'selected' : ''}>Instrumentación</option>
+                  <option value="SSMA (Seguridad, Salud y Medio Ambiente)" ${tipoServicio === 'SSMA (Seguridad, Salud y Medio Ambiente)' ? 'selected' : ''}>SSMA (Seguridad, Salud y Medio Ambiente)</option>
+                  <option value="Infraestructura / Obras Civiles" ${tipoServicio === 'Infraestructura / Obras Civiles' ? 'selected' : ''}>Infraestructura / Obras Civiles (OOCC)</option>
+                  <option value="Mantenimiento de Vehículos" ${tipoServicio === 'Mantenimiento de Vehículos' ? 'selected' : ''}>Mantenimiento de Vehículos</option>
+                  <option value="Laboratorio y Aseguramiento de la Calidad" ${tipoServicio === 'Laboratorio y Aseguramiento de la Calidad' ? 'selected' : ''}>Laboratorio y Aseguramiento de la Calidad</option>
+                  <option value="Logística y Distribución" ${tipoServicio === 'Logística y Distribución' ? 'selected' : ''}>Logística y Distribución</option>
+                </select>
+                <label class="label hidden" id="tipo-servicio-error-label">
+                  <span class="label-text-alt text-error" id="tipo-servicio-error"></span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Descripción -->
+            <div class="form-control w-full">
+              <label class="label" for="descripcion">
+                <span class="label-text font-semibold flex items-center gap-2">
+                  <i class="fas fa-align-left text-primary"></i>
+                  Descripción
+                </span>
+                <span class="label-text-alt text-error font-bold">*</span>
+              </label>
+              <textarea 
+                name="descripcion" 
+                id="descripcion"
+                class="textarea textarea-bordered textarea-primary w-full focus:textarea-primary" 
+                rows="3"
+                placeholder="Ingrese la descripción detallada..."
+                required
+              >${descripcion.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea>
+              <label class="label hidden" id="descripcion-error-label">
+                <span class="label-text-alt text-error" id="descripcion-error"></span>
+              </label>
+            </div>
+
+            <!-- Botón de acción -->
+            <div class="flex justify-end mt-8 pt-6 border-t border-base-300">
+              <button type="button" id="btn-continuar-datos" class="btn btn-primary btn-lg">
+                <span class="normal-text flex items-center gap-2">
+                  <i class="fas fa-arrow-right"></i>
+                  Continuar
+                </span>
+                <span class="loading loading-spinner loading-sm hidden"></span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  // Reemplazar el contenido del contenedor
+  formCardContainer.innerHTML = formHTML;
+  
+  // Scroll al formulario
+  setTimeout(() => {
+    formCardContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
+}
+
+// Función para cargar el script de manejo de parámetros
+function cargarScriptParametros() {
+  console.log('Cargando script de parámetros...');
+  console.log('Elementos disponibles en el DOM:', {
+    selectAll: !!document.getElementById('select-all'),
+    enviarBtn: !!document.getElementById('enviar-parametros-btn'),
+    tableBody: !!document.getElementById('parametros-table-body'),
+    parametrosCheckboxes: document.querySelectorAll('.parametro-checkbox').length
+  });
+  
+  // URLs necesarias (definidas en pasos.html)
+  const urlEnviarParametros = window.n8nUrls?.enviarParametros || '/n8n/enviar-parametros/';
+  const urlEnviarTitulo = window.n8nUrls?.enviarTitulo || '/n8n/enviar-titulo-ajustado/';
+  
+  const selectAllCheckbox = document.getElementById('select-all');
+  let parametrosCheckboxes = document.querySelectorAll('.parametro-checkbox');
+  const enviarBtn = document.getElementById('enviar-parametros-btn');
+  
+  if (!selectAllCheckbox || !enviarBtn) {
+    console.error('No se encontraron elementos necesarios:', {
+      selectAllCheckbox: !!selectAllCheckbox,
+      enviarBtn: !!enviarBtn
+    });
+    // Mostrar modal con error
+    mostrarModalJSON({error: 'No se encontraron elementos de la tabla', elementos: {
+      selectAll: !!selectAllCheckbox,
+      enviarBtn: !!enviarBtn
+    }});
+    return;
+  }
+  
+  // Función para obtener cookie CSRF
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+  
+  // Manejar seleccionar/deseleccionar todos
+  if (selectAllCheckbox) {
+    selectAllCheckbox.addEventListener('change', function() {
+      const allCheckboxes = document.querySelectorAll('.parametro-checkbox');
+      allCheckboxes.forEach(checkbox => {
+        checkbox.checked = this.checked;
+      });
+      updateEnviarButton();
+    });
+  }
+  
+  // Manejar cambios en checkboxes individuales
+  parametrosCheckboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+      if (selectAllCheckbox) {
+        const allCheckboxes = document.querySelectorAll('.parametro-checkbox');
+        const allChecked = Array.from(allCheckboxes).every(cb => cb.checked);
+        const someChecked = Array.from(allCheckboxes).some(cb => cb.checked);
+        selectAllCheckbox.checked = allChecked;
+        selectAllCheckbox.indeterminate = someChecked && !allChecked;
+      }
+      updateEnviarButton();
+    });
+  });
+  
+  // Actualizar estado del botón de enviar
+  function updateEnviarButton() {
+    const allCheckboxes = document.querySelectorAll('.parametro-checkbox');
+    const selectedCount = Array.from(allCheckboxes).filter(cb => cb.checked).length;
+    if (enviarBtn) {
+      enviarBtn.disabled = selectedCount === 0;
+      enviarBtn.innerHTML = `<i class="fas fa-arrow-right mr-2"></i> Continuar`;
+    }
+  }
+  
+  // Manejar agregar nuevo parámetro
+  const agregarParametroBtn = document.getElementById('agregar-parametro-btn');
+  const nuevoParametroNombre = document.getElementById('nuevo-parametro-nombre');
+  const nuevoParametroValor = document.getElementById('nuevo-parametro-valor');
+  const nuevoParametroUnidad = document.getElementById('nuevo-parametro-unidad');
+  const nuevoParametroDetalle = document.getElementById('nuevo-parametro-detalle');
+  const nuevoParametroRow = document.getElementById('nuevo-parametro-row');
+  const parametrosTableBody = document.getElementById('parametros-table-body');
+  
+  if (agregarParametroBtn) {
+    agregarParametroBtn.addEventListener('click', function() {
+      const nombre = nuevoParametroNombre.value.trim();
+      const valor = nuevoParametroValor.value.trim();
+      const unidad = nuevoParametroUnidad ? nuevoParametroUnidad.value.trim() : '';
+      const detalle = nuevoParametroDetalle.value.trim();
+      
+      if (!nombre || !valor) {
+        alert('Por favor, complete al menos el nombre y el valor del parámetro');
+        return;
+      }
+      
+      const newRow = document.createElement('tr');
+      newRow.className = 'parametro-row nuevo-parametro-row';
+      const index = parametrosCheckboxes.length;
+      
+      newRow.innerHTML = `
+        <td>
+          <input 
+            type="checkbox" 
+            class="checkbox checkbox-primary parametro-checkbox" 
+            data-parametro="${nombre.replace(/"/g, '&quot;')}"
+            data-valor="${valor.replace(/"/g, '&quot;')}"
+            data-detalle="${detalle.replace(/"/g, '&quot;')}"
+            data-unidad="${unidad.replace(/"/g, '&quot;')}"
+            id="param-${index}"
+            checked
+          >
+        </td>
+        <td class="font-semibold">${nombre}</td>
+        <td class="text-right">
+          <input 
+            type="text" 
+            class="input input-bordered input-sm w-full valor-recomendado-input text-right" 
+            value="${valor.replace(/"/g, '&quot;')}"
+            data-original-value="${valor.replace(/"/g, '&quot;')}"
+          >
+        </td>
+        <td class="text-sm text-base-content/70 font-medium text-center">${unidad}</td>
+        <td class="text-sm text-base-content/70 leading-tight p-0 m-0 align-middle" style="max-width: 300px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.2;">${detalle || ''}</td>
+      `;
+      
+      parametrosTableBody.insertBefore(newRow, nuevoParametroRow);
+      
+      nuevoParametroNombre.value = '';
+      nuevoParametroValor.value = '';
+      if (nuevoParametroUnidad) nuevoParametroUnidad.value = '';
+      nuevoParametroDetalle.value = '';
+      
+      const newCheckbox = newRow.querySelector('.parametro-checkbox');
+      newCheckbox.addEventListener('change', function() {
+        if (selectAllCheckbox) {
+          const allCheckboxes = document.querySelectorAll('.parametro-checkbox');
+          const allChecked = Array.from(allCheckboxes).every(cb => cb.checked);
+          const someChecked = Array.from(allCheckboxes).some(cb => cb.checked);
+          selectAllCheckbox.checked = allChecked;
+          selectAllCheckbox.indeterminate = someChecked && !allChecked;
+        }
+        updateEnviarButton();
+      });
+      
+      parametrosCheckboxes = document.querySelectorAll('.parametro-checkbox');
+      
+      if (selectAllCheckbox) {
+        const allCheckboxes = document.querySelectorAll('.parametro-checkbox');
+        const allChecked = Array.from(allCheckboxes).every(cb => cb.checked);
+        const someChecked = Array.from(allCheckboxes).some(cb => cb.checked);
+        selectAllCheckbox.checked = allChecked;
+        selectAllCheckbox.indeterminate = someChecked && !allChecked;
+      }
+      updateEnviarButton();
+    });
+  }
+  
+  // Manejar envío de parámetros seleccionados
+  if (enviarBtn) {
+    enviarBtn.addEventListener('click', async function() {
+      const selectedParametros = [];
+      const allCheckboxes = document.querySelectorAll('.parametro-checkbox');
+      
+      allCheckboxes.forEach(checkbox => {
+        if (checkbox.checked) {
+          const row = checkbox.closest('tr');
+          const valorInput = row.querySelector('.valor-recomendado-input');
+          const valorActualizado = valorInput ? valorInput.value : checkbox.getAttribute('data-valor');
+          
+          selectedParametros.push({
+            parametro: checkbox.getAttribute('data-parametro'),
+            valor_recomendado: valorActualizado,
+            unidad_medida: checkbox.getAttribute('data-unidad') || '',
+            detalle: checkbox.getAttribute('data-detalle')
+          });
+        }
+      });
+      
+      if (selectedParametros.length === 0) {
+        alert('Por favor, seleccione al menos un parámetro');
+        return;
+      }
+      
+      const spinnerContainer = document.getElementById('spinner-container-paso2');
+    if (spinnerContainer) spinnerContainer.classList.remove('hidden');
+      
+      enviarBtn.disabled = true;
+      const originalText = enviarBtn.innerHTML;
+      enviarBtn.innerHTML = '<span class="loading loading-spinner loading-sm mr-2"></span> Enviando...';
+      
+      try {
+        const response = await fetch(urlEnviarParametros, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: JSON.stringify({
+            parametros: selectedParametros,
+            titulo: window.n8nTitulo || '',
+            descripcion: window.n8nDescripcion || '',
+            tipo_servicio: window.n8nTipoServicio || ''
+          })
+        });
+        
+        const result = await response.json();
+        
+        if (spinnerContainer) spinnerContainer.classList.add('hidden');
+        
+        if (!response.ok || !result.success) {
+          throw new Error(result.error || 'Error al enviar los parámetros');
+        }
+        
+        const modalRespuestaApi = document.getElementById('modal-respuesta-api');
+        const modalTituloInicial = document.getElementById('modal-titulo-inicial');
+        const modalTituloPropuesto = document.getElementById('modal-titulo-propuesto');
+        const modalAceptarBtn = document.getElementById('modal-aceptar-btn');
+        const modalRechazarBtn = document.getElementById('modal-rechazar-btn');
+        
+        console.log('=== Información recibida ===');
+        console.log('Resultado completo:', result);
+        console.log('Título inicial:', result.titulo_inicial);
+        console.log('Título propuesto:', result.titulo_propuesto);
+        console.log('Resume URL:', result.resume_url);
+        
+        // Verificar si hay datos para ajustar título
+        if (result.titulo_inicial && result.titulo_propuesto && modalRespuestaApi && modalTituloInicial && modalTituloPropuesto) {
+          // Mostrar modal de ajustar título
+          console.log('Mostrando modal de ajustar título');
+          modalTituloInicial.value = result.titulo_inicial || '';
+          modalTituloPropuesto.value = result.titulo_propuesto || '';
+          modalRespuestaApi.dataset.resumeUrl = result.resume_url || '';
+          modalRespuestaApi.dataset.tituloInicial = result.titulo_inicial || '';
+          
+          if (modalAceptarBtn) {
+            modalAceptarBtn.onclick = async function() {
+              const tituloFinal = modalTituloPropuesto.value.trim() || result.titulo_propuesto || '';
+              await enviarTituloAjustado(tituloFinal, true, result.resume_url, result.titulo_inicial, result.titulo_propuesto, urlEnviarTitulo);
+            };
+          }
+          
+          if (modalRechazarBtn) {
+            modalRechazarBtn.onclick = async function() {
+              const tituloFinal = result.titulo_inicial || '';
+              await enviarTituloAjustado(tituloFinal, false, result.resume_url, result.titulo_inicial, result.titulo_propuesto, urlEnviarTitulo);
+            };
+          }
+          
+          if (typeof modalRespuestaApi.showModal === 'function') {
+            modalRespuestaApi.showModal();
+          } else {
+            modalRespuestaApi.setAttribute('open', '');
+            modalRespuestaApi.classList.add('modal-open');
+          }
+        } else {
+          // Si no hay datos para ajustar título, mostrar modal con respuesta JSON
+          console.log('No hay datos para ajustar título, mostrando modal con respuesta JSON');
+          console.log('Resultado completo:', result);
+          
+          // Siempre mostrar el modal con la respuesta
+          mostrarModalJSON(result);
+        }
+        
+      } catch (error) {
+        console.error('Error:', error);
+        if (spinnerContainer) spinnerContainer.classList.add('hidden');
+        alert('Hubo un error al enviar los parámetros: ' + error.message);
+      } finally {
+        enviarBtn.disabled = false;
+        enviarBtn.innerHTML = originalText;
+      }
+    });
+  }
+  
+  // Función para enviar título ajustado
+  async function enviarTituloAjustado(tituloFinal, aceptar, resumeUrl, tituloInicial, tituloPropuesto, urlEnviarTitulo) {
+    const modalRespuestaApi = document.getElementById('modal-respuesta-api');
+    const modalAceptarBtn = document.getElementById('modal-aceptar-btn');
+    const modalRechazarBtn = document.getElementById('modal-rechazar-btn');
+    
+    if (modalAceptarBtn) modalAceptarBtn.disabled = true;
+    if (modalRechazarBtn) modalRechazarBtn.disabled = true;
+    
+    const originalAceptarText = modalAceptarBtn ? modalAceptarBtn.innerHTML : '';
+    const originalRechazarText = modalRechazarBtn ? modalRechazarBtn.innerHTML : '';
+    
+    if (modalAceptarBtn) modalAceptarBtn.innerHTML = '<span class="loading loading-spinner loading-sm mr-2"></span> Enviando...';
+    if (modalRechazarBtn) modalRechazarBtn.innerHTML = '<span class="loading loading-spinner loading-sm mr-2"></span> Enviando...';
+    
+    try {
+      const response = await fetch(urlEnviarTitulo, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: JSON.stringify({
+          titulo_final: tituloFinal,
+          aceptar: aceptar,
+          resume_url: resumeUrl,
+          titulo_inicial: tituloInicial,
+          titulo_propuesto: tituloPropuesto
+      })
+    });
+    
+      const result = await response.json();
+      
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || 'Error al enviar el título');
+      }
+      
+      // Cerrar el modal de ajustar título
+      if (modalRespuestaApi) modalRespuestaApi.close();
+      
+      // Mostrar el JSON recibido en el modal de respuesta
+      console.log('Respuesta recibida después de ajustar título:', result);
+      mostrarModalJSON(result);
+    
+  } catch (error) {
+    console.error('Error:', error);
+      alert('Hubo un error al enviar el título: ' + error.message);
+  } finally {
+      if (modalAceptarBtn) {
+        modalAceptarBtn.disabled = false;
+        modalAceptarBtn.innerHTML = originalAceptarText;
+      }
+      if (modalRechazarBtn) {
+        modalRechazarBtn.disabled = false;
+        modalRechazarBtn.innerHTML = originalRechazarText;
+      }
+    }
+  }
+  
+  updateEnviarButton();
+  
+  if (selectAllCheckbox) {
+    const allCheckboxes = document.querySelectorAll('.parametro-checkbox');
+    const allChecked = Array.from(allCheckboxes).every(cb => cb.checked);
+    const someChecked = Array.from(allCheckboxes).some(cb => cb.checked);
+    selectAllCheckbox.checked = allChecked;
+    selectAllCheckbox.indeterminate = someChecked && !allChecked;
+  }
+}
+</script>
+

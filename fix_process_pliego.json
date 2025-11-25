@@ -1,0 +1,30 @@
+{
+  "note": "Configuración correcta del nodo Process Pliego para n8n",
+  "node_config": {
+    "id": "node_4",
+    "name": "Process Pliego",
+    "type": "n8n-nodes-base.openAi",
+    "parameters": {
+      "resource": "chat",
+      "operation": "create",
+      "model": "gpt-4o",
+      "temperature": 0.4,
+      "messages": {
+        "values": [
+          {
+            "role": "system",
+            "content": "Eres un experto en redacción de especificaciones técnicas de construcción."
+          },
+          {
+            "role": "user",
+            "content": "={{ 'Por favor genera una especificación técnica en formato **Markdown (.md)**, tomando como base la **especificación genérica** proporcionada más abajo, respetando estrictamente la estructura, el estilo y el orden de la especificación original.\\n\\n---\\n\\n## Objetivo de la tarea\\n\\nAdaptar la especificación genérica al nuevo ítem indicado, incorporando únicamente:\\n\\n- Los **parámetros técnicos relevantes**, usando su **Valor Asignado**.\\n- Los **adicionales**, integrados en las secciones que correspondan, considerando el orden de ejecución del ítem.\\n\\n---\\n\\n## Detalles de la nueva especificación\\n\\n- **Título del ítem**: ' + ($json.titulo || '') + '\\n- **Parámetros técnicos relevantes**:\\n' + ($json.texto_parametros || 'Ninguno') + '\\n- **Adicionales**:\\n' + ($json.texto_adicionales || 'Ninguno') + '\\n\\n---\\n\\n## Instrucciones de redacción por sección\\n\\n### Descripción\\n- Presentar el propósito del ítem y sus componentes esenciales.\\n- Mencionar materiales clave como hormigón, mallas, selladores o aditivos si aplican, redactados de forma técnica y natural.\\n- **No incluir pasos constructivos, procedimientos ni acciones específicas.**\\n\\n### Materiales, Herramientas y Equipo.\\n- Incluir exclusivamente los materiales, herramientas, equipos y EPP requeridos, según los parámetros técnicos disponibles o sus valores por defecto.\\n- **Integrar los Materiales, herramientas ó equipos que requiera el ítem en esta sección, no agregar una sección adicional.**\\n\\n### Procedimiento.\\nRedacta el procedimiento en varios párrafos (sin numeración ni viñetas), describiendo el proceso constructivo paso a paso y con detalle de acuerdo a la especificación genérica. \\n- Incorpora los **parámetros técnicos relevantes** en el flujo del texto.\\n- Incluye los **adicionales** solo si **modifican** o **complementan** el proceso.\\n- IMPORTANTE: Aplica negrilla en **acciones clave**, **términos técnicos**, **herramientas y materiales**, y **unidades de medida**.\\n- No utilices la palabra \"procedimiento\" dentro del contenido.\\n- Omite cualquier adicional que altere el desarrollo constructivo.\\n\\n### Medición y Forma de Pago.\\nRedactar dos párrafos consecutivos, uno por cada aspecto:\\n- **Medición y Verificación**: indicar la unidad de medida (**metros cuadrados (m²)**) y cómo se cuantificará. Mencionar que el control será realizado por **EMBOL S.A.**, con una breve descripción del método de validación.\\n- **Pago**: establecer condiciones para el pago, mencionando criterios de aceptación o penalizaciones si corresponde. Además, indicar si está sujeto a condiciones, avances o verificaciones técnicas.\\n- Usar **negrita** en términos clave como: **verificación**, **metros cuadrados**, **multas**, etc.\\n\\n---\\n\\n## Estilo y restricciones\\n\\n- Redacción técnica, precisa, profesional y sin ambigüedades.\\n- **Mantener la jerarquia de los titulos de la especificacion generica**, es decir, el título de la con ## y las secciones con ###.\\n- **No modificar** los títulos ni el orden de las secciones.\\n- **No incluir**:\\n  - Listas, numeraciones, encabezados adicionales ni explicaciones fuera de contexto.\\n\\n---\\n\\nEl resultado debe ser una especificación técnica **clara, profesional y lista para incorporar directamente en documentos oficiales**.\\n\\n---\\n\\n## Especificación genérica:\\n\\n' + ($json.pliego_base || '') }}"
+          }
+        ]
+      },
+      "options": {}
+    }
+  }
+}
+
+
+

@@ -1,0 +1,175 @@
+{% load static crispy_forms_tags tailwind_tags %}
+
+<div class="flex flex-col items-center justify-center mt-8 w-full max-w-5xl">
+  <div class="card bg-base-100 shadow-2xl w-full hover:shadow-3xl transition-shadow">
+    <div class="card-body p-8">
+      <div class="mb-6">
+        <h2 class="card-title text-2xl mb-2">
+          <div class="flex items-center gap-4">
+            <div class="badge badge-primary badge-lg w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg animate-pulse-glow">
+              2
+            </div>
+            <span class="text-primary flex items-center gap-3">
+              <i class="fas fa-edit"></i>
+              Ajustar Título
+            </span>
+          </div>
+        </h2>
+        <p class="text-sm text-base-content/60 ml-14">Revise y ajuste el título propuesto según sus necesidades</p>
+      </div>
+      
+      <div class="mb-6">
+        <label class="label">
+          <span class="label-text font-semibold flex items-center gap-2">
+            <i class="fas fa-file-alt text-primary"></i>
+            Título Inicial
+          </span>
+        </label>
+        <input 
+          type="text" 
+          id="titulo-inicial-display" 
+          class="input input-bordered w-full bg-base-200" 
+          readonly
+          disabled
+          value="{{ actividades_adicionales.titulo_inicial|default:'' }}"
+        >
+      </div>
+      
+      <div class="mb-8">
+        <label class="label">
+          <span class="label-text font-semibold flex items-center gap-2">
+            <i class="fas fa-lightbulb text-primary"></i>
+            Título Propuesto
+          </span>
+        </label>
+        <input 
+          type="text" 
+          id="titulo-propuesto-input" 
+          class="input input-bordered input-primary w-full focus:input-primary" 
+          placeholder="Ingrese el título propuesto"
+          value="{{ actividades_adicionales.titulo_propuesto|default:'' }}"
+        >
+      </div>
+      
+      <div class="flex justify-between items-center mt-8 pt-6 border-t border-base-300">
+        <button class="btn btn-outline" onclick="window.location.href='{% url 'n8n:pasos' %}?paso=1'">
+          <i class="fas fa-arrow-left mr-2"></i>
+          Volver
+        </button>
+        <div class="flex gap-3">
+          <button class="btn btn-outline" id="rechazar-titulo-btn">
+            <i class="fas fa-times mr-2"></i>
+            Rechazar
+          </button>
+          <button class="btn btn-primary" id="aceptar-titulo-btn">
+            <i class="fas fa-check mr-2"></i>
+            Aceptar sugerencia
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const aceptarBtn = document.getElementById('aceptar-titulo-btn');
+  const rechazarBtn = document.getElementById('rechazar-titulo-btn');
+  const tituloPropuestoInput = document.getElementById('titulo-propuesto-input');
+  const tituloInicialDisplay = document.getElementById('titulo-inicial-display');
+  
+  // Obtener datos de la sesión (se cargarán desde el backend)
+  const tituloInicial = '{{ actividades_adicionales.titulo_inicial|default:""|escapejs }}';
+  const tituloPropuesto = '{{ actividades_adicionales.titulo_propuesto|default:""|escapejs }}';
+  const resumeUrl = '{{ actividades_adicionales.resume_url|default:""|escapejs }}';
+  
+  // Llenar campos si están vacíos
+  if (tituloInicialDisplay && tituloInicial) {
+    tituloInicialDisplay.value = tituloInicial;
+  }
+  if (tituloPropuestoInput && tituloPropuesto) {
+    tituloPropuestoInput.value = tituloPropuesto;
+  }
+  
+  // Función para enviar título ajustado
+  async function enviarTituloAjustado(aceptar) {
+    const tituloFinal = aceptar 
+      ? (tituloPropuestoInput.value.trim() || tituloPropuesto || '')
+      : (tituloInicial || '');
+    
+    // Deshabilitar botones
+    if (aceptarBtn) aceptarBtn.disabled = true;
+    if (rechazarBtn) rechazarBtn.disabled = true;
+    
+    const originalAceptarText = aceptarBtn ? aceptarBtn.innerHTML : '';
+    const originalRechazarText = rechazarBtn ? rechazarBtn.innerHTML : '';
+    
+    if (aceptarBtn) {
+      aceptarBtn.innerHTML = '<span class="loading loading-spinner loading-sm mr-2"></span> Enviando...';
+    }
+    if (rechazarBtn) {
+      rechazarBtn.innerHTML = '<span class="loading loading-spinner loading-sm mr-2"></span> Enviando...';
+    }
+    
+    try {
+      const response = await fetch('{% url "n8n:enviar_titulo_ajustado" %}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+          titulo_final: tituloFinal,
+          aceptar: aceptar,
+          resume_url: resumeUrl,
+          titulo_inicial: tituloInicial,
+          titulo_propuesto: tituloPropuesto
+        })
+      });
+      
+      const result = await response.json();
+      
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || 'Error al enviar el título');
+      }
+      
+      // Si hay actividades adicionales, redirigir al paso 3
+      if (result.has_actividades) {
+        window.location.href = '{% url "n8n:pasos" %}?paso=3';
+      } else {
+        // Mostrar mensaje de éxito
+        alert(aceptar ? 'Título aceptado exitosamente' : 'Título rechazado exitosamente');
+      }
+      
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Hubo un error al enviar el título: ' + error.message);
+    } finally {
+      // Restaurar botones
+      if (aceptarBtn) {
+        aceptarBtn.disabled = false;
+        aceptarBtn.innerHTML = originalAceptarText;
+      }
+      if (rechazarBtn) {
+        rechazarBtn.disabled = false;
+        rechazarBtn.innerHTML = originalRechazarText;
+      }
+    }
+  }
+  
+  // Manejar clic en Aceptar
+  if (aceptarBtn) {
+    aceptarBtn.addEventListener('click', function() {
+      enviarTituloAjustado(true);
+    });
+  }
+  
+  // Manejar clic en Rechazar
+  if (rechazarBtn) {
+    rechazarBtn.addEventListener('click', function() {
+      enviarTituloAjustado(false);
+    });
+  }
+});
+</script>
+

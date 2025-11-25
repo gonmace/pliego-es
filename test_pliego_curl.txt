@@ -1,0 +1,43 @@
+# Comando curl para probar el workflow de pliego
+# Reemplaza YOUR_N8N_URL con la URL de tu instancia de n8n
+# Ejemplo: http://localhost:5678/webhook/pliego
+# O si es n8n cloud: https://tu-instancia.n8n.cloud/webhook/pliego
+
+curl -X POST "YOUR_N8N_URL/webhook/pliego" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "pliego_base": "## Especificación Genérica\n\n### Descripción\n\nEsta especificación describe los trabajos generales de construcción.\n\n### Materiales, herramientas y equipo\n\n- Materiales básicos de construcción\n- Herramientas estándar\n- Equipos de protección personal\n\n### Procedimiento\n\nSe realizarán los trabajos siguiendo las mejores prácticas de construcción.\n\n### Medición y Forma de Pago\n\nLa actividad será medida en metros cuadrados (m²).\n\nEl pago se efectuará según avance de obra.",
+    "titulo": "Pintado de piso industrial",
+    "parametros_clave": [
+      {
+        "nombre": "Acabado texturizado",
+        "valor": "Acabado antideslizante con textura rugosa",
+        "recomendacion": "Aplicar acabado texturizado para mayor seguridad"
+      },
+      {
+        "nombre": "Color",
+        "valor": "Pintura de 3 colores",
+        "recomendacion": ""
+      },
+      {
+        "nombre": "Revoque",
+        "valor": "Realizar revoque previo",
+        "recomendacion": ""
+      }
+    ],
+    "adicionales": [
+      {
+        "nombre": "Retiro de recubrimientos antiguos",
+        "descripcion": "Eliminación de capas anteriores de pintura mediante métodos mecánicos",
+        "nuevo": false
+      },
+      {
+        "nombre": "Barreras de protección",
+        "descripcion": "Colocación de barreras de protección para evitar choque de montacargas",
+        "nuevo": true
+      }
+    ]
+  }'
+
+
+

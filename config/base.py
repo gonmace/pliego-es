@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'esp_web.apps.EspWebConfig',
     'ubi_web.apps.UbiWebConfig',
     'login.apps.LoginConfig',
+    'n8n.apps.N8NConfig',
 
 ]
 
