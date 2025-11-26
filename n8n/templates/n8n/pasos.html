@@ -38,11 +38,11 @@
 {% endblock %}
 
 {% block title %}
-  N8N - Especificación Técnica
+  IA - Especificación Técnica
 {% endblock %}
 
 {% block navbar_title %}
-  N8N - Especificación Técnica
+  IA - Especificación Técnica
 {% endblock %}
 
 {% block content %}
@@ -62,13 +62,20 @@
         </li>
         <li class="flex items-center gap-2">
           <span class="text-base-content/50">›</span>
-          <span class="font-semibold text-base-content">N8N</span>
+          <span class="font-semibold text-base-content">IA</span>
         </li>
       </ol>
-      <button onclick="window.history.back()" class="btn btn-ghost btn-sm text-base-content/70 hover:text-base-content" title="Volver a la página anterior">
-        <i class="fas fa-arrow-left mr-2"></i>
-        Volver
-      </button>
+      <div class="flex items-center gap-4">
+        <!-- ID del registro guardado -->
+        <div id="especificacion-id-display" class="hidden flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-lg border border-primary/20">
+          <span class="text-xs text-base-content/60 font-medium">ID:</span>
+          <span id="especificacion-id-value" class="text-sm font-semibold text-primary font-mono"></span>
+        </div>
+        <button onclick="window.history.back()" class="btn btn-ghost btn-sm text-base-content/70 hover:text-base-content" title="Volver a la página anterior">
+          <i class="fas fa-arrow-left mr-2"></i>
+          Volver
+        </button>
+      </div>
     </nav>
   </div>
 {% endblock %}
@@ -96,6 +103,14 @@
     enviarParametros: '{% url "n8n:enviar_parametros" %}',
     enviarTitulo: '{% url "n8n:enviar_titulo_ajustado" %}',
     enviarActividades: '{% url "n8n:enviar_actividades" %}'
+  };
+  
+  // Variable global para almacenar el ID de la especificación técnica
+  window.especificacionTecnicaId = null;
+  
+  // Función para obtener el ID de la especificación técnica
+  window.getEspecificacionTecnicaId = function() {
+    return window.especificacionTecnicaId;
   };
 </script>
 {% endblock %}

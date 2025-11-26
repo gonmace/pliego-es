@@ -9,7 +9,7 @@ from django.views.decorators.http import require_http_methods
 from .forms import EspecificacionTecnicaForm
 from .models import EspecificacionTecnica, Parametros, ActividadesAdicionales
 
-N8N_WEBHOOK_URL = 'https://jaimemc.app.n8n.cloud/webhook/parametros'
+N8N_WEBHOOK_URL = 'https://jaimemc.app.n8n.cloud/webhook-test/parametros'
 N8N_WEBHOOK_TITULO_URL = 'https://jaimemc.app.n8n.cloud/webhook/titulo'
 N8N_WEBHOOK_ADICIONALES_URL = 'https://jaimemc.app.n8n.cloud/webhook/adicionales'
 N8N_WEBHOOK_FINAL_URL = 'https://jaimemc.app.n8n.cloud/webhook/final'
@@ -120,24 +120,22 @@ def enviar_especificacion_view(request):
                 'error': 'Título, descripción y tipo de servicio son requeridos'
             }, status=400)
         
-        # Obtener sessionID del usuario activo
-        session_id = request.session.session_key or ''
-        
         # Guardar en el modelo EspecificacionTecnica antes de enviar a la API
         especificacion = EspecificacionTecnica.objects.create(
             titulo=titulo,
             descripcion=descripcion,
             tipo_servicio=tipo_servicio,
-            sessionID=session_id,
             creado_por=request.user
         )
+        
+        # Log del ID del registro guardado
+        print(f"✅ EspecificacionTecnica guardada con ID: {especificacion.id}")
         
         # Preparar los datos para enviar a la API
         payload = {
             'titulo': titulo,
             'descripcion': descripcion,
-            'tipo_servicio': tipo_servicio,
-            'sessionID': session_id
+            'tipo_servicio': tipo_servicio
         }
         
         # Enviar POST request a la API webhook y esperar respuesta
@@ -216,22 +214,19 @@ def enviar_actividades_view(request):
                 'error': 'Debe seleccionar al menos una actividad'
             }, status=400)
         
-        # Obtener sessionID del usuario activo
-        session_id = request.session.session_key or ''
+        # Obtener el ID de la especificación técnica
+        especificacion_id = data.get('especificacion_id')
         
-        if not session_id:
+        if not especificacion_id:
             return JsonResponse({
                 'success': False,
-                'error': 'No se pudo obtener el sessionID. Por favor, recargue la página.'
+                'error': 'El ID de la especificación técnica es requerido'
             }, status=400)
         
-        # Buscar la EspecificacionTecnica más reciente con el mismo sessionID
-        # No filtramos por título porque puede haber sido actualizado en el paso 3
-        especificacion_tecnica = EspecificacionTecnica.objects.filter(
-            sessionID=session_id
-        ).order_by('-fecha_creacion').first()
-        
-        if not especificacion_tecnica:
+        # Buscar la EspecificacionTecnica por ID
+        try:
+            especificacion_tecnica = EspecificacionTecnica.objects.get(id=especificacion_id)
+        except EspecificacionTecnica.DoesNotExist:
             return JsonResponse({
                 'success': False,
                 'error': 'No se encontró la especificación técnica base para vincular las actividades. Asegúrese de haber completado los pasos anteriores.'
@@ -245,8 +240,7 @@ def enviar_actividades_view(request):
                 nombre=actividad.get('nombre', ''),
                 valor_recomendado=actividad.get('valor_recomendado', ''),
                 unidad_medida=actividad.get('unidad_medida', ''),
-                descripcion=actividad.get('descripcion', ''),
-                sessionID=session_id
+                descripcion=actividad.get('descripcion', '')
             )
             actividades_guardadas.append(actividad_obj)
         
@@ -281,7 +275,7 @@ def enviar_actividades_view(request):
         
         print(f"Actividades adicionales obtenidas de BD: {len(actividades_formateadas)} actividades")
         
-        # Preparar payload final con todos los datos extraídos de la BD usando el sessionID
+        # Preparar payload final con todos los datos extraídos de la BD usando el ID de la especificación técnica
         payload_final = {
             'titulo': especificacion_tecnica.titulo,
             'descripcion': especificacion_tecnica.descripcion,
@@ -489,33 +483,23 @@ def enviar_parametros_seleccionados_view(request):
                 'error': 'Debe seleccionar al menos un parámetro'
             }, status=400)
         
-        # Obtener título, descripción y tipo de servicio del request (no de sesión)
-        titulo = data.get('titulo', '').strip()
-        descripcion = data.get('descripcion', '').strip()
-        tipo_servicio = data.get('tipo_servicio', '').strip()
+        # Obtener el ID de la especificación técnica
+        especificacion_id = data.get('especificacion_id')
         
-        if not titulo or not descripcion or not tipo_servicio:
+        if not especificacion_id:
             return JsonResponse({
                 'success': False,
-                'error': 'Título, descripción y tipo de servicio son requeridos'
+                'error': 'El ID de la especificación técnica es requerido'
             }, status=400)
         
-        # Obtener sessionID del usuario activo
-        session_id = request.session.session_key or ''
-        
-        # Buscar la EspecificacionTecnica más reciente con el mismo sessionID y título
-        especificacion_tecnica = EspecificacionTecnica.objects.filter(
-            sessionID=session_id,
-            titulo=titulo,
-            descripcion=descripcion,
-            tipo_servicio=tipo_servicio
-        ).order_by('-fecha_creacion').first()
-        
-        if not especificacion_tecnica:
+        # Buscar la EspecificacionTecnica por ID
+        try:
+            especificacion_tecnica = EspecificacionTecnica.objects.get(id=especificacion_id)
+        except EspecificacionTecnica.DoesNotExist:
             return JsonResponse({
                 'success': False,
                 'error': 'No se encontró la especificación técnica relacionada'
-            }, status=400)
+            }, status=404)
         
         # Guardar los parámetros seleccionados en el modelo Parametros
         # Solo los que tienen check=true (todos los que vienen en parametros_seleccionados)
@@ -526,8 +510,7 @@ def enviar_parametros_seleccionados_view(request):
                 parametro=param.get('parametro', ''),
                 valor=param.get('valor_recomendado', ''),
                 unidad=param.get('unidad_medida', ''),
-                detalle=param.get('detalle', ''),
-                sessionID=session_id
+                detalle=param.get('detalle', '')
             )
             parametros_guardados.append(parametro_obj.id)
         
@@ -541,9 +524,9 @@ def enviar_parametros_seleccionados_view(request):
         
         # Preparar payload con título, descripción, tipo de servicio y parámetros
         payload = {
-            'titulo': titulo,
-            'descripcion': descripcion,
-            'tipo_servicio': tipo_servicio,
+            'titulo': especificacion_tecnica.titulo,
+            'descripcion': especificacion_tecnica.descripcion,
+            'tipo_servicio': especificacion_tecnica.tipo_servicio,
             'parametros': parametros_formateados
         }
         
@@ -627,15 +610,19 @@ def enviar_titulo_ajustado_view(request):
                 'error': 'El título final es requerido'
             }, status=400)
         
-        # Obtener sessionID del usuario activo
-        session_id = request.session.session_key or ''
+        # Obtener el ID de la especificación técnica
+        especificacion_id = data.get('especificacion_id')
         
-        # Buscar la EspecificacionTecnica más reciente con el mismo sessionID
-        especificacion_tecnica = EspecificacionTecnica.objects.filter(
-            sessionID=session_id
-        ).order_by('-fecha_creacion').first()
+        if not especificacion_id:
+            return JsonResponse({
+                'success': False,
+                'error': 'El ID de la especificación técnica es requerido'
+            }, status=400)
         
-        if not especificacion_tecnica:
+        # Buscar la EspecificacionTecnica por ID
+        try:
+            especificacion_tecnica = EspecificacionTecnica.objects.get(id=especificacion_id)
+        except EspecificacionTecnica.DoesNotExist:
             return JsonResponse({
                 'success': False,
                 'error': 'No se encontró la especificación técnica relacionada.'
@@ -664,7 +651,6 @@ def enviar_titulo_ajustado_view(request):
         adicionales_payload = {
             'titulo_final': titulo_final,
             'aceptar': aceptar,
-            'sessionID': session_id,
             'titulo': especificacion_tecnica.titulo,
             'descripcion': especificacion_tecnica.descripcion,
             'servicio': especificacion_tecnica.tipo_servicio,
@@ -762,22 +748,32 @@ def paso5_resultado_view(request):
     Vista AJAX para obtener el resultado del paso 5 (markdown renderizado)
     """
     try:
-        # Obtener sessionID del usuario activo
-        session_id = request.session.session_key or ''
+        # Obtener el ID de la especificación técnica desde los parámetros GET o POST
+        especificacion_id = request.GET.get('especificacion_id') or request.POST.get('especificacion_id')
         
-        if not session_id:
+        # Si no viene en GET/POST, intentar obtenerlo del body JSON (para requests AJAX)
+        if not especificacion_id and request.body:
+            try:
+                data = json.loads(request.body)
+                especificacion_id = data.get('especificacion_id')
+            except (json.JSONDecodeError, AttributeError):
+                pass
+        
+        if not especificacion_id:
             return JsonResponse({
                 'success': False,
-                'error': 'No se pudo obtener el sessionID. Por favor, recargue la página.'
+                'error': 'El ID de la especificación técnica es requerido'
             }, status=400)
         
-        # Buscar la EspecificacionTecnica más reciente con el mismo sessionID que tenga resultado_markdown
-        especificacion_tecnica = EspecificacionTecnica.objects.filter(
-            sessionID=session_id,
-            resultado_markdown__isnull=False
-        ).exclude(resultado_markdown='').order_by('-fecha_creacion').first()
-        
-        if not especificacion_tecnica or not especificacion_tecnica.resultado_markdown:
+        # Buscar la EspecificacionTecnica por ID que tenga resultado_markdown
+        try:
+            especificacion_tecnica = EspecificacionTecnica.objects.get(
+                id=especificacion_id,
+                resultado_markdown__isnull=False
+            )
+            if not especificacion_tecnica.resultado_markdown:
+                raise EspecificacionTecnica.DoesNotExist
+        except EspecificacionTecnica.DoesNotExist:
             return JsonResponse({
                 'success': False,
                 'error': 'No se encontró el resultado de la especificación técnica. Asegúrese de haber completado todos los pasos anteriores.'
@@ -827,21 +823,19 @@ def guardar_resultado_view(request):
                 'error': 'El contenido es requerido'
             }, status=400)
         
-        # Obtener sessionID del usuario activo
-        session_id = request.session.session_key or ''
+        # Obtener el ID de la especificación técnica
+        especificacion_id = data.get('especificacion_id')
         
-        if not session_id:
+        if not especificacion_id:
             return JsonResponse({
                 'success': False,
-                'error': 'No se pudo obtener el sessionID. Por favor, recargue la página.'
+                'error': 'El ID de la especificación técnica es requerido'
             }, status=400)
         
-        # Buscar la EspecificacionTecnica más reciente con el mismo sessionID
-        especificacion_tecnica = EspecificacionTecnica.objects.filter(
-            sessionID=session_id
-        ).order_by('-fecha_creacion').first()
-        
-        if not especificacion_tecnica:
+        # Buscar la EspecificacionTecnica por ID
+        try:
+            especificacion_tecnica = EspecificacionTecnica.objects.get(id=especificacion_id)
+        except EspecificacionTecnica.DoesNotExist:
             return JsonResponse({
                 'success': False,
                 'error': 'No se encontró la especificación técnica relacionada.'

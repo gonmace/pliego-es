@@ -436,9 +436,7 @@ function cargarScriptParametros() {
           },
           body: JSON.stringify({
             parametros: selectedParametros,
-            titulo: window.n8nTitulo || '',
-            descripcion: window.n8nDescripcion || '',
-            tipo_servicio: window.n8nTipoServicio || ''
+            especificacion_id: window.especificacionTecnicaId
           })
         });
         

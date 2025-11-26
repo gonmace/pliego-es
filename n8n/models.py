@@ -22,7 +22,6 @@ class EspecificacionTecnica(models.Model):
             ('Logística y Distribución', 'Logística y Distribución'),
         ]
     )
-    sessionID = models.CharField(max_length=255, verbose_name='Session ID', blank=True, null=True)
     creado_por = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
@@ -58,7 +57,6 @@ class Parametros(models.Model):
     valor = models.CharField(max_length=255, verbose_name='Valor Recomendado', blank=True, null=True)
     unidad = models.CharField(max_length=50, verbose_name='Unidad de Medida', blank=True, null=True)
     detalle = models.TextField(verbose_name='Detalle', blank=True, null=True)
-    sessionID = models.CharField(max_length=255, verbose_name='Session ID', blank=True, null=True)
     
     class Meta:
         verbose_name = 'Parámetro'
@@ -83,7 +81,6 @@ class ActividadesAdicionales(models.Model):
     valor_recomendado = models.CharField(max_length=255, verbose_name='Valor Recomendado', blank=True, null=True)
     unidad_medida = models.CharField(max_length=50, verbose_name='Unidad de Medida', blank=True, null=True)
     descripcion = models.TextField(verbose_name='Descripción', blank=True, null=True)
-    sessionID = models.CharField(max_length=255, verbose_name='Session ID', blank=True, null=True)
     
     class Meta:
         verbose_name = 'Actividad Adicional'

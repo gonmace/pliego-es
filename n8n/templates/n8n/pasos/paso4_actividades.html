@@ -425,9 +425,7 @@ function cargarScriptActividades() {
           },
           body: JSON.stringify({
             actividades: selectedActividades,
-            titulo: titulo,
-            descripcion: descripcion,
-            tipo_servicio: tipoServicio
+            especificacion_id: window.especificacionTecnicaId
           })
         });
         
@@ -506,8 +504,16 @@ function cargarScriptActividades() {
           console.log('✅ MARKDOWN DETECTADO - Redirigiendo al paso 5');
           // Ocultar spinner antes de redirigir
           if (spinnerContainer) spinnerContainer.classList.add('hidden');
-          // Redirigir inmediatamente sin mostrar ningún modal
-          window.location.href = '{% url "n8n:pasos" %}?paso=5';
+          
+          // Guardar el ID en sessionStorage para que persista entre recargas
+          if (window.especificacionTecnicaId) {
+            sessionStorage.setItem('especificacionTecnicaId', window.especificacionTecnicaId);
+          }
+          
+          // Redirigir inmediatamente sin mostrar ningún modal, incluyendo el ID en la URL
+          const especificacionId = window.especificacionTecnicaId || sessionStorage.getItem('especificacionTecnicaId');
+          const url = '{% url "n8n:pasos" %}?paso=5' + (especificacionId ? `&especificacion_id=${especificacionId}` : '');
+          window.location.href = url;
           return; // CRÍTICO: Salir inmediatamente para evitar mostrar el modal
         }
         

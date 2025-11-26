@@ -518,7 +518,25 @@
         
         const djangoResponse = await apiResponse.json();
         console.log('Respuesta de Django:', djangoResponse);
-        console.log('ID de especificación guardada:', djangoResponse.especificacion_id);
+        
+        // Mostrar el ID del registro guardado en EspecificacionTecnica
+        if (djangoResponse.especificacion_id) {
+          console.log('✅ EspecificacionTecnica guardada con ID:', djangoResponse.especificacion_id);
+          
+          // Guardar el ID en una variable global para acceso futuro
+          window.especificacionTecnicaId = djangoResponse.especificacion_id;
+          
+          // Guardar también en sessionStorage para que persista entre recargas
+          sessionStorage.setItem('especificacionTecnicaId', djangoResponse.especificacion_id);
+          
+          // Mostrar el ID en el breadcrumbs
+          const idDisplay = document.getElementById('especificacion-id-display');
+          const idValue = document.getElementById('especificacion-id-value');
+          if (idDisplay && idValue) {
+            idValue.textContent = djangoResponse.especificacion_id;
+            idDisplay.classList.remove('hidden');
+          }
+        }
         
         // La vista Django devuelve la respuesta de la API en 'response_data' como objeto JSON
         let apiResult = djangoResponse.response_data || djangoResponse;

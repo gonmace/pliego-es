@@ -90,7 +90,8 @@
             'X-CSRFToken': getCookie('csrftoken')
           },
           body: JSON.stringify({
-            contenido: window.__ultimoMarkdown
+            contenido: window.__ultimoMarkdown,
+            especificacion_id: window.especificacionTecnicaId
           })
         });
 
@@ -129,8 +130,41 @@
       try {
         toggleSpinner(true);
         
+        // Obtener el ID de la especificación técnica desde múltiples fuentes
+        // 1. De la URL (parámetro GET)
+        const urlParams = new URLSearchParams(window.location.search);
+        let especificacionId = urlParams.get('especificacion_id');
+        
+        // 2. De sessionStorage si no está en la URL
+        if (!especificacionId) {
+          especificacionId = sessionStorage.getItem('especificacionTecnicaId');
+        }
+        
+        // 3. De la variable global si está disponible
+        if (!especificacionId && window.especificacionTecnicaId) {
+          especificacionId = window.especificacionTecnicaId;
+        }
+        
+        // Si aún no tenemos el ID, mostrar error
+        if (!especificacionId) {
+          throw new Error('No se pudo obtener el ID de la especificación técnica. Por favor, vuelva a iniciar el proceso.');
+        }
+        
+        // Guardar en sessionStorage y variable global para futuras referencias
+        sessionStorage.setItem('especificacionTecnicaId', especificacionId);
+        window.especificacionTecnicaId = especificacionId;
+        
+        // Actualizar el ID en el breadcrumbs si existe el elemento
+        const idDisplay = document.getElementById('especificacion-id-display');
+        const idValue = document.getElementById('especificacion-id-value');
+        if (idDisplay && idValue) {
+          idValue.textContent = especificacionId;
+          idDisplay.classList.remove('hidden');
+        }
+        
         // Obtener el resultado desde el servidor
-        const response = await fetch('{% url "n8n:paso5_resultado" %}', {
+        const url = '{% url "n8n:paso5_resultado" %}?especificacion_id=' + especificacionId;
+        const response = await fetch(url, {
           method: 'GET',
           headers: {
             'X-Requested-With': 'XMLHttpRequest'
