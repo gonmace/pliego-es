@@ -22,10 +22,10 @@ class ActividadesAdicionalesInline(admin.TabularInline):
 
 @admin.register(EspecificacionTecnica)
 class EspecificacionTecnicaAdmin(admin.ModelAdmin):
-    list_display = ('id', 'titulo', 'tipo_servicio', 'descripcion', 'resultado_markdown', 'creado_por', 'fecha_creacion')
+    list_display = ('id', 'titulo', 'tipo_servicio', 'descripcion', 'resultado_markdown_preview', 'creado_por')
     list_filter = ('tipo_servicio', 'fecha_creacion', 'creado_por')
     search_fields = ('titulo', 'descripcion')
-    readonly_fields = ('id', 'fecha_creacion', 'fecha_actualizacion', 'resultado_markdown')
+    readonly_fields = ('id', 'resultado_markdown_preview', 'fecha_actualizacion')
     list_per_page = 25
     date_hierarchy = 'fecha_creacion'
     inlines = [ParametrosInline, ActividadesAdicionalesInline]
@@ -34,11 +34,43 @@ class EspecificacionTecnicaAdmin(admin.ModelAdmin):
         ('Información Principal', {
             'fields': ('id', 'titulo', 'descripcion', 'tipo_servicio')
         }),
+        ('Resultado', {
+            'fields': ('resultado_markdown_preview',)
+        }),
         ('Auditoría', {
             'fields': ('creado_por', 'fecha_creacion', 'fecha_actualizacion'),
             'classes': ('collapse',)
         }),
     )
+    
+    def resultado_markdown_preview(self, obj):
+        """
+        Muestra solo las primeras 20 palabras del resultado_markdown
+        """
+        if not obj.resultado_markdown:
+            return '-'
+        
+        # Limpiar el texto de markdown básico (remover #, *, etc.)
+        texto = obj.resultado_markdown
+        # Remover encabezados markdown
+        texto = texto.replace('#', '')
+        # Remover listas markdown
+        texto = texto.replace('*', '')
+        texto = texto.replace('-', '')
+        # Remover saltos de línea múltiples y espacios extra
+        texto = ' '.join(texto.split())
+        
+        # Obtener las primeras 20 palabras
+        palabras = texto.split()[:20]
+        preview = ' '.join(palabras)
+        
+        # Agregar "..." si hay más texto
+        if len(texto.split()) > 20:
+            preview += '...'
+        
+        return preview
+    
+    resultado_markdown_preview.short_description = 'Resultado (Primeras 20 palabras)'
 
 
 @admin.register(Parametros)
