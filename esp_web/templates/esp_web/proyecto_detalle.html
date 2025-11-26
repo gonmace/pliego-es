@@ -119,7 +119,7 @@
                   <i class="fas fa-list mr-1"></i>
                   Especificaciones Disponibles
                 </label>
-                <a href="{% url 'esp_web:nueva_especificacion' proyecto.id %}" class="btn btn-sm btn-success">
+                <a href="{% url 'n8n:pasos' %}?proyecto_id={{ proyecto.id }}" class="btn btn-sm btn-success">
                   <i class="fas fa-plus mr-1"></i>
                   Nueva
                 </a>
@@ -197,7 +197,7 @@
                   Aún no se han generado especificaciones para este proyecto. Utilice el botón "Nuevo" para crear la primera especificación.
                 </p>
                 {% if es_propietario %}
-                  <a href="{% url 'esp_web:nueva_especificacion' proyecto.id %}" class="btn btn-primary mt-4">
+                  <a href="{% url 'n8n:pasos' %}?proyecto_id={{ proyecto.id }}" class="btn btn-primary mt-4">
                     <i class="fas fa-plus mr-2"></i>
                     Nueva especificación
                   </a>

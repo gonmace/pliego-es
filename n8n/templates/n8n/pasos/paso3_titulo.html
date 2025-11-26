@@ -139,6 +139,7 @@ async function enviarTituloAjustado(tituloFinal, aceptar, resumeUrl, tituloInici
     // Verificar si hay actividades adicionales en la respuesta (Paso 4)
     let actividadesAdicionales = null;
     
+    // Manejar diferentes estructuras de respuesta
     if (result.adicionales_response && result.adicionales_response.actividades_adicionales) {
       actividadesAdicionales = result.adicionales_response.actividades_adicionales;
     } else if (result.adicionales_response && Array.isArray(result.adicionales_response) && result.adicionales_response.length > 0) {
@@ -148,10 +149,22 @@ async function enviarTituloAjustado(tituloFinal, aceptar, resumeUrl, tituloInici
       } else if (firstItem.actividades_adicionales) {
         actividadesAdicionales = firstItem.actividades_adicionales;
       }
+    } else if (Array.isArray(result.adicionales_response) && result.adicionales_response.length > 0) {
+      // Manejar estructura: [{ output: { actividades_adicionales: [...] } }]
+      const firstItem = result.adicionales_response[0];
+      if (firstItem.output && firstItem.output.actividades_adicionales) {
+        actividadesAdicionales = firstItem.output.actividades_adicionales;
+      }
     } else if (result.actividades_adicionales && Array.isArray(result.actividades_adicionales)) {
       actividadesAdicionales = result.actividades_adicionales;
     } else if (result.output && result.output.actividades_adicionales) {
       actividadesAdicionales = result.output.actividades_adicionales;
+    } else if (Array.isArray(result) && result.length > 0) {
+      // Manejar estructura directa: [{ output: { actividades_adicionales: [...] } }]
+      const firstItem = result[0];
+      if (firstItem.output && firstItem.output.actividades_adicionales) {
+        actividadesAdicionales = firstItem.output.actividades_adicionales;
+      }
     }
     
     if (actividadesAdicionales && Array.isArray(actividadesAdicionales) && actividadesAdicionales.length > 0) {

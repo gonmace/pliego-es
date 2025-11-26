@@ -22,10 +22,10 @@ class ActividadesAdicionalesInline(admin.TabularInline):
 
 @admin.register(EspecificacionTecnica)
 class EspecificacionTecnicaAdmin(admin.ModelAdmin):
-    list_display = ('id', 'titulo', 'tipo_servicio', 'creado_por', 'fecha_creacion')
+    list_display = ('id', 'titulo', 'tipo_servicio', 'descripcion', 'resultado_markdown', 'creado_por', 'fecha_creacion')
     list_filter = ('tipo_servicio', 'fecha_creacion', 'creado_por')
     search_fields = ('titulo', 'descripcion')
-    readonly_fields = ('id', 'fecha_creacion', 'fecha_actualizacion')
+    readonly_fields = ('id', 'fecha_creacion', 'fecha_actualizacion', 'resultado_markdown')
     list_per_page = 25
     date_hierarchy = 'fecha_creacion'
     inlines = [ParametrosInline, ActividadesAdicionalesInline]

@@ -41,9 +41,8 @@
                 <input type="checkbox" id="select-all-actividades" class="checkbox checkbox-primary border-white">
               </th>
               <th class="w-3/12">Actividad</th>
-              <th class="w-1/12 text-center">Valor Recomendado</th>
               <th class="w-2/12 text-center">Unidad</th>
-              <th class="w-5/12">Descripción</th>
+              <th class="w-7/12">Descripción</th>
             </tr>
           </thead>
           <tbody id="actividades-table-body">
@@ -106,8 +105,8 @@ function renderizarTablaActividades(actividades) {
   actividades.forEach((actividad, index) => {
     const checked = actividad.check ? 'checked' : '';
     const unidadMedida = actividad.unidad_medida || '';
-    const nombre = actividad.nombre || '';
-    const valorRecomendado = actividad.valor_recomendado || '';
+    // Manejar tanto "actividad" como "nombre" para compatibilidad
+    const nombre = actividad.actividad || actividad.nombre || '';
     const descripcion = actividad.descripcion || '';
     
     const row = document.createElement('tr');
@@ -120,7 +119,6 @@ function renderizarTablaActividades(actividades) {
           type="checkbox" 
           class="checkbox checkbox-primary actividad-checkbox" 
           data-nombre="${escapeHtml(nombre)}"
-          data-valor="${escapeHtml(valorRecomendado)}"
           data-descripcion="${escapeHtml(descripcion)}"
           data-unidad="${escapeHtml(unidadMedida)}"
           id="actividad-${index}"
@@ -128,16 +126,8 @@ function renderizarTablaActividades(actividades) {
         >
       </td>
       <td class="font-semibold">${escapeHtml(nombre)}</td>
-      <td class="text-right">
-        <input 
-          type="text" 
-          class="input input-bordered input-primary input-sm w-full valor-recomendado-input focus:input-primary text-right" 
-          value="${escapeHtml(valorRecomendado)}"
-          data-original-value="${escapeHtml(valorRecomendado)}"
-        >
-      </td>
       <td class="text-sm text-base-content/70 font-medium text-center">${escapeHtml(unidadMedida)}</td>
-      <td class="text-sm text-base-content/70 leading-tight p-0 m-0 align-middle" style="max-width: 300px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.2;">${escapeHtml(descripcion)}</td>
+      <td class="text-sm text-base-content/70 leading-tight p-2 align-top" style="word-wrap: break-word; white-space: pre-wrap; min-width: 200px; max-width: none;">${escapeHtml(descripcion)}</td>
     `;
     
     tableBody.appendChild(row);
@@ -369,13 +359,8 @@ function cargarScriptActividades() {
       
       allCheckboxes.forEach(checkbox => {
         if (checkbox.checked) {
-          const row = checkbox.closest('tr');
-          const valorInput = row.querySelector('.valor-recomendado-input');
-          const valorActualizado = valorInput ? valorInput.value : checkbox.getAttribute('data-valor');
-          
           selectedActividades.push({
             nombre: checkbox.getAttribute('data-nombre'),
-            valor_recomendado: valorActualizado,
             unidad_medida: checkbox.getAttribute('data-unidad') || '',
             descripcion: checkbox.getAttribute('data-descripcion')
           });

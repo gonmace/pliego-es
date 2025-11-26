@@ -9,7 +9,7 @@ from django.views.decorators.http import require_http_methods
 from .forms import EspecificacionTecnicaForm
 from .models import EspecificacionTecnica, Parametros, ActividadesAdicionales
 
-N8N_WEBHOOK_URL = 'https://jaimemc.app.n8n.cloud/webhook-test/parametros'
+N8N_WEBHOOK_URL = 'https://jaimemc.app.n8n.cloud/webhook/parametros'
 N8N_WEBHOOK_TITULO_URL = 'https://jaimemc.app.n8n.cloud/webhook/titulo'
 N8N_WEBHOOK_ADICIONALES_URL = 'https://jaimemc.app.n8n.cloud/webhook/adicionales'
 N8N_WEBHOOK_FINAL_URL = 'https://jaimemc.app.n8n.cloud/webhook/final'
@@ -28,6 +28,21 @@ def n8n_pasos_view(request):
         {"numero": 5, "nombre": "Resultado"},
     ]
     paso_actual = int(request.GET.get('paso', 1))
+    
+    # Guardar proyecto_id en la sesión si viene como parámetro GET
+    proyecto_id = request.GET.get('proyecto_id')
+    if proyecto_id:
+        try:
+            proyecto_id = int(proyecto_id)
+            # Verificar que el proyecto existe y el usuario tiene acceso
+            from esp_web.models import Proyecto
+            proyecto = Proyecto.objects.get(id=proyecto_id, activo=True)
+            # Verificar que el usuario es el propietario o el proyecto es público
+            if proyecto.creado_por == request.user or proyecto.publico:
+                request.session['n8n_proyecto_id'] = proyecto_id
+        except (ValueError, Proyecto.DoesNotExist):
+            # Si el proyecto no existe o no es válido, ignorar silenciosamente
+            pass
     
     # Limpiar toda la sesión relacionada con n8n al inicio (solo si no es paso 5)
     if paso_actual != 5:
@@ -238,7 +253,6 @@ def enviar_actividades_view(request):
             actividad_obj = ActividadesAdicionales.objects.create(
                 especificacion_tecnica=especificacion_tecnica,
                 nombre=actividad.get('nombre', ''),
-                valor_recomendado=actividad.get('valor_recomendado', ''),
                 unidad_medida=actividad.get('unidad_medida', ''),
                 descripcion=actividad.get('descripcion', '')
             )
@@ -268,7 +282,6 @@ def enviar_actividades_view(request):
         for actividad_obj in actividades_adicionales_bd:
             actividades_formateadas.append({
                 'nombre': actividad_obj.nombre,
-                'valor_recomendado': actividad_obj.valor_recomendado or '',
                 'unidad_medida': actividad_obj.unidad_medida or '',
                 'descripcion': actividad_obj.descripcion or ''
             })
@@ -477,11 +490,7 @@ def enviar_parametros_seleccionados_view(request):
         data = json.loads(request.body)
         parametros_seleccionados = data.get('parametros', [])
         
-        if not parametros_seleccionados:
-            return JsonResponse({
-                'success': False,
-                'error': 'Debe seleccionar al menos un parámetro'
-            }, status=400)
+        # Los parámetros son opcionales, se puede continuar sin seleccionar ninguno
         
         # Obtener el ID de la especificación técnica
         especificacion_id = data.get('especificacion_id')
@@ -514,12 +523,13 @@ def enviar_parametros_seleccionados_view(request):
             )
             parametros_guardados.append(parametro_obj.id)
         
-        # Formatear parámetros para que solo contengan parametro y valor_recomendado
+        # Formatear parámetros para incluir parametro, valor y unidad
         parametros_formateados = []
         for param in parametros_seleccionados:
             parametros_formateados.append({
                 'parametro': param.get('parametro', ''),
-                'valor_recomendado': param.get('valor_recomendado', '')
+                'valor': param.get('valor_recomendado', ''),
+                'unidad': param.get('unidad_medida', '')
             })
         
         # Preparar payload con título, descripción, tipo de servicio y parámetros
@@ -812,6 +822,7 @@ def paso5_resultado_view(request):
 def guardar_resultado_view(request):
     """
     Vista AJAX para guardar el resultado final de la especificación técnica
+    Si hay un proyecto_id en la sesión, convierte EspecificacionTecnica en Especificacion
     """
     try:
         data = json.loads(request.body)
@@ -846,10 +857,57 @@ def guardar_resultado_view(request):
             especificacion_tecnica.resultado_markdown = contenido
             especificacion_tecnica.save(update_fields=['resultado_markdown'])
         
+        # Si hay un proyecto_id en la sesión, convertir a Especificacion
+        proyecto_id = request.session.get('n8n_proyecto_id')
+        redirect_url = None
+        
+        if proyecto_id:
+            try:
+                from esp_web.models import Proyecto, Especificacion
+                from django.core.files.base import ContentFile
+                from django.utils.text import slugify
+                from django.utils import timezone
+                from django.urls import reverse
+                
+                proyecto = Proyecto.objects.get(id=proyecto_id, activo=True)
+                
+                # Verificar que el usuario tiene acceso al proyecto
+                if proyecto.creado_por != request.user and not proyecto.publico:
+                    return JsonResponse({
+                        'success': False,
+                        'error': 'No tiene permisos para guardar en este proyecto'
+                    }, status=403)
+                
+                # Crear la especificación en el proyecto
+                slug = slugify(especificacion_tecnica.titulo) or 'especificacion'
+                timestamp = timezone.now().strftime('%Y%m%d%H%M%S')
+                filename = f"{slug}-{timestamp}.md"
+                
+                especificacion = Especificacion(
+                    proyecto=proyecto,
+                    titulo=especificacion_tecnica.titulo,
+                    contenido=contenido,
+                )
+                especificacion.archivo.save(filename, ContentFile(contenido), save=True)
+                
+                # Limpiar el proyecto_id de la sesión después de guardar
+                request.session.pop('n8n_proyecto_id', None)
+                
+                # Preparar URL de redirección al proyecto
+                redirect_url = reverse('esp_web:proyecto_detalle', args=[proyecto.id]) + '?guardado=1'
+                
+            except Proyecto.DoesNotExist:
+                # Si el proyecto no existe, solo guardar en EspecificacionTecnica
+                request.session.pop('n8n_proyecto_id', None)
+            except Exception as e:
+                # Si hay algún error al convertir, solo guardar en EspecificacionTecnica
+                print(f"Error al convertir EspecificacionTecnica a Especificacion: {str(e)}")
+        
         return JsonResponse({
             'success': True,
             'message': 'Especificación guardada exitosamente',
             'especificacion_id': especificacion_tecnica.id,
+            'redirect_url': redirect_url,
         })
         
     except json.JSONDecodeError:

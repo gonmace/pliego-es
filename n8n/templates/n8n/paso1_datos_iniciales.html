@@ -842,7 +842,7 @@ function renderizarTablaParametros(output, titulo, descripcion, tipoServicio) {
         >
       </td>
       <td class="text-sm text-base-content/70 font-medium text-center">${escapeHtml(unidadMedida)}</td>
-      <td class="text-sm text-base-content/70 leading-tight p-0 m-0 align-middle" style="max-width: 300px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.2;">${escapeHtml(parametro.detalle || '')}</td>
+      <td class="text-sm text-base-content/70 leading-tight p-2 align-top" style="word-wrap: break-word; white-space: pre-wrap; min-width: 200px;">${escapeHtml(parametro.detalle || '')}</td>
     `;
     
     tableBody.appendChild(row);
