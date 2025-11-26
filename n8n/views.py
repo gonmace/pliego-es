@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from .forms import EspecificacionTecnicaForm
-from .models import EspecificacionTecnica, Parametros
+from .models import EspecificacionTecnica, Parametros, ActividadesAdicionales
 
 N8N_WEBHOOK_URL = 'https://jaimemc.app.n8n.cloud/webhook/parametros'
 N8N_WEBHOOK_TITULO_URL = 'https://jaimemc.app.n8n.cloud/webhook/titulo'
@@ -37,14 +37,24 @@ def n8n_pasos_view(request):
     respuesta_completa = {}
     actividades_adicionales = {}
     
-    return render(request, 'n8n/pasos.html', {
+    # Determinar qué template usar según el paso
+    if paso_actual == 1:
+        template_name = 'n8n/paso1_datos_iniciales.html'
+    else:
+        template_name = 'n8n/pasos.html'
+    
+    return render(request, template_name, {
         'pasos': pasos,
         'paso_actual': paso_actual,
         'datos_paso1': datos_paso1,
         'respuesta_api': respuesta_api,
         'respuesta_completa': respuesta_completa,
         'actividades_adicionales': actividades_adicionales,
+        'form': EspecificacionTecnicaForm(),
     })
+
+
+# Vista eliminada: parametros_paso2_view ya no se necesita porque el paso 2 es un modal
 
 
 @login_required
@@ -256,7 +266,7 @@ def enviar_especificacion_view(request):
 @require_http_methods(["POST"])
 def enviar_actividades_view(request):
     """
-    Vista AJAX para enviar actividades adicionales seleccionadas
+    Vista AJAX para guardar actividades adicionales seleccionadas en el modelo y luego enviar a la API
     """
     try:
         data = json.loads(request.body)
@@ -268,7 +278,46 @@ def enviar_actividades_view(request):
                 'error': 'Debe seleccionar al menos una actividad'
             }, status=400)
         
-        # Preparar payload con las actividades seleccionadas
+        # Obtener título, descripción y tipo de servicio del request
+        titulo = data.get('titulo', '').strip()
+        descripcion = data.get('descripcion', '').strip()
+        tipo_servicio = data.get('tipo_servicio', '').strip()
+        session_id = request.session.session_key or ''
+        
+        if not titulo or not descripcion or not tipo_servicio:
+            return JsonResponse({
+                'success': False,
+                'error': 'Título, descripción y tipo de servicio son requeridos'
+            }, status=400)
+        
+        # Buscar la EspecificacionTecnica más reciente con el mismo sessionID
+        especificacion_tecnica = EspecificacionTecnica.objects.filter(
+            sessionID=session_id,
+            titulo=titulo,
+            descripcion=descripcion,
+            tipo_servicio=tipo_servicio
+        ).order_by('-fecha_creacion').first()
+        
+        if not especificacion_tecnica:
+            return JsonResponse({
+                'success': False,
+                'error': 'No se encontró la especificación técnica base para vincular las actividades.'
+            }, status=404)
+        
+        actividades_guardadas = []
+        # Guardar las actividades seleccionadas en el modelo ActividadesAdicionales
+        for actividad in actividades_seleccionadas:
+            actividad_obj = ActividadesAdicionales.objects.create(
+                especificacion_tecnica=especificacion_tecnica,
+                nombre=actividad.get('nombre', ''),
+                valor_recomendado=actividad.get('valor_recomendado', ''),
+                unidad_medida=actividad.get('unidad_medida', ''),
+                descripcion=actividad.get('descripcion', ''),
+                sessionID=session_id
+            )
+            actividades_guardadas.append(actividad_obj)
+        
+        # Preparar payload con las actividades seleccionadas para la API
         payload = {
             'actividades': actividades_seleccionadas
         }
@@ -295,8 +344,9 @@ def enviar_actividades_view(request):
         
         return JsonResponse({
             'success': True,
-            'message': 'Actividades enviadas exitosamente',
+            'message': 'Actividades guardadas y enviadas exitosamente',
             'response_data': response_data_str,
+            'actividades_guardadas': len(actividades_guardadas),
         })
         
     except requests.exceptions.Timeout:

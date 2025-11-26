@@ -54,7 +54,7 @@
     </div>
     
     <div class="mt-4 pt-3 flex justify-end items-center border-t border-base-300">
-      <button class="btn btn-primary btn-lg" id="enviar-actividades-btn">
+      <button class="btn btn-primary" id="enviar-actividades-btn">
         <i class="fas fa-arrow-right mr-2"></i>
         Continuar
       </button>
@@ -64,3 +64,454 @@
     <button>Cerrar</button>
   </form>
 </dialog>
+
+<script>
+// Función para renderizar la tabla de actividades adicionales dinámicamente (Paso 4)
+function renderizarTablaActividades(actividades) {
+  console.log('Renderizando tabla de actividades adicionales:', actividades);
+  
+  // Escapar HTML para prevenir XSS
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+  
+  console.log('Llenando tabla con', actividades.length, 'actividades');
+  
+  // Obtener el modal (debe existir en el HTML)
+  const modalActividades = document.getElementById('modal-actividades-adicionales');
+  if (!modalActividades) {
+    console.error('No se encontró el modal modal-actividades-adicionales');
+    if (typeof mostrarModalJSON === 'function') {
+      mostrarModalJSON({error: 'No se encontró el modal de actividades', actividades: actividades});
+    }
+    return;
+  }
+  
+  // Obtener el tbody de la tabla
+  const tableBody = document.getElementById('actividades-table-body');
+  if (!tableBody) {
+    console.error('No se encontró el tbody de la tabla de actividades');
+    if (typeof mostrarModalJSON === 'function') {
+      mostrarModalJSON({error: 'No se encontró el cuerpo de la tabla de actividades', actividades: actividades});
+    }
+    return;
+  }
+  
+  // Limpiar el tbody antes de llenarlo
+  tableBody.innerHTML = '';
+  
+  // Agregar filas de actividades
+  actividades.forEach((actividad, index) => {
+    const checked = actividad.check ? 'checked' : '';
+    const unidadMedida = actividad.unidad_medida || '';
+    const nombre = actividad.nombre || '';
+    const valorRecomendado = actividad.valor_recomendado || '';
+    const descripcion = actividad.descripcion || '';
+    
+    const row = document.createElement('tr');
+    row.className = 'actividad-row';
+    row.setAttribute('data-index', index);
+    
+    row.innerHTML = `
+      <td>
+        <input 
+          type="checkbox" 
+          class="checkbox checkbox-primary actividad-checkbox" 
+          data-nombre="${escapeHtml(nombre)}"
+          data-valor="${escapeHtml(valorRecomendado)}"
+          data-descripcion="${escapeHtml(descripcion)}"
+          data-unidad="${escapeHtml(unidadMedida)}"
+          id="actividad-${index}"
+          ${checked}
+        >
+      </td>
+      <td class="font-semibold">${escapeHtml(nombre)}</td>
+      <td class="text-right">
+        <input 
+          type="text" 
+          class="input input-bordered input-primary input-sm w-full valor-recomendado-input focus:input-primary text-right" 
+          value="${escapeHtml(valorRecomendado)}"
+          data-original-value="${escapeHtml(valorRecomendado)}"
+        >
+      </td>
+      <td class="text-sm text-base-content/70 font-medium text-center">${escapeHtml(unidadMedida)}</td>
+      <td class="text-sm text-base-content/70 leading-tight p-0 m-0 align-middle" style="max-width: 300px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.2;">${escapeHtml(descripcion)}</td>
+    `;
+    
+    tableBody.appendChild(row);
+  });
+  
+  // Agregar fila para nueva actividad
+  const nuevaFilaRow = document.createElement('tr');
+  nuevaFilaRow.id = 'nuevo-actividad-row';
+  nuevaFilaRow.className = 'bg-base-200';
+  nuevaFilaRow.innerHTML = `
+    <td>
+      <button class="btn btn-sm btn-success" id="agregar-actividad-btn" title="Agregar actividad">
+        <i class="fas fa-plus"></i>
+      </button>
+    </td>
+    <td>
+      <input 
+        type="text" 
+        class="input input-bordered input-sm w-full" 
+        id="nuevo-actividad-nombre"
+        placeholder="Nombre de la actividad"
+      >
+    </td>
+    <td class="text-right">
+      <input 
+        type="text" 
+        class="input input-bordered input-sm w-full text-right" 
+        id="nuevo-actividad-valor"
+        placeholder="Valor recomendado"
+      >
+    </td>
+    <td class="text-center">
+      <input 
+        type="text" 
+        class="input input-bordered input-sm w-full text-center" 
+        id="nuevo-actividad-unidad"
+        placeholder="Unidad de medida"
+      >
+    </td>
+    <td>
+      <input 
+        type="text" 
+        class="input input-bordered input-sm w-full" 
+        id="nuevo-actividad-descripcion"
+        placeholder="Descripción (opcional)"
+      >
+    </td>
+  `;
+  
+  tableBody.appendChild(nuevaFilaRow);
+  
+  // Mostrar el modal
+  console.log('Mostrando modal de actividades adicionales');
+  if (typeof modalActividades.showModal === 'function') {
+    modalActividades.showModal();
+  } else {
+    modalActividades.setAttribute('open', '');
+    modalActividades.classList.add('modal-open');
+  }
+  
+  // Cargar el script de manejo de actividades
+  setTimeout(() => {
+    cargarScriptActividades();
+  }, 200);
+}
+
+// Función para cargar el script de manejo de actividades adicionales
+function cargarScriptActividades() {
+  console.log('Cargando script de actividades adicionales...');
+  
+  const selectAllCheckbox = document.getElementById('select-all-actividades');
+  let actividadesCheckboxes = document.querySelectorAll('.actividad-checkbox');
+  const enviarBtn = document.getElementById('enviar-actividades-btn');
+  const agregarActividadBtn = document.getElementById('agregar-actividad-btn');
+  const nuevoActividadNombre = document.getElementById('nuevo-actividad-nombre');
+  const nuevoActividadValor = document.getElementById('nuevo-actividad-valor');
+  const nuevoActividadUnidad = document.getElementById('nuevo-actividad-unidad');
+  const nuevoActividadDescripcion = document.getElementById('nuevo-actividad-descripcion');
+  const nuevoActividadRow = document.getElementById('nuevo-actividad-row');
+  
+  if (!selectAllCheckbox || !enviarBtn) {
+    console.error('No se encontraron elementos necesarios para actividades:', {
+      selectAll: !!selectAllCheckbox,
+      enviarBtn: !!enviarBtn
+    });
+    return;
+  }
+  
+  // Función para obtener cookie CSRF
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+  
+  // Función para actualizar el botón de enviar
+  function updateEnviarButtonActividades() {
+    const selectedCount = document.querySelectorAll('.actividad-checkbox:checked').length;
+    if (selectedCount > 0) {
+      enviarBtn.disabled = false;
+      enviarBtn.innerHTML = `<i class="fas fa-arrow-right mr-2"></i> Continuar`;
+    } else {
+      enviarBtn.disabled = true;
+      enviarBtn.innerHTML = `<i class="fas fa-arrow-right mr-2"></i> Seleccione al menos una actividad`;
+    }
+  }
+  
+  // Manejar seleccionar/deseleccionar todos
+  if (selectAllCheckbox) {
+    const newSelectAll = selectAllCheckbox.cloneNode(true);
+    selectAllCheckbox.parentNode.replaceChild(newSelectAll, selectAllCheckbox);
+    
+    newSelectAll.addEventListener('change', function() {
+      const allCheckboxes = document.querySelectorAll('.actividad-checkbox');
+      allCheckboxes.forEach(checkbox => {
+        checkbox.checked = this.checked;
+      });
+      updateEnviarButtonActividades();
+    });
+  }
+  
+  // Manejar cambios en checkboxes individuales
+  actividadesCheckboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+      if (selectAllCheckbox) {
+        const allCheckboxes = document.querySelectorAll('.actividad-checkbox');
+        const allChecked = Array.from(allCheckboxes).every(cb => cb.checked);
+        const someChecked = Array.from(allCheckboxes).some(cb => cb.checked);
+        selectAllCheckbox.checked = allChecked;
+        selectAllCheckbox.indeterminate = someChecked && !allChecked;
+      }
+      updateEnviarButtonActividades();
+    });
+  });
+  
+  // Manejar agregar nueva actividad
+  if (agregarActividadBtn && nuevoActividadNombre && nuevoActividadValor && nuevoActividadUnidad) {
+    agregarActividadBtn.addEventListener('click', function() {
+      const nombre = nuevoActividadNombre.value.trim();
+      const valor = nuevoActividadValor.value.trim();
+      const unidad = nuevoActividadUnidad.value.trim();
+      const descripcion = nuevoActividadDescripcion ? nuevoActividadDescripcion.value.trim() : '';
+      
+      if (!nombre || !valor || !unidad) {
+        alert('Por favor, complete al menos el nombre, valor y unidad de la actividad');
+        return;
+      }
+      
+      // Crear nueva fila
+      const newRow = document.createElement('tr');
+      newRow.className = 'actividad-row nuevo-actividad-row';
+      const index = actividadesCheckboxes.length;
+      
+      newRow.innerHTML = `
+        <td>
+          <input 
+            type="checkbox" 
+            class="checkbox checkbox-primary actividad-checkbox" 
+            data-nombre="${nombre.replace(/"/g, '&quot;')}"
+            data-valor="${valor.replace(/"/g, '&quot;')}"
+            data-unidad="${unidad.replace(/"/g, '&quot;')}"
+            data-descripcion="${descripcion.replace(/"/g, '&quot;')}"
+            id="actividad-${index}"
+            checked
+          >
+        </td>
+        <td class="font-semibold">${nombre}</td>
+        <td class="text-right">
+          <input 
+            type="text" 
+            class="input input-bordered input-primary input-sm w-full valor-recomendado-input focus:input-primary text-right" 
+            value="${valor}"
+            data-original-value="${valor}"
+          >
+        </td>
+        <td class="text-sm text-base-content/70 font-medium text-center">${unidad}</td>
+        <td class="text-sm text-base-content/70 leading-tight p-0 m-0 align-middle" style="max-width: 300px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.2;">${descripcion}</td>
+      `;
+      
+      // Insertar antes de la fila de nueva actividad
+      const tableBody = document.getElementById('actividades-table-body');
+      if (tableBody && nuevoActividadRow) {
+        tableBody.insertBefore(newRow, nuevoActividadRow);
+      }
+      
+      // Limpiar campos
+      nuevoActividadNombre.value = '';
+      nuevoActividadValor.value = '';
+      nuevoActividadUnidad.value = '';
+      if (nuevoActividadDescripcion) nuevoActividadDescripcion.value = '';
+      
+      // Re-inicializar eventos para el nuevo checkbox
+      actividadesCheckboxes = document.querySelectorAll('.actividad-checkbox');
+      const newCheckbox = newRow.querySelector('.actividad-checkbox');
+      if (newCheckbox) {
+        newCheckbox.addEventListener('change', function() {
+          if (selectAllCheckbox) {
+            const allCheckboxes = document.querySelectorAll('.actividad-checkbox');
+            const allChecked = Array.from(allCheckboxes).every(cb => cb.checked);
+            const someChecked = Array.from(allCheckboxes).some(cb => cb.checked);
+            selectAllCheckbox.checked = allChecked;
+            selectAllCheckbox.indeterminate = someChecked && !allChecked;
+          }
+          updateEnviarButtonActividades();
+        });
+      }
+      
+      updateEnviarButtonActividades();
+    });
+  }
+  
+  // Manejar envío de actividades seleccionadas
+  if (enviarBtn) {
+    const newEnviarBtn = enviarBtn.cloneNode(true);
+    enviarBtn.parentNode.replaceChild(newEnviarBtn, enviarBtn);
+    
+    newEnviarBtn.addEventListener('click', async function() {
+      const selectedActividades = [];
+      const allCheckboxes = document.querySelectorAll('.actividad-checkbox');
+      
+      allCheckboxes.forEach(checkbox => {
+        if (checkbox.checked) {
+          const row = checkbox.closest('tr');
+          const valorInput = row.querySelector('.valor-recomendado-input');
+          const valorActualizado = valorInput ? valorInput.value : checkbox.getAttribute('data-valor');
+          
+          selectedActividades.push({
+            nombre: checkbox.getAttribute('data-nombre'),
+            valor_recomendado: valorActualizado,
+            unidad_medida: checkbox.getAttribute('data-unidad') || '',
+            descripcion: checkbox.getAttribute('data-descripcion')
+          });
+        }
+      });
+      
+      if (selectedActividades.length === 0) {
+        alert('Por favor, seleccione al menos una actividad');
+        return;
+      }
+      
+      // Cerrar el modal de actividades primero
+      const modalActividades = document.getElementById('modal-actividades-adicionales');
+      if (modalActividades) {
+        modalActividades.close();
+      }
+      
+      // Mostrar el spinner de pasos.html
+      const spinnerContainer = document.getElementById('spinner-container');
+      if (spinnerContainer) {
+        spinnerContainer.classList.remove('hidden');
+        const spinnerText = spinnerContainer.querySelector('p');
+        if (spinnerText) {
+          spinnerText.textContent = 'Guardando actividades adicionales seleccionadas...';
+        }
+      }
+      
+      newEnviarBtn.disabled = true;
+      const originalText = newEnviarBtn.innerHTML;
+      newEnviarBtn.innerHTML = '<span class="loading loading-spinner loading-sm mr-2"></span> Enviando...';
+      
+      try {
+        // Obtener título, descripción y tipo de servicio de las variables globales
+        const titulo = window.n8nTitulo || '';
+        const descripcion = window.n8nDescripcion || '';
+        const tipoServicio = window.n8nTipoServicio || '';
+        
+        console.log('Enviando actividades seleccionadas:', selectedActividades);
+        console.log('Datos de especificación:', { titulo, descripcion, tipoServicio });
+        
+        // Enviar a la vista Django para guardar en el modelo
+        const response = await fetch(window.n8nUrls.enviarActividades, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+          },
+          body: JSON.stringify({
+            actividades: selectedActividades,
+            titulo: titulo,
+            descripcion: descripcion,
+            tipo_servicio: tipoServicio
+          })
+        });
+        
+        const result = await response.json();
+        
+        // Ocultar el spinner
+        if (spinnerContainer) spinnerContainer.classList.add('hidden');
+        
+        if (!response.ok || !result.success) {
+          throw new Error(result.error || 'Error al guardar las actividades');
+        }
+        
+        console.log('Actividades guardadas exitosamente:', result);
+        
+        // Mostrar mensaje de éxito o el JSON de respuesta
+        if (typeof mostrarModalJSON === 'function') {
+          mostrarModalJSON({
+            success: true,
+            message: `Se guardaron ${result.actividades_guardadas || selectedActividades.length} actividades exitosamente`,
+            actividades_guardadas: result.actividades_guardadas,
+            response_data: result.response_data
+          });
+        }
+        
+      } catch (error) {
+        console.error('Error:', error);
+        // Ocultar el spinner en caso de error
+        const spinnerContainerError = document.getElementById('spinner-container');
+        if (spinnerContainerError) spinnerContainerError.classList.add('hidden');
+        alert('Hubo un error al enviar las actividades: ' + error.message);
+      } finally {
+        newEnviarBtn.disabled = false;
+        newEnviarBtn.innerHTML = originalText;
+      }
+    });
+  }
+  
+  // Inicializar estado del botón
+  updateEnviarButtonActividades();
+}
+
+// Variable para controlar si el modal se cerró manualmente (con la cruz) o programáticamente
+let modalActividadesCerradoManual = false;
+
+// Función para mostrar el contenido del paso 1 (solo cuando se cierra manualmente)
+function mostrarPaso1() {
+  const formCardContainer = document.querySelector('.flex.flex-col.items-center.justify-center.mt-8');
+  if (formCardContainer) {
+    formCardContainer.style.display = 'flex';
+  }
+}
+
+// Agregar event listener para cuando se cierre el modal
+// Usar DOMContentLoaded para asegurar que el modal existe
+document.addEventListener('DOMContentLoaded', function() {
+  const modalActividades = document.getElementById('modal-actividades-adicionales');
+  if (modalActividades) {
+    modalActividades.addEventListener('close', function() {
+      // Solo mostrar paso 1 si se cerró manualmente (con la cruz)
+      if (modalActividadesCerradoManual) {
+        mostrarPaso1();
+        modalActividadesCerradoManual = false; // Resetear el flag
+      }
+    });
+    
+    // Manejar el botón de cerrar específico (X)
+    const closeBtn = document.getElementById('modal-actividades-close');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', function() {
+        modalActividadesCerradoManual = true; // Marcar como cierre manual
+      });
+    }
+    
+    // Manejar el backdrop
+    const backdrop = modalActividades.querySelector('.modal-backdrop');
+    if (backdrop) {
+      const backdropBtn = backdrop.querySelector('button');
+      if (backdropBtn) {
+        backdropBtn.addEventListener('click', function() {
+          modalActividadesCerradoManual = true; // Marcar como cierre manual
+        });
+      }
+    }
+  }
+});
+</script>
+

@@ -18,6 +18,22 @@
         box-shadow: 0 0 30px rgba(102, 126, 234, 0.8);
       }
     }
+    
+    /* Espacio para el navbar y breadcrumbs fijos */
+    /* Navbar: ~56px, Breadcrumbs: ~40px */
+    body {
+      padding-top: 96px;
+    }
+    
+    /* Ocultar el navbar del template base cuando usamos el navbar personalizado */
+    .bg-primary.text-white.shadow.z-50.overflow-visible.relative {
+      display: none;
+    }
+    
+    /* Ocultar breadcrumbs del template base */
+    {% block breadcrumbs_bar %}
+    <div style="display: none;"></div>
+    {% endblock %}
   </style>
 {% endblock %}
 
@@ -25,201 +41,35 @@
   N8N - Especificación Técnica
 {% endblock %}
 
-{% block breadcrumbs %}
-  <li class="flex items-center gap-2">
-    <span class="text-base-content/50">›</span>
-    <span class="font-semibold text-base-content">N8N</span>
-  </li>
+{% block navbar_title %}
+  N8N - Especificación Técnica
 {% endblock %}
 
 {% block content %}
-  <dialog id="modal-enviar-especificacion" class="modal fixed inset-0 z-50 flex items-start justify-center pt-16">
-    <div class="modal-box max-w-4xl max-h-[90vh] overflow-y-auto">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-2xl font-bold">
-          <i class="fas fa-paper-plane mr-2 text-primary"></i>
-          Enviar Especificación Técnica
-        </h3>
-        <form method="dialog">
-          <button class="btn btn-sm btn-circle btn-ghost">✕</button>
-        </form>
-      </div>
-      <div class="divider my-4"></div>
-      
-      <div class="mb-4">
-        <div class="alert alert-info mb-4">
-          <i class="fas fa-info-circle mr-2"></i>
-          <span>Se enviarán los datos ingresados en el paso anterior a la API de n8n.</span>
-        </div>
-        
-        <div class="bg-base-200 rounded-lg p-4 mb-4">
-          <h4 class="font-semibold mb-2">Datos a enviar:</h4>
-          <p><strong>Título:</strong> <span id="modal-titulo-preview"></span></p>
-          <p><strong>Descripción:</strong> <span id="modal-descripcion-preview"></span></p>
-        </div>
-        
-        <div id="modal-loading" class="hidden text-center py-4">
-          <span class="loading loading-spinner loading-lg"></span>
-          <p class="mt-2">Enviando datos y esperando respuesta...</p>
-        </div>
-        
-        <div id="modal-response" class="hidden">
-          <div class="alert alert-success mb-4">
-            <i class="fas fa-check-circle mr-2"></i>
-            <span>Respuesta recibida exitosamente</span>
-          </div>
-          <div class="bg-base-200 rounded-lg p-4 overflow-x-auto max-h-96">
-            <pre id="modal-response-content" class="text-sm font-mono whitespace-pre text-left"></pre>
-          </div>
-        </div>
-        
-        <div id="modal-error" class="hidden">
-          <div class="alert alert-error mb-4">
-            <i class="fas fa-exclamation-circle mr-2"></i>
-            <span id="modal-error-message"></span>
-          </div>
-        </div>
-      </div>
-      
-      <div class="modal-action">
-        <form method="dialog">
-          <button class="btn btn-outline" id="modal-cancel-btn">Cancelar</button>
-        </form>
-        <button class="btn btn-primary" id="modal-enviar-btn">
-          <i class="fas fa-paper-plane mr-2"></i>
-          <span id="btn-enviar-text">Enviar a API</span>
-          <span id="btn-enviar-loading" class="hidden">
-            <span class="loading loading-spinner loading-sm mr-2"></span>
-            Enviando...
-          </span>
-        </button>
-      </div>
-    </div>
-    <form method="dialog" class="modal-backdrop">
-      <button>Cerrar</button>
-    </form>
-  </dialog>
-
-  <!-- Modal eliminado - el formulario ahora se muestra directamente en la página -->
-
-  <!-- Paso 3: Ajustar Título -->
-  {% include 'n8n/pasos/paso3_titulo.html' %}
-
-  <dialog id="modal-respuesta-json" class="modal fixed inset-0 z-50 flex items-start justify-center pt-16">
-    <div class="modal-box max-w-4xl max-h-[90vh] overflow-y-auto">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-2xl font-bold">
-          <i class="fas fa-code mr-2 text-primary"></i>
-          Respuesta del Servidor
-        </h3>
-        <form method="dialog">
-          <button class="btn btn-sm btn-circle btn-ghost">✕</button>
-        </form>
-      </div>
-      <div class="divider my-4"></div>
-      
-      <div class="mb-4">
-        <div class="bg-base-200 rounded-lg p-4 overflow-x-auto max-h-96">
-          <pre id="modal-respuesta-json-content" class="text-sm font-mono whitespace-pre text-left"></pre>
-        </div>
-      </div>
-      
-      <div class="modal-action">
-        <form method="dialog">
-          <button class="btn btn-primary" id="modal-respuesta-json-cerrar">
-            <i class="fas fa-times mr-2"></i>
-            Cerrar
-          </button>
-        </form>
-      </div>
-    </div>
-    <form method="dialog" class="modal-backdrop">
-      <button>Cerrar</button>
-    </form>
-  </dialog>
-
-<!-- Paso 2: Parámetros Técnicos -->
-{% include 'n8n/pasos/paso2_parametros.html' %}
-
-<!-- Paso 4: Actividades Adicionales -->
-{% include 'n8n/pasos/paso4_actividades.html' %}
-
-  <div class="flex flex-col items-center">
-    <!-- Indicador de pasos - Oculto -->
-    <div class="w-full flex justify-end items-center mt-8 mb-6 hidden">
-      <div class="flex-1 relative">
-        <ul class="steps steps-horizontal lg:steps-horizontal flex-1">
-          {% for paso in pasos %}
-            <li class="step {% if paso.numero == paso_actual %}step-primary animate-pulse-glow{% endif %}" id="step-{{ paso.numero }}"></li>
-          {% endfor %}
-        </ul>
-      </div>
-      {% if respuesta_completa.output or actividades_adicionales %}
-        <a href="{% url 'n8n:pasos' %}?limpiar=1" class="btn btn-sm btn-primary ml-4 hover:scale-105 transition-transform">
-          <i class="fas fa-redo mr-2"></i>
-          Empezar de nuevo
-        </a>
-      {% endif %}
-    </div>
-    
-    <!-- Botón Empezar de nuevo (si es necesario) -->
-    {% if respuesta_completa.output or actividades_adicionales %}
-      <div class="w-full flex justify-end items-center mt-4 mb-6">
-        <a href="{% url 'n8n:pasos' %}?limpiar=1" class="btn btn-sm btn-primary hover:scale-105 transition-transform">
-          <i class="fas fa-redo mr-2"></i>
-          Empezar de nuevo
-        </a>
-      </div>
-    {% endif %}
-
-    <!-- Spinner container -->
-    <div id="spinner-container" class="hidden flex flex-col items-center justify-center mt-12 mb-8">
-      <span class="loading loading-spinner loading-lg text-primary"></span>
-      <p class="mt-4 text-lg font-semibold text-primary">
-        Generando parámetros...
-      </p>
-      <div class="flex gap-2 mt-4">
-        <div class="w-2 h-2 bg-primary rounded-full animate-bounce" style="animation-delay: 0s;"></div>
-        <div class="w-2 h-2 bg-primary rounded-full animate-bounce" style="animation-delay: 0.2s;"></div>
-        <div class="w-2 h-2 bg-primary rounded-full animate-bounce" style="animation-delay: 0.4s;"></div>
-      </div>
-    </div>
-
-    <!-- Contenido según el paso -->
-    {% if paso_actual == 1 %}
-      {% if respuesta_completa.output and respuesta_completa.output.parametros %}
-        <!-- Si hay parámetros, mostrar tabla de parámetros -->
-        {% include 'n8n/pasos/paso1_parametros.html' %}
-      {% else %}
-        <!-- Si no hay parámetros, mostrar formulario de título y descripción -->
-        <div class="flex flex-col items-center justify-center mt-8 w-full max-w-5xl">
-          <div class="card bg-base-100 shadow-2xl w-full hover:shadow-3xl transition-shadow">
-            <div class="card-body p-8">
-              <div class="mb-6">
-                <h2 class="card-title text-2xl mb-2">
-                  <div class="flex items-center gap-4">
-                    <div class="badge badge-primary badge-lg w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg animate-pulse-glow">
-                      1
-                    </div>
-                    <span class="text-primary">
-                      <i class="fas fa-database mr-2"></i>
-                      Datos Iniciales
-                    </span>
-                  </div>
-                </h2>
-                <p class="text-sm text-base-content/60 ml-14">Complete los datos para generar la especificación técnica</p>
-              </div>
-              
-              {% include 'n8n/pasos/paso1_datos_iniciales.html' %}
-            </div>
-          </div>
-        </div>
-      {% endif %}
-    {% elif paso_actual == 2 %}
-      {% include 'n8n/pasos/paso2_titulo.html' %}
-    {% elif paso_actual == 3 %}
-      {% include 'n8n/pasos/paso3_actividades_adicionales.html' %}
-    {% endif %}
+  <!-- Incluir navbar fijo -->
+  {% include 'n8n/includes/navbar_n8n.html' %}
+  
+  <!-- Breadcrumbs fijos -->
+  <div class="bg-base-100 border-b border-base-300 fixed top-[56px] left-0 right-0 z-40 shadow-sm">
+    <nav class="px-4 py-2 max-w-7xl mx-auto flex items-center justify-between" aria-label="Breadcrumb">
+      <ol class="flex flex-wrap items-center gap-2 text-sm text-base-content/70">
+        <li class="flex items-center gap-2">
+          <a href="{% url 'main:proyecto_main' %}" class="hover:text-primary transition-colors flex items-center gap-1">
+            <i class="fas fa-home text-xs"></i>
+            <span>Inicio</span>
+          </a>
+          <span class="text-base-content/50">›</span>
+        </li>
+        <li class="flex items-center gap-2">
+          <span class="text-base-content/50">›</span>
+          <span class="font-semibold text-base-content">N8N</span>
+        </li>
+      </ol>
+      <button onclick="window.history.back()" class="btn btn-ghost btn-sm text-base-content/70 hover:text-base-content" title="Volver a la página anterior">
+        <i class="fas fa-arrow-left mr-2"></i>
+        Volver
+      </button>
+    </nav>
   </div>
 {% endblock %}
 
@@ -244,8 +94,8 @@
   window.n8nUrls = {
     enviarEspecificacion: '{% url "n8n:enviar_especificacion" %}',
     enviarParametros: '{% url "n8n:enviar_parametros" %}',
-    enviarTitulo: '{% url "n8n:enviar_titulo_ajustado" %}'
+    enviarTitulo: '{% url "n8n:enviar_titulo_ajustado" %}',
+    enviarActividades: '{% url "n8n:enviar_actividades" %}'
   };
 </script>
 {% endblock %}
-

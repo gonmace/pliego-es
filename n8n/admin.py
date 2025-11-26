@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import EspecificacionTecnica, Parametros
+from .models import EspecificacionTecnica, Parametros, ActividadesAdicionales
 
 
 @admin.register(EspecificacionTecnica)
@@ -35,6 +35,23 @@ class ParametrosAdmin(admin.ModelAdmin):
     fieldsets = (
         ('Información del Parámetro', {
             'fields': ('parametro', 'valor', 'unidad', 'detalle')
+        }),
+        ('Relación', {
+            'fields': ('especificacion_tecnica', 'sessionID')
+        }),
+    )
+
+
+@admin.register(ActividadesAdicionales)
+class ActividadesAdicionalesAdmin(admin.ModelAdmin):
+    list_display = ('nombre', 'valor_recomendado', 'unidad_medida', 'especificacion_tecnica', 'sessionID')
+    list_filter = ('especificacion_tecnica',)
+    search_fields = ('nombre', 'valor_recomendado', 'descripcion', 'sessionID')
+    list_per_page = 25
+    
+    fieldsets = (
+        ('Información de la Actividad', {
+            'fields': ('nombre', 'valor_recomendado', 'unidad_medida', 'descripcion')
         }),
         ('Relación', {
             'fields': ('especificacion_tecnica', 'sessionID')

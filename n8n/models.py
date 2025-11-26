@@ -66,3 +66,28 @@ class Parametros(models.Model):
     
     def __str__(self):
         return f"{self.parametro} - {self.especificacion_tecnica.titulo}"
+
+
+class ActividadesAdicionales(models.Model):
+    """
+    Modelo para almacenar las actividades adicionales asociadas a una especificación técnica
+    """
+    especificacion_tecnica = models.ForeignKey(
+        EspecificacionTecnica,
+        on_delete=models.CASCADE,
+        related_name='actividades_adicionales',
+        verbose_name='Especificación Técnica'
+    )
+    nombre = models.CharField(max_length=255, verbose_name='Nombre')
+    valor_recomendado = models.CharField(max_length=255, verbose_name='Valor Recomendado', blank=True, null=True)
+    unidad_medida = models.CharField(max_length=50, verbose_name='Unidad de Medida', blank=True, null=True)
+    descripcion = models.TextField(verbose_name='Descripción', blank=True, null=True)
+    sessionID = models.CharField(max_length=255, verbose_name='Session ID', blank=True, null=True)
+    
+    class Meta:
+        verbose_name = 'Actividad Adicional'
+        verbose_name_plural = 'Actividades Adicionales'
+        ordering = ['nombre']
+    
+    def __str__(self):
+        return f"{self.nombre} - {self.especificacion_tecnica.titulo}"
