@@ -33,6 +33,7 @@ class EspecificacionTecnica(models.Model):
     )
     fecha_creacion = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de Creación')
     fecha_actualizacion = models.DateTimeField(auto_now=True, verbose_name='Fecha de Actualización')
+    resultado_markdown = models.TextField(verbose_name='Resultado en Markdown', blank=True, null=True)
     
     class Meta:
         verbose_name = 'Especificación Técnica'

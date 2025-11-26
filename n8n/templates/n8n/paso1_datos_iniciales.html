@@ -18,6 +18,38 @@
         <div class="w-2 h-2 bg-primary rounded-full animate-bounce" style="animation-delay: 0.4s;"></div>
       </div>
     </div>
+    
+    <!-- Contenedor para mostrar el resultado del markdown -->
+    <div id="resultado-markdown-container" class="hidden w-full max-w-5xl mt-8">
+      <div class="card bg-base-100 shadow-2xl w-full">
+        <div class="card-body p-8">
+          <div class="mb-6">
+            <h2 class="card-title text-2xl mb-2">
+              <div class="flex items-center gap-4">
+                <div class="badge badge-success badge-lg w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                  <i class="fas fa-check"></i>
+                </div>
+                <span class="text-success">
+                  <i class="fas fa-file-alt mr-2"></i>
+                  Especificación Técnica Generada
+                </span>
+              </div>
+            </h2>
+          </div>
+          
+          <div id="resultado-markdown-content" class="prose prose-slate prose-lg max-w-none">
+            <!-- El contenido markdown se insertará aquí -->
+          </div>
+          
+          <div class="card-actions justify-end mt-6 pt-6 border-t border-base-300">
+            <button onclick="window.location.reload()" class="btn btn-outline">
+              <i class="fas fa-redo mr-2"></i>
+              Generar Nueva
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Contenido según el paso -->
     {% if respuesta_completa.output and respuesta_completa.output.parametros %}

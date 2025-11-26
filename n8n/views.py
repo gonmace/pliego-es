@@ -1,5 +1,6 @@
 import requests
 import json
+import markdown
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -23,14 +24,17 @@ def n8n_pasos_view(request):
         {"numero": 1, "nombre": "Parámetros"},
         {"numero": 2, "nombre": "Título"},
         {"numero": 3, "nombre": "Adicionales"},
+        {"numero": 4, "nombre": "Actividades"},
+        {"numero": 5, "nombre": "Resultado"},
     ]
     paso_actual = int(request.GET.get('paso', 1))
     
-    # Limpiar toda la sesión relacionada con n8n al inicio
-    request.session.pop('n8n_paso1_data', None)
-    request.session.pop('n8n_respuesta_api', None)
-    request.session.pop('n8n_respuesta_completa', None)
-    request.session.pop('n8n_actividades_adicionales', None)
+    # Limpiar toda la sesión relacionada con n8n al inicio (solo si no es paso 5)
+    if paso_actual != 5:
+        request.session.pop('n8n_paso1_data', None)
+        request.session.pop('n8n_respuesta_api', None)
+        request.session.pop('n8n_respuesta_completa', None)
+        request.session.pop('n8n_actividades_adicionales', None)
     
     # Inicializar variables vacías (no usar sesión)
     datos_paso1 = {}
@@ -41,6 +45,8 @@ def n8n_pasos_view(request):
     # Determinar qué template usar según el paso
     if paso_actual == 1:
         template_name = 'n8n/paso1_datos_iniciales.html'
+    elif paso_actual == 5:
+        template_name = 'n8n/paso5_resultado.html'
     else:
         template_name = 'n8n/pasos.html'
     
@@ -291,6 +297,8 @@ def enviar_actividades_view(request):
         final_response = None
         final_response_data = None
         final_response_str = None
+        markdown_html_para_respuesta = None
+        raw_markdown_para_respuesta = None
         
         try:
             final_response = requests.post(
@@ -310,6 +318,64 @@ def enviar_actividades_view(request):
                 final_response_data = final_response.json()
                 final_response_str = json.dumps(final_response_data, indent=2, ensure_ascii=False)
                 print(f"Respuesta JSON de URL final: {final_response_str}")
+                
+                # Extraer el markdown del output o actividades_adicionales si existe
+                markdown_resultado = None
+                if isinstance(final_response_data, list) and len(final_response_data) > 0:
+                    first_item = final_response_data[0]
+                    if isinstance(first_item, dict):
+                        # Buscar en 'output' primero
+                        if 'output' in first_item:
+                            markdown_resultado = first_item['output']
+                            print(f"Markdown encontrado en formato array[0].output: {len(markdown_resultado) if markdown_resultado else 0} caracteres")
+                        # Si no hay output, buscar en 'actividades_adicionales'
+                        elif 'actividades_adicionales' in first_item:
+                            markdown_resultado = first_item['actividades_adicionales']
+                            print(f"Markdown encontrado en formato array[0].actividades_adicionales: {len(markdown_resultado) if markdown_resultado else 0} caracteres")
+                elif isinstance(final_response_data, dict):
+                    # Buscar en 'output' primero
+                    if 'output' in final_response_data:
+                        markdown_resultado = final_response_data['output']
+                        print(f"Markdown encontrado en formato dict.output: {len(markdown_resultado) if markdown_resultado else 0} caracteres")
+                    # Si no hay output, buscar en 'actividades_adicionales'
+                    elif 'actividades_adicionales' in final_response_data:
+                        markdown_resultado = final_response_data['actividades_adicionales']
+                        print(f"Markdown encontrado en formato dict.actividades_adicionales: {len(markdown_resultado) if markdown_resultado else 0} caracteres")
+                
+                # Guardar el markdown en el modelo si existe
+                if markdown_resultado:
+                    especificacion_tecnica.resultado_markdown = markdown_resultado
+                    especificacion_tecnica.save(update_fields=['resultado_markdown'])
+                    print(f"Markdown guardado en el modelo: {len(markdown_resultado)} caracteres")
+                    
+                    # Convertir markdown a HTML para la respuesta
+                    extensions = [
+                        'markdown.extensions.extra',
+                        'markdown.extensions.codehilite',
+                        'markdown.extensions.tables',
+                        'markdown.extensions.nl2br',
+                        'markdown.extensions.sane_lists'
+                    ]
+                    markdown_html = markdown.markdown(
+                        markdown_resultado, output_format='html', extensions=extensions
+                    )
+                    
+                    # Guardar markdown_html y raw_markdown en variables para agregarlos a response_dict
+                    # También agregarlos a final_response_data para referencia
+                    if isinstance(final_response_data, list) and len(final_response_data) > 0:
+                        if isinstance(final_response_data[0], dict):
+                            final_response_data[0]['markdown_html'] = markdown_html
+                            final_response_data[0]['raw_markdown'] = markdown_resultado
+                    elif isinstance(final_response_data, dict):
+                        final_response_data['markdown_html'] = markdown_html
+                        final_response_data['raw_markdown'] = markdown_resultado
+                    
+                    print(f"Markdown HTML generado: {len(markdown_html)} caracteres")
+                    # Guardar en variables para usar después
+                    markdown_html_para_respuesta = markdown_html
+                    raw_markdown_para_respuesta = markdown_resultado
+                else:
+                    print("No se encontró markdown en la respuesta")
             except json.JSONDecodeError:
                 final_response_str = f"Status Code: {final_response.status_code}\n\nRespuesta:\n{final_response.text}"
                 print(f"Respuesta no JSON de URL final: {final_response_str}")
@@ -332,14 +398,58 @@ def enviar_actividades_view(request):
             final_response_str = error_msg
             final_response_data = {'error': str(e), 'type': 'unexpected'}
         
-        return JsonResponse({
+        # Preparar respuesta con el markdown si existe
+        response_dict = {
             'success': True,
             'message': 'Actividades guardadas y enviadas exitosamente',
             'response_data': final_response_str,
             'actividades_guardadas': len(actividades_guardadas),
             'parametros_enviados': len(parametros_formateados),
             'final_response': final_response_data if final_response_data else None,
-        })
+        }
+        
+        # Agregar markdown HTML y raw directamente en la respuesta si existe
+        # Usar las variables guardadas anteriormente si existen
+        if markdown_html_para_respuesta:
+            response_dict['markdown_html'] = markdown_html_para_respuesta
+            response_dict['raw_markdown'] = raw_markdown_para_respuesta
+            print(f"Agregando markdown a response_dict (desde variables): HTML={len(markdown_html_para_respuesta)} chars, Raw={len(raw_markdown_para_respuesta) if raw_markdown_para_respuesta else 0} chars")
+        else:
+            # Buscar markdown_html y raw_markdown en final_response_data como fallback
+            markdown_html_to_add = None
+            raw_markdown_to_add = None
+            
+            if final_response_data:
+                if isinstance(final_response_data, list) and len(final_response_data) > 0:
+                    first_item = final_response_data[0]
+                    if isinstance(first_item, dict):
+                        markdown_html_to_add = first_item.get('markdown_html')
+                        raw_markdown_to_add = first_item.get('raw_markdown')
+                        # También verificar si hay output directamente (el markdown raw)
+                        if not raw_markdown_to_add and first_item.get('output'):
+                            raw_markdown_to_add = first_item.get('output')
+                        # También verificar si hay actividades_adicionales directamente (el markdown raw)
+                        if not raw_markdown_to_add and first_item.get('actividades_adicionales'):
+                            raw_markdown_to_add = first_item.get('actividades_adicionales')
+                elif isinstance(final_response_data, dict):
+                    markdown_html_to_add = final_response_data.get('markdown_html')
+                    raw_markdown_to_add = final_response_data.get('raw_markdown')
+                    # También verificar si hay output directamente
+                    if not raw_markdown_to_add and final_response_data.get('output'):
+                        raw_markdown_to_add = final_response_data.get('output')
+                    # También verificar si hay actividades_adicionales directamente (el markdown raw)
+                    if not raw_markdown_to_add and final_response_data.get('actividades_adicionales'):
+                        raw_markdown_to_add = final_response_data.get('actividades_adicionales')
+            
+            # Agregar markdown a la respuesta principal si existe
+            if markdown_html_to_add or raw_markdown_to_add:
+                if markdown_html_to_add:
+                    response_dict['markdown_html'] = markdown_html_to_add
+                if raw_markdown_to_add:
+                    response_dict['raw_markdown'] = raw_markdown_to_add
+                print(f"Agregando markdown a response_dict (fallback): HTML={len(markdown_html_to_add) if markdown_html_to_add else 0} chars, Raw={len(raw_markdown_to_add) if raw_markdown_to_add else 0} chars")
+        
+        return JsonResponse(response_dict)
         
     except requests.exceptions.Timeout:
         return JsonResponse({
@@ -644,3 +754,117 @@ def enviar_titulo_ajustado_view(request):
 
 
 # Función duplicada eliminada - usar la función en línea 267 que guarda en el modelo
+
+
+@login_required
+def paso5_resultado_view(request):
+    """
+    Vista AJAX para obtener el resultado del paso 5 (markdown renderizado)
+    """
+    try:
+        # Obtener sessionID del usuario activo
+        session_id = request.session.session_key or ''
+        
+        if not session_id:
+            return JsonResponse({
+                'success': False,
+                'error': 'No se pudo obtener el sessionID. Por favor, recargue la página.'
+            }, status=400)
+        
+        # Buscar la EspecificacionTecnica más reciente con el mismo sessionID que tenga resultado_markdown
+        especificacion_tecnica = EspecificacionTecnica.objects.filter(
+            sessionID=session_id,
+            resultado_markdown__isnull=False
+        ).exclude(resultado_markdown='').order_by('-fecha_creacion').first()
+        
+        if not especificacion_tecnica or not especificacion_tecnica.resultado_markdown:
+            return JsonResponse({
+                'success': False,
+                'error': 'No se encontró el resultado de la especificación técnica. Asegúrese de haber completado todos los pasos anteriores.'
+            }, status=404)
+        
+        # Convertir markdown a HTML
+        extensions = [
+            'markdown.extensions.extra',
+            'markdown.extensions.codehilite',
+            'markdown.extensions.tables',
+            'markdown.extensions.nl2br',
+            'markdown.extensions.sane_lists'
+        ]
+        markdown_html = markdown.markdown(
+            especificacion_tecnica.resultado_markdown,
+            output_format='html',
+            extensions=extensions
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'markdown_html': markdown_html,
+            'raw_markdown': especificacion_tecnica.resultado_markdown,
+            'titulo': especificacion_tecnica.titulo,
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': f'Error inesperado: {str(e)}'
+        }, status=500)
+
+
+@login_required
+@require_http_methods(["POST"])
+def guardar_resultado_view(request):
+    """
+    Vista AJAX para guardar el resultado final de la especificación técnica
+    """
+    try:
+        data = json.loads(request.body)
+        contenido = data.get('contenido', '').strip()
+        
+        if not contenido:
+            return JsonResponse({
+                'success': False,
+                'error': 'El contenido es requerido'
+            }, status=400)
+        
+        # Obtener sessionID del usuario activo
+        session_id = request.session.session_key or ''
+        
+        if not session_id:
+            return JsonResponse({
+                'success': False,
+                'error': 'No se pudo obtener el sessionID. Por favor, recargue la página.'
+            }, status=400)
+        
+        # Buscar la EspecificacionTecnica más reciente con el mismo sessionID
+        especificacion_tecnica = EspecificacionTecnica.objects.filter(
+            sessionID=session_id
+        ).order_by('-fecha_creacion').first()
+        
+        if not especificacion_tecnica:
+            return JsonResponse({
+                'success': False,
+                'error': 'No se encontró la especificación técnica relacionada.'
+            }, status=404)
+        
+        # Actualizar el resultado_markdown si es diferente
+        if especificacion_tecnica.resultado_markdown != contenido:
+            especificacion_tecnica.resultado_markdown = contenido
+            especificacion_tecnica.save(update_fields=['resultado_markdown'])
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Especificación guardada exitosamente',
+            'especificacion_id': especificacion_tecnica.id,
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'error': 'Datos JSON inválidos'
+        }, status=400)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': f'Error inesperado: {str(e)}'
+        }, status=500)
