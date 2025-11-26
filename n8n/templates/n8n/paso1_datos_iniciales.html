@@ -504,13 +504,21 @@
         }
         
           if (!apiResponse.ok) {
+          // Clonar la respuesta antes de leerla para poder intentar múltiples formatos
+          const responseClone = apiResponse.clone();
           let errorData;
           try {
-            errorData = await apiResponse.json();
+            // Intentar leer como JSON desde el clon
+            errorData = await responseClone.json();
           } catch (e) {
-            // Si no es JSON, intentar leer como texto
-            const errorText = await apiResponse.text();
-            errorData = { error: errorText };
+            // Si no es JSON, leer como texto desde la respuesta original
+            try {
+              const errorText = await apiResponse.text();
+              errorData = { error: errorText };
+            } catch (textError) {
+              // Si ambos fallan, usar solo el status
+              errorData = { error: `Error HTTP: ${apiResponse.status}` };
+            }
           }
           console.error('Error en respuesta:', errorData);
           throw new Error(errorData.error || errorData.message || `Error HTTP: ${apiResponse.status}`);
