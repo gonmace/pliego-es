@@ -1,6 +1,7 @@
 import requests
 import json
 import markdown
+import logging
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -8,6 +9,8 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from .forms import EspecificacionTecnicaForm
 from .models import EspecificacionTecnica, Parametros, ActividadesAdicionales
+
+logger = logging.getLogger(__name__)
 
 N8N_WEBHOOK_URL = 'https://jaimemc.app.n8n.cloud/webhook/parametros'
 N8N_WEBHOOK_TITULO_URL = 'https://jaimemc.app.n8n.cloud/webhook/titulo'
@@ -20,60 +23,67 @@ def n8n_pasos_view(request):
     """
     Vista principal con sistema de pasos
     """
-    pasos = [
-        {"numero": 1, "nombre": "Parámetros"},
-        {"numero": 2, "nombre": "Título"},
-        {"numero": 3, "nombre": "Adicionales"},
-        {"numero": 4, "nombre": "Actividades"},
-        {"numero": 5, "nombre": "Resultado"},
-    ]
-    paso_actual = int(request.GET.get('paso', 1))
+    try:
+        pasos = [
+            {"numero": 1, "nombre": "Parámetros"},
+            {"numero": 2, "nombre": "Título"},
+            {"numero": 3, "nombre": "Adicionales"},
+            {"numero": 4, "nombre": "Actividades"},
+            {"numero": 5, "nombre": "Resultado"},
+        ]
+        paso_actual = int(request.GET.get('paso', 1))
+        
+        # Guardar proyecto_id en la sesión si viene como parámetro GET
+        proyecto_id = request.GET.get('proyecto_id')
+        if proyecto_id:
+            try:
+                proyecto_id = int(proyecto_id)
+                # Verificar que el proyecto existe y el usuario tiene acceso
+                from esp_web.models import Proyecto
+                proyecto = Proyecto.objects.get(id=proyecto_id, activo=True)
+                # Verificar que el usuario es el propietario o el proyecto es público
+                if proyecto.creado_por == request.user or proyecto.publico:
+                    request.session['n8n_proyecto_id'] = proyecto_id
+            except (ValueError, Proyecto.DoesNotExist) as e:
+                # Si el proyecto no existe o no es válido, ignorar silenciosamente
+                logger.warning(f"Proyecto no válido o no encontrado: {str(e)}")
+            except Exception as e:
+                logger.error(f"Error al procesar proyecto_id en n8n_pasos_view: {str(e)}", exc_info=True)
     
-    # Guardar proyecto_id en la sesión si viene como parámetro GET
-    proyecto_id = request.GET.get('proyecto_id')
-    if proyecto_id:
-        try:
-            proyecto_id = int(proyecto_id)
-            # Verificar que el proyecto existe y el usuario tiene acceso
-            from esp_web.models import Proyecto
-            proyecto = Proyecto.objects.get(id=proyecto_id, activo=True)
-            # Verificar que el usuario es el propietario o el proyecto es público
-            if proyecto.creado_por == request.user or proyecto.publico:
-                request.session['n8n_proyecto_id'] = proyecto_id
-        except (ValueError, Proyecto.DoesNotExist):
-            # Si el proyecto no existe o no es válido, ignorar silenciosamente
-            pass
-    
-    # Limpiar toda la sesión relacionada con n8n al inicio (solo si no es paso 5)
-    if paso_actual != 5:
-        request.session.pop('n8n_paso1_data', None)
-        request.session.pop('n8n_respuesta_api', None)
-        request.session.pop('n8n_respuesta_completa', None)
-        request.session.pop('n8n_actividades_adicionales', None)
-    
-    # Inicializar variables vacías (no usar sesión)
-    datos_paso1 = {}
-    respuesta_api = {}
-    respuesta_completa = {}
-    actividades_adicionales = {}
-    
-    # Determinar qué template usar según el paso
-    if paso_actual == 1:
-        template_name = 'n8n/paso1_datos_iniciales.html'
-    elif paso_actual == 5:
-        template_name = 'n8n/paso5_resultado.html'
-    else:
-        template_name = 'n8n/pasos.html'
-    
-    return render(request, template_name, {
-        'pasos': pasos,
-        'paso_actual': paso_actual,
-        'datos_paso1': datos_paso1,
-        'respuesta_api': respuesta_api,
-        'respuesta_completa': respuesta_completa,
-        'actividades_adicionales': actividades_adicionales,
-        'form': EspecificacionTecnicaForm(),
-    })
+        # Limpiar toda la sesión relacionada con n8n al inicio (solo si no es paso 5)
+        if paso_actual != 5:
+            request.session.pop('n8n_paso1_data', None)
+            request.session.pop('n8n_respuesta_api', None)
+            request.session.pop('n8n_respuesta_completa', None)
+            request.session.pop('n8n_actividades_adicionales', None)
+        
+        # Inicializar variables vacías (no usar sesión)
+        datos_paso1 = {}
+        respuesta_api = {}
+        respuesta_completa = {}
+        actividades_adicionales = {}
+        
+        # Determinar qué template usar según el paso
+        if paso_actual == 1:
+            template_name = 'n8n/paso1_datos_iniciales.html'
+        elif paso_actual == 5:
+            template_name = 'n8n/paso5_resultado.html'
+        else:
+            template_name = 'n8n/pasos.html'
+        
+        return render(request, template_name, {
+            'pasos': pasos,
+            'paso_actual': paso_actual,
+            'datos_paso1': datos_paso1,
+            'respuesta_api': respuesta_api,
+            'respuesta_completa': respuesta_completa,
+            'actividades_adicionales': actividades_adicionales,
+            'form': EspecificacionTecnicaForm(),
+        })
+    except Exception as e:
+        logger.error(f"Error inesperado en n8n_pasos_view: {str(e)}", exc_info=True)
+        from django.http import HttpResponseServerError
+        return HttpResponseServerError('Error interno del servidor. Por favor, contacte al administrador.')
 
 
 # Vista eliminada: parametros_paso2_view ya no se necesita porque el paso 2 es un modal
@@ -104,15 +114,17 @@ def guardar_paso1_view(request):
             'message': 'Datos guardados exitosamente'
         })
         
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        logger.error(f"JSONDecodeError en guardar_paso1_view: {str(e)}", exc_info=True)
         return JsonResponse({
             'success': False,
             'error': 'Datos JSON inválidos'
         }, status=400)
     except Exception as e:
+        logger.error(f"Error inesperado en guardar_paso1_view: {str(e)}", exc_info=True)
         return JsonResponse({
             'success': False,
-            'error': f'Error inesperado: {str(e)}'
+            'error': 'Error interno del servidor. Por favor, contacte al administrador o intente nuevamente más tarde.'
         }, status=500)
 
 
@@ -136,15 +148,20 @@ def enviar_especificacion_view(request):
             }, status=400)
         
         # Guardar en el modelo EspecificacionTecnica antes de enviar a la API
-        especificacion = EspecificacionTecnica.objects.create(
-            titulo=titulo,
-            descripcion=descripcion,
-            tipo_servicio=tipo_servicio,
-            creado_por=request.user
-        )
-        
-        # Log del ID del registro guardado
-        print(f"✅ EspecificacionTecnica guardada con ID: {especificacion.id}")
+        try:
+            especificacion = EspecificacionTecnica.objects.create(
+                titulo=titulo,
+                descripcion=descripcion,
+                tipo_servicio=tipo_servicio,
+                creado_por=request.user
+            )
+            logger.info(f"EspecificacionTecnica guardada con ID: {especificacion.id}")
+        except Exception as e:
+            logger.error(f"Error al guardar EspecificacionTecnica: {str(e)}", exc_info=True)
+            return JsonResponse({
+                'success': False,
+                'error': 'Error al guardar la especificación técnica. Por favor, intente nuevamente.'
+            }, status=500)
         
         # Preparar los datos para enviar a la API
         payload = {
@@ -154,25 +171,33 @@ def enviar_especificacion_view(request):
         }
         
         # Enviar POST request a la API webhook y esperar respuesta
-        response = requests.post(
-            N8N_WEBHOOK_URL,
-            json=payload,
-            headers={
-                'Content-Type': 'application/json'
-            },
-            timeout=180  # Timeout de 180 segundos (3 minutos) para esperar la respuesta
-        )
-        
-        # Verificar si la respuesta fue exitosa
-        response.raise_for_status()
-        
-        # Intentar parsear la respuesta JSON
-        response_data = None
         try:
-            response_data = response.json()
-        except json.JSONDecodeError:
-            # Si no es JSON, usar el texto de la respuesta
-            response_data = {'text': response.text, 'status_code': response.status_code}
+            response = requests.post(
+                N8N_WEBHOOK_URL,
+                json=payload,
+                headers={
+                    'Content-Type': 'application/json'
+                },
+                timeout=180  # Timeout de 180 segundos (3 minutos) para esperar la respuesta
+            )
+            
+            # Verificar si la respuesta fue exitosa
+            response.raise_for_status()
+            
+            # Intentar parsear la respuesta JSON
+            response_data = None
+            try:
+                response_data = response.json()
+            except json.JSONDecodeError as e:
+                logger.warning(f"Respuesta no es JSON válido: {str(e)}")
+                # Si no es JSON, usar el texto de la respuesta
+                response_data = {'text': response.text, 'status_code': response.status_code}
+        except requests.exceptions.Timeout:
+            logger.error(f"Timeout al enviar a {N8N_WEBHOOK_URL}")
+            raise
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error al comunicarse con la API {N8N_WEBHOOK_URL}: {str(e)}", exc_info=True)
+            raise
         
         # Devolver la respuesta de la API directamente (como objeto JSON)
         # para que el JavaScript pueda procesarla fácilmente
@@ -192,24 +217,28 @@ def enviar_especificacion_view(request):
         })
         
     except requests.exceptions.Timeout:
+        logger.error("Timeout en enviar_especificacion_view")
         return JsonResponse({
             'success': False,
             'error': 'La solicitud tardó demasiado tiempo. Por favor, intente nuevamente.'
         }, status=408)
     except requests.exceptions.RequestException as e:
+        logger.error(f"RequestException en enviar_especificacion_view: {str(e)}", exc_info=True)
         return JsonResponse({
             'success': False,
-            'error': f'Error al comunicarse con la API: {str(e)}'
+            'error': 'Error al comunicarse con la API. Por favor, intente nuevamente más tarde.'
         }, status=500)
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        logger.error(f"JSONDecodeError en enviar_especificacion_view: {str(e)}", exc_info=True)
         return JsonResponse({
             'success': False,
             'error': 'Datos JSON inválidos'
         }, status=400)
     except Exception as e:
+        logger.error(f"Error inesperado en enviar_especificacion_view: {str(e)}", exc_info=True)
         return JsonResponse({
             'success': False,
-            'error': f'Error inesperado: {str(e)}'
+            'error': 'Error interno del servidor. Por favor, contacte al administrador o intente nuevamente más tarde.'
         }, status=500)
 
 
@@ -250,15 +279,20 @@ def enviar_actividades_view(request):
         actividades_guardadas = []
         # Guardar las actividades seleccionadas en el modelo ActividadesAdicionales
         for actividad in actividades_seleccionadas:
-            actividad_obj = ActividadesAdicionales.objects.create(
-                especificacion_tecnica=especificacion_tecnica,
-                nombre=actividad.get('nombre', ''),
-                unidad_medida=actividad.get('unidad_medida', ''),
-                descripcion=actividad.get('descripcion', '')
-            )
-            actividades_guardadas.append(actividad_obj)
+            try:
+                actividad_obj = ActividadesAdicionales.objects.create(
+                    especificacion_tecnica=especificacion_tecnica,
+                    nombre=actividad.get('nombre', ''),
+                    unidad_medida=actividad.get('unidad_medida', ''),
+                    descripcion=actividad.get('descripcion', '')
+                )
+                actividades_guardadas.append(actividad_obj)
+            except Exception as e:
+                logger.error(f"Error al guardar actividad: {str(e)}", exc_info=True)
+                # Continuar con las siguientes actividades aunque una falle
+                continue
         
-        print(f"Actividades guardadas exitosamente: {len(actividades_guardadas)} actividades")
+        logger.info(f"Actividades guardadas exitosamente: {len(actividades_guardadas)} actividades")
         
         # Refrescar la especificación técnica desde la BD para asegurar datos actualizados
         especificacion_tecnica.refresh_from_db()
@@ -274,7 +308,7 @@ def enviar_actividades_view(request):
                 'detalle': param.detalle or ''
             })
         
-        print(f"Parámetros técnicos obtenidos de BD: {len(parametros_formateados)} parámetros")
+        logger.info(f"Parámetros técnicos obtenidos de BD: {len(parametros_formateados)} parámetros")
         
         # Obtener TODAS las actividades adicionales guardadas relacionadas con esta especificación técnica desde la BD
         actividades_adicionales_bd = especificacion_tecnica.actividades_adicionales.all()
@@ -286,7 +320,7 @@ def enviar_actividades_view(request):
                 'descripcion': actividad_obj.descripcion or ''
             })
         
-        print(f"Actividades adicionales obtenidas de BD: {len(actividades_formateadas)} actividades")
+        logger.info(f"Actividades adicionales obtenidas de BD: {len(actividades_formateadas)} actividades")
         
         # Preparar payload final con todos los datos extraídos de la BD usando el ID de la especificación técnica
         payload_final = {
@@ -297,8 +331,8 @@ def enviar_actividades_view(request):
             'actividades_adicionales': actividades_formateadas
         }
         
-        print(f"Enviando POST a URL final: {N8N_WEBHOOK_FINAL_URL}")
-        print(f"Payload final: {json.dumps(payload_final, indent=2, ensure_ascii=False)}")
+        logger.info(f"Enviando POST a URL final: {N8N_WEBHOOK_FINAL_URL}")
+        logger.debug(f"Payload final: {json.dumps(payload_final, indent=2, ensure_ascii=False)}")
         
         # Enviar POST request a la API final DESPUÉS de guardar todo en la BD
         final_response = None
@@ -317,14 +351,14 @@ def enviar_actividades_view(request):
                 timeout=180
             )
             
-            print(f"Respuesta de URL final - Status Code: {final_response.status_code}")
+            logger.info(f"Respuesta de URL final - Status Code: {final_response.status_code}")
             
             final_response.raise_for_status()
             
             try:
                 final_response_data = final_response.json()
                 final_response_str = json.dumps(final_response_data, indent=2, ensure_ascii=False)
-                print(f"Respuesta JSON de URL final: {final_response_str}")
+                logger.debug(f"Respuesta JSON de URL final: {final_response_str}")
                 
                 # Extraer el markdown del output o actividades_adicionales si existe
                 markdown_resultado = None
@@ -334,26 +368,26 @@ def enviar_actividades_view(request):
                         # Buscar en 'output' primero
                         if 'output' in first_item:
                             markdown_resultado = first_item['output']
-                            print(f"Markdown encontrado en formato array[0].output: {len(markdown_resultado) if markdown_resultado else 0} caracteres")
+                            logger.info(f"Markdown encontrado en formato array[0].output: {len(markdown_resultado) if markdown_resultado else 0} caracteres")
                         # Si no hay output, buscar en 'actividades_adicionales'
                         elif 'actividades_adicionales' in first_item:
                             markdown_resultado = first_item['actividades_adicionales']
-                            print(f"Markdown encontrado en formato array[0].actividades_adicionales: {len(markdown_resultado) if markdown_resultado else 0} caracteres")
+                            logger.info(f"Markdown encontrado en formato array[0].actividades_adicionales: {len(markdown_resultado) if markdown_resultado else 0} caracteres")
                 elif isinstance(final_response_data, dict):
                     # Buscar en 'output' primero
                     if 'output' in final_response_data:
                         markdown_resultado = final_response_data['output']
-                        print(f"Markdown encontrado en formato dict.output: {len(markdown_resultado) if markdown_resultado else 0} caracteres")
+                        logger.info(f"Markdown encontrado en formato dict.output: {len(markdown_resultado) if markdown_resultado else 0} caracteres")
                     # Si no hay output, buscar en 'actividades_adicionales'
                     elif 'actividades_adicionales' in final_response_data:
                         markdown_resultado = final_response_data['actividades_adicionales']
-                        print(f"Markdown encontrado en formato dict.actividades_adicionales: {len(markdown_resultado) if markdown_resultado else 0} caracteres")
+                        logger.info(f"Markdown encontrado en formato dict.actividades_adicionales: {len(markdown_resultado) if markdown_resultado else 0} caracteres")
                 
                 # Guardar el markdown en el modelo si existe
                 if markdown_resultado:
                     especificacion_tecnica.resultado_markdown = markdown_resultado
                     especificacion_tecnica.save(update_fields=['resultado_markdown'])
-                    print(f"Markdown guardado en el modelo: {len(markdown_resultado)} caracteres")
+                    logger.info(f"Markdown guardado en el modelo: {len(markdown_resultado)} caracteres")
                     
                     # Convertir markdown a HTML para la respuesta
                     extensions = [
@@ -377,31 +411,31 @@ def enviar_actividades_view(request):
                         final_response_data['markdown_html'] = markdown_html
                         final_response_data['raw_markdown'] = markdown_resultado
                     
-                    print(f"Markdown HTML generado: {len(markdown_html)} caracteres")
+                    logger.info(f"Markdown HTML generado: {len(markdown_html)} caracteres")
                     # Guardar en variables para usar después
                     markdown_html_para_respuesta = markdown_html
                     raw_markdown_para_respuesta = markdown_resultado
                 else:
-                    print("No se encontró markdown en la respuesta")
-            except json.JSONDecodeError:
+                    logger.warning("No se encontró markdown en la respuesta")
+            except json.JSONDecodeError as e:
                 final_response_str = f"Status Code: {final_response.status_code}\n\nRespuesta:\n{final_response.text}"
-                print(f"Respuesta no JSON de URL final: {final_response_str}")
+                logger.warning(f"Respuesta no JSON de URL final: {str(e)}")
         except requests.exceptions.Timeout as e:
             # Si hay timeout, registrar el error
             error_msg = f"Timeout al enviar a la URL final: {str(e)}"
-            print(error_msg)
+            logger.error(error_msg, exc_info=True)
             final_response_str = error_msg
             final_response_data = {'error': error_msg, 'type': 'timeout'}
         except requests.exceptions.RequestException as e:
             # Si falla el POST a la URL final, registrar el error pero no fallar completamente
             error_msg = f"Error al enviar a la URL final ({N8N_WEBHOOK_FINAL_URL}): {str(e)}"
-            print(error_msg)
+            logger.error(error_msg, exc_info=True)
             final_response_str = error_msg
             final_response_data = {'error': str(e), 'type': 'request_exception', 'url': N8N_WEBHOOK_FINAL_URL}
         except Exception as e:
             # Capturar cualquier otro error inesperado
             error_msg = f"Error inesperado al enviar a la URL final: {str(e)}"
-            print(error_msg)
+            logger.error(error_msg, exc_info=True)
             final_response_str = error_msg
             final_response_data = {'error': str(e), 'type': 'unexpected'}
         
@@ -420,7 +454,7 @@ def enviar_actividades_view(request):
         if markdown_html_para_respuesta:
             response_dict['markdown_html'] = markdown_html_para_respuesta
             response_dict['raw_markdown'] = raw_markdown_para_respuesta
-            print(f"Agregando markdown a response_dict (desde variables): HTML={len(markdown_html_para_respuesta)} chars, Raw={len(raw_markdown_para_respuesta) if raw_markdown_para_respuesta else 0} chars")
+            logger.debug(f"Agregando markdown a response_dict (desde variables): HTML={len(markdown_html_para_respuesta)} chars, Raw={len(raw_markdown_para_respuesta) if raw_markdown_para_respuesta else 0} chars")
         else:
             # Buscar markdown_html y raw_markdown en final_response_data como fallback
             markdown_html_to_add = None
@@ -454,7 +488,7 @@ def enviar_actividades_view(request):
                     response_dict['markdown_html'] = markdown_html_to_add
                 if raw_markdown_to_add:
                     response_dict['raw_markdown'] = raw_markdown_to_add
-                print(f"Agregando markdown a response_dict (fallback): HTML={len(markdown_html_to_add) if markdown_html_to_add else 0} chars, Raw={len(raw_markdown_to_add) if raw_markdown_to_add else 0} chars")
+                logger.debug(f"Agregando markdown a response_dict (fallback): HTML={len(markdown_html_to_add) if markdown_html_to_add else 0} chars, Raw={len(raw_markdown_to_add) if raw_markdown_to_add else 0} chars")
         
         return JsonResponse(response_dict)
         
@@ -464,19 +498,22 @@ def enviar_actividades_view(request):
             'error': 'La solicitud tardó demasiado tiempo. Por favor, intente nuevamente.'
         }, status=408)
     except requests.exceptions.RequestException as e:
+        logger.error(f"RequestException en enviar_actividades_view: {str(e)}", exc_info=True)
         return JsonResponse({
             'success': False,
-            'error': f'Error al comunicarse con la API: {str(e)}'
+            'error': 'Error al comunicarse con la API. Por favor, intente nuevamente más tarde.'
         }, status=500)
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        logger.error(f"JSONDecodeError en enviar_actividades_view: {str(e)}", exc_info=True)
         return JsonResponse({
             'success': False,
             'error': 'Datos JSON inválidos'
         }, status=400)
     except Exception as e:
+        logger.error(f"Error inesperado en enviar_actividades_view: {str(e)}", exc_info=True)
         return JsonResponse({
             'success': False,
-            'error': f'Error inesperado: {str(e)}'
+            'error': 'Error interno del servidor. Por favor, contacte al administrador o intente nuevamente más tarde.'
         }, status=500)
 
 
@@ -514,14 +551,19 @@ def enviar_parametros_seleccionados_view(request):
         # Solo los que tienen check=true (todos los que vienen en parametros_seleccionados)
         parametros_guardados = []
         for param in parametros_seleccionados:
-            parametro_obj = Parametros.objects.create(
-                especificacion_tecnica=especificacion_tecnica,
-                parametro=param.get('parametro', ''),
-                valor=param.get('valor_recomendado', ''),
-                unidad=param.get('unidad_medida', ''),
-                detalle=param.get('detalle', '')
-            )
-            parametros_guardados.append(parametro_obj.id)
+            try:
+                parametro_obj = Parametros.objects.create(
+                    especificacion_tecnica=especificacion_tecnica,
+                    parametro=param.get('parametro', ''),
+                    valor=param.get('valor_recomendado', ''),
+                    unidad=param.get('unidad_medida', ''),
+                    detalle=param.get('detalle', '')
+                )
+                parametros_guardados.append(parametro_obj.id)
+            except Exception as e:
+                logger.error(f"Error al guardar parámetro: {str(e)}", exc_info=True)
+                # Continuar con los siguientes parámetros aunque uno falle
+                continue
         
         # Formatear parámetros para incluir parametro, valor y unidad
         parametros_formateados = []
@@ -541,23 +583,31 @@ def enviar_parametros_seleccionados_view(request):
         }
         
         # Enviar POST request a la API
-        response = requests.post(
-            N8N_WEBHOOK_TITULO_URL,
-            json=payload,
-            headers={
-                'Content-Type': 'application/json'
-            },
-            timeout=180  # Timeout de 180 segundos (3 minutos) para esperar la respuesta
-        )
-        
-        response.raise_for_status()
-        
-        response_data = None
         try:
-            response_data = response.json()
-            response_data_str = json.dumps(response_data, indent=2, ensure_ascii=False)
-        except json.JSONDecodeError:
-            response_data_str = f"Status Code: {response.status_code}\n\nRespuesta:\n{response.text}"
+            response = requests.post(
+                N8N_WEBHOOK_TITULO_URL,
+                json=payload,
+                headers={
+                    'Content-Type': 'application/json'
+                },
+                timeout=180  # Timeout de 180 segundos (3 minutos) para esperar la respuesta
+            )
+            
+            response.raise_for_status()
+            
+            response_data = None
+            try:
+                response_data = response.json()
+                response_data_str = json.dumps(response_data, indent=2, ensure_ascii=False)
+            except json.JSONDecodeError as e:
+                logger.warning(f"Respuesta no es JSON válido en enviar_parametros_seleccionados_view: {str(e)}")
+                response_data_str = f"Status Code: {response.status_code}\n\nRespuesta:\n{response.text}"
+        except requests.exceptions.Timeout:
+            logger.error(f"Timeout al enviar a {N8N_WEBHOOK_TITULO_URL}")
+            raise
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error al comunicarse con la API {N8N_WEBHOOK_TITULO_URL}: {str(e)}", exc_info=True)
+            raise
         
         # Extraer datos de la respuesta para el modal
         titulo_inicial = ''
@@ -580,24 +630,28 @@ def enviar_parametros_seleccionados_view(request):
         })
         
     except requests.exceptions.Timeout:
+        logger.error("Timeout en enviar_parametros_seleccionados_view")
         return JsonResponse({
             'success': False,
             'error': 'La solicitud tardó demasiado tiempo. Por favor, intente nuevamente.'
         }, status=408)
     except requests.exceptions.RequestException as e:
+        logger.error(f"RequestException en enviar_parametros_seleccionados_view: {str(e)}", exc_info=True)
         return JsonResponse({
             'success': False,
-            'error': f'Error al comunicarse con la API: {str(e)}'
+            'error': 'Error al comunicarse con la API. Por favor, intente nuevamente más tarde.'
         }, status=500)
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        logger.error(f"JSONDecodeError en enviar_parametros_seleccionados_view: {str(e)}", exc_info=True)
         return JsonResponse({
             'success': False,
             'error': 'Datos JSON inválidos'
         }, status=400)
     except Exception as e:
+        logger.error(f"Error inesperado en enviar_parametros_seleccionados_view: {str(e)}", exc_info=True)
         return JsonResponse({
             'success': False,
-            'error': f'Error inesperado: {str(e)}'
+            'error': 'Error interno del servidor. Por favor, contacte al administrador o intente nuevamente más tarde.'
         }, status=500)
 
 
@@ -668,25 +722,33 @@ def enviar_titulo_ajustado_view(request):
         }
         
         # Enviar POST directamente a la URL de adicionales
-        adicionales_response = requests.post(
-            N8N_WEBHOOK_ADICIONALES_URL,
-            json=adicionales_payload,
-            headers={
-                'Content-Type': 'application/json'
-            },
-            timeout=180
-        )
-        
-        adicionales_response.raise_for_status()
-        
-        # Procesar respuesta de adicionales
-        adicionales_response_data = None
         try:
-            adicionales_response_data = adicionales_response.json()
-            adicionales_response_str = json.dumps(adicionales_response_data, indent=2, ensure_ascii=False)
-        except json.JSONDecodeError:
-            adicionales_response_str = f"Status Code: {adicionales_response.status_code}\n\nRespuesta:\n{adicionales_response.text}"
-            adicionales_response_data = {'text': adicionales_response.text, 'status_code': adicionales_response.status_code}
+            adicionales_response = requests.post(
+                N8N_WEBHOOK_ADICIONALES_URL,
+                json=adicionales_payload,
+                headers={
+                    'Content-Type': 'application/json'
+                },
+                timeout=180
+            )
+            
+            adicionales_response.raise_for_status()
+            
+            # Procesar respuesta de adicionales
+            adicionales_response_data = None
+            try:
+                adicionales_response_data = adicionales_response.json()
+                adicionales_response_str = json.dumps(adicionales_response_data, indent=2, ensure_ascii=False)
+            except json.JSONDecodeError as e:
+                logger.warning(f"Respuesta no es JSON válido en enviar_titulo_ajustado_view: {str(e)}")
+                adicionales_response_str = f"Status Code: {adicionales_response.status_code}\n\nRespuesta:\n{adicionales_response.text}"
+                adicionales_response_data = {'text': adicionales_response.text, 'status_code': adicionales_response.status_code}
+        except requests.exceptions.Timeout:
+            logger.error(f"Timeout al enviar a {N8N_WEBHOOK_ADICIONALES_URL}")
+            raise
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error al comunicarse con la API {N8N_WEBHOOK_ADICIONALES_URL}: {str(e)}", exc_info=True)
+            raise
         
         # Opcionalmente, enviar a resume_url si existe y es válida (pero no es crítico)
         resume_response_data = None
@@ -710,12 +772,13 @@ def enviar_titulo_ajustado_view(request):
                 
                 try:
                     resume_response_data = resume_response.json()
-                except json.JSONDecodeError:
+                except json.JSONDecodeError as e:
+                    logger.warning(f"Respuesta de resume_url no es JSON válido: {str(e)}")
                     resume_response_data = {'text': resume_response.text, 'status_code': resume_response.status_code}
                     
             except requests.exceptions.RequestException as e:
                 # Si falla el POST a resume_url, solo registrar el error pero no fallar
-                print(f"Error al enviar a resume_url: {str(e)}")
+                logger.warning(f"Error al enviar a resume_url: {str(e)}", exc_info=True)
                 resume_response_data = {'error': str(e)}
         
         return JsonResponse({
@@ -728,24 +791,28 @@ def enviar_titulo_ajustado_view(request):
         })
         
     except requests.exceptions.Timeout:
+        logger.error("Timeout en enviar_titulo_ajustado_view")
         return JsonResponse({
             'success': False,
             'error': 'La solicitud tardó demasiado tiempo. Por favor, intente nuevamente.'
         }, status=408)
     except requests.exceptions.RequestException as e:
+        logger.error(f"RequestException en enviar_titulo_ajustado_view: {str(e)}", exc_info=True)
         return JsonResponse({
             'success': False,
-            'error': f'Error al comunicarse con la API: {str(e)}'
+            'error': 'Error al comunicarse con la API. Por favor, intente nuevamente más tarde.'
         }, status=500)
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        logger.error(f"JSONDecodeError en enviar_titulo_ajustado_view: {str(e)}", exc_info=True)
         return JsonResponse({
             'success': False,
             'error': 'Datos JSON inválidos'
         }, status=400)
     except Exception as e:
+        logger.error(f"Error inesperado en enviar_titulo_ajustado_view: {str(e)}", exc_info=True)
         return JsonResponse({
             'success': False,
-            'error': f'Error inesperado: {str(e)}'
+            'error': 'Error interno del servidor. Por favor, contacte al administrador o intente nuevamente más tarde.'
         }, status=500)
 
 
@@ -811,9 +878,10 @@ def paso5_resultado_view(request):
         })
         
     except Exception as e:
+        logger.error(f"Error inesperado en paso5_resultado_view: {str(e)}", exc_info=True)
         return JsonResponse({
             'success': False,
-            'error': f'Error inesperado: {str(e)}'
+            'error': 'Error interno del servidor. Por favor, contacte al administrador o intente nuevamente más tarde.'
         }, status=500)
 
 
@@ -901,7 +969,7 @@ def guardar_resultado_view(request):
                 request.session.pop('n8n_proyecto_id', None)
             except Exception as e:
                 # Si hay algún error al convertir, solo guardar en EspecificacionTecnica
-                print(f"Error al convertir EspecificacionTecnica a Especificacion: {str(e)}")
+                logger.error(f"Error al convertir EspecificacionTecnica a Especificacion: {str(e)}", exc_info=True)
         
         return JsonResponse({
             'success': True,
@@ -910,13 +978,15 @@ def guardar_resultado_view(request):
             'redirect_url': redirect_url,
         })
         
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        logger.error(f"JSONDecodeError en guardar_resultado_view: {str(e)}", exc_info=True)
         return JsonResponse({
             'success': False,
             'error': 'Datos JSON inválidos'
         }, status=400)
     except Exception as e:
+        logger.error(f"Error inesperado en guardar_resultado_view: {str(e)}", exc_info=True)
         return JsonResponse({
             'success': False,
-            'error': f'Error inesperado: {str(e)}'
+            'error': 'Error interno del servidor. Por favor, contacte al administrador o intente nuevamente más tarde.'
         }, status=500)
