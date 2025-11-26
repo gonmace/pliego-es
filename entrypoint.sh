@@ -9,4 +9,8 @@ done
 echo "PostgreSQL está listo"
 
 # Ejecutar Gunicorn después de que PostgreSQL esté listo
-exec gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3
+# --timeout 120: tiempo máximo en segundos que un worker puede estar procesando una solicitud antes de ser reiniciado
+# --graceful-timeout 30: tiempo en segundos que los workers tienen para terminar después de recibir SIGTERM
+exec gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 120 --graceful-timeout 30
+
+exec "$@"
