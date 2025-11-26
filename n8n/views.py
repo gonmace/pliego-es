@@ -10,7 +10,8 @@ from .models import EspecificacionTecnica, Parametros, ActividadesAdicionales
 
 N8N_WEBHOOK_URL = 'https://jaimemc.app.n8n.cloud/webhook/parametros'
 N8N_WEBHOOK_TITULO_URL = 'https://jaimemc.app.n8n.cloud/webhook/titulo'
-N8N_WEBHOOK_ADICIONALES_URL = 'https://jaimemc.app.n8n.cloud/webhook-test/adicionales'
+N8N_WEBHOOK_ADICIONALES_URL = 'https://jaimemc.app.n8n.cloud/webhook/adicionales'
+N8N_WEBHOOK_FINAL_URL = 'https://jaimemc.app.n8n.cloud/webhook/final'
 
 
 @login_required
@@ -209,30 +210,25 @@ def enviar_actividades_view(request):
                 'error': 'Debe seleccionar al menos una actividad'
             }, status=400)
         
-        # Obtener título, descripción y tipo de servicio del request
-        titulo = data.get('titulo', '').strip()
-        descripcion = data.get('descripcion', '').strip()
-        tipo_servicio = data.get('tipo_servicio', '').strip()
+        # Obtener sessionID del usuario activo
         session_id = request.session.session_key or ''
         
-        if not titulo or not descripcion or not tipo_servicio:
+        if not session_id:
             return JsonResponse({
                 'success': False,
-                'error': 'Título, descripción y tipo de servicio son requeridos'
+                'error': 'No se pudo obtener el sessionID. Por favor, recargue la página.'
             }, status=400)
         
         # Buscar la EspecificacionTecnica más reciente con el mismo sessionID
+        # No filtramos por título porque puede haber sido actualizado en el paso 3
         especificacion_tecnica = EspecificacionTecnica.objects.filter(
-            sessionID=session_id,
-            titulo=titulo,
-            descripcion=descripcion,
-            tipo_servicio=tipo_servicio
+            sessionID=session_id
         ).order_by('-fecha_creacion').first()
         
         if not especificacion_tecnica:
             return JsonResponse({
                 'success': False,
-                'error': 'No se encontró la especificación técnica base para vincular las actividades.'
+                'error': 'No se encontró la especificación técnica base para vincular las actividades. Asegúrese de haber completado los pasos anteriores.'
             }, status=404)
         
         actividades_guardadas = []
@@ -248,36 +244,101 @@ def enviar_actividades_view(request):
             )
             actividades_guardadas.append(actividad_obj)
         
-        # Preparar payload con las actividades seleccionadas para la API
-        payload = {
-            'actividades': actividades_seleccionadas
+        print(f"Actividades guardadas exitosamente: {len(actividades_guardadas)} actividades")
+        
+        # Refrescar la especificación técnica desde la BD para asegurar datos actualizados
+        especificacion_tecnica.refresh_from_db()
+        
+        # Obtener TODOS los parámetros técnicos guardados relacionados con esta especificación técnica desde la BD
+        parametros_tecnicos = especificacion_tecnica.parametros.all()
+        parametros_formateados = []
+        for param in parametros_tecnicos:
+            parametros_formateados.append({
+                'parametro': param.parametro,
+                'valor_recomendado': param.valor or '',
+                'unidad_medida': param.unidad or '',
+                'detalle': param.detalle or ''
+            })
+        
+        print(f"Parámetros técnicos obtenidos de BD: {len(parametros_formateados)} parámetros")
+        
+        # Obtener TODAS las actividades adicionales guardadas relacionadas con esta especificación técnica desde la BD
+        actividades_adicionales_bd = especificacion_tecnica.actividades_adicionales.all()
+        actividades_formateadas = []
+        for actividad_obj in actividades_adicionales_bd:
+            actividades_formateadas.append({
+                'nombre': actividad_obj.nombre,
+                'valor_recomendado': actividad_obj.valor_recomendado or '',
+                'unidad_medida': actividad_obj.unidad_medida or '',
+                'descripcion': actividad_obj.descripcion or ''
+            })
+        
+        print(f"Actividades adicionales obtenidas de BD: {len(actividades_formateadas)} actividades")
+        
+        # Preparar payload final con todos los datos extraídos de la BD usando el sessionID
+        payload_final = {
+            'titulo': especificacion_tecnica.titulo,
+            'descripcion': especificacion_tecnica.descripcion,
+            'servicio': especificacion_tecnica.tipo_servicio,
+            'parametros_tecnicos': parametros_formateados,
+            'actividades_adicionales': actividades_formateadas
         }
         
-        # Enviar POST request a la API
-        # Nota: Puedes cambiar esta URL según necesites o obtenerla de la sesión
-        response = requests.post(
-            N8N_WEBHOOK_TITULO_URL,  # Cambiar por la URL correcta
-            json=payload,
-            headers={
-                'Content-Type': 'application/json'
-            },
-            timeout=180
-        )
+        print(f"Enviando POST a URL final: {N8N_WEBHOOK_FINAL_URL}")
+        print(f"Payload final: {json.dumps(payload_final, indent=2, ensure_ascii=False)}")
         
-        response.raise_for_status()
+        # Enviar POST request a la API final DESPUÉS de guardar todo en la BD
+        final_response = None
+        final_response_data = None
+        final_response_str = None
         
-        response_data = None
         try:
-            response_data = response.json()
-            response_data_str = json.dumps(response_data, indent=2, ensure_ascii=False)
-        except json.JSONDecodeError:
-            response_data_str = f"Status Code: {response.status_code}\n\nRespuesta:\n{response.text}"
+            final_response = requests.post(
+                N8N_WEBHOOK_FINAL_URL,
+                json=payload_final,
+                headers={
+                    'Content-Type': 'application/json'
+                },
+                timeout=180
+            )
+            
+            print(f"Respuesta de URL final - Status Code: {final_response.status_code}")
+            
+            final_response.raise_for_status()
+            
+            try:
+                final_response_data = final_response.json()
+                final_response_str = json.dumps(final_response_data, indent=2, ensure_ascii=False)
+                print(f"Respuesta JSON de URL final: {final_response_str}")
+            except json.JSONDecodeError:
+                final_response_str = f"Status Code: {final_response.status_code}\n\nRespuesta:\n{final_response.text}"
+                print(f"Respuesta no JSON de URL final: {final_response_str}")
+        except requests.exceptions.Timeout as e:
+            # Si hay timeout, registrar el error
+            error_msg = f"Timeout al enviar a la URL final: {str(e)}"
+            print(error_msg)
+            final_response_str = error_msg
+            final_response_data = {'error': error_msg, 'type': 'timeout'}
+        except requests.exceptions.RequestException as e:
+            # Si falla el POST a la URL final, registrar el error pero no fallar completamente
+            error_msg = f"Error al enviar a la URL final ({N8N_WEBHOOK_FINAL_URL}): {str(e)}"
+            print(error_msg)
+            final_response_str = error_msg
+            final_response_data = {'error': str(e), 'type': 'request_exception', 'url': N8N_WEBHOOK_FINAL_URL}
+        except Exception as e:
+            # Capturar cualquier otro error inesperado
+            error_msg = f"Error inesperado al enviar a la URL final: {str(e)}"
+            print(error_msg)
+            final_response_str = error_msg
+            final_response_data = {'error': str(e), 'type': 'unexpected'}
         
         return JsonResponse({
             'success': True,
             'message': 'Actividades guardadas y enviadas exitosamente',
-            'response_data': response_data_str,
+            'response_data': final_response_str,
             'actividades_guardadas': len(actividades_guardadas),
+            'parametros_enviados': len(parametros_formateados),
+            'final_response': final_response_data if final_response_data else None,
         })
         
     except requests.exceptions.Timeout:
@@ -459,23 +520,45 @@ def enviar_titulo_ajustado_view(request):
         # Obtener sessionID del usuario activo
         session_id = request.session.session_key or ''
         
-        # Si se acepta la sugerencia, actualizar el título en EspecificacionTecnica
-        if aceptar and session_id:
-            # Buscar la EspecificacionTecnica más reciente con el mismo sessionID
-            especificacion_tecnica = EspecificacionTecnica.objects.filter(
-                sessionID=session_id
-            ).order_by('-fecha_creacion').first()
-            
-            if especificacion_tecnica:
-                # Actualizar el título usando PATCH (actualización parcial)
-                especificacion_tecnica.titulo = titulo_final
-                especificacion_tecnica.save(update_fields=['titulo'])
+        # Buscar la EspecificacionTecnica más reciente con el mismo sessionID
+        especificacion_tecnica = EspecificacionTecnica.objects.filter(
+            sessionID=session_id
+        ).order_by('-fecha_creacion').first()
         
-        # Preparar payload para adicionales
+        if not especificacion_tecnica:
+            return JsonResponse({
+                'success': False,
+                'error': 'No se encontró la especificación técnica relacionada.'
+            }, status=404)
+        
+        # Si se acepta la sugerencia, actualizar el título en EspecificacionTecnica
+        if aceptar:
+            # Actualizar el título usando PATCH (actualización parcial)
+            especificacion_tecnica.titulo = titulo_final
+            especificacion_tecnica.save(update_fields=['titulo'])
+            # Refrescar desde la BD para obtener el título actualizado
+            especificacion_tecnica.refresh_from_db()
+        
+        # Obtener los parámetros técnicos guardados relacionados con esta especificación técnica desde la BD
+        parametros_tecnicos = especificacion_tecnica.parametros.all()
+        parametros_formateados = []
+        for param in parametros_tecnicos:
+            parametros_formateados.append({
+                'parametro': param.parametro,
+                'valor_recomendado': param.valor or '',
+                'unidad_medida': param.unidad or '',
+                'detalle': param.detalle or ''
+            })
+        
+        # Preparar payload para adicionales con información de la BD
         adicionales_payload = {
             'titulo_final': titulo_final,
             'aceptar': aceptar,
-            'sessionID': session_id
+            'sessionID': session_id,
+            'titulo': especificacion_tecnica.titulo,
+            'descripcion': especificacion_tecnica.descripcion,
+            'servicio': especificacion_tecnica.tipo_servicio,
+            'parametros_tecnicos': parametros_formateados
         }
         
         # Enviar POST directamente a la URL de adicionales
