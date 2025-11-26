@@ -1,0 +1,19 @@
+[
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$eAgYkpUlbsXyfnZPaAGCN4$hpXURGzc4Ea1bvu7vc/ZnLSPX8SNvG8GexqgdPosiws=",
+    "last_login": "2025-11-18T23:26:32.188Z",
+    "is_superuser": true,
+    "username": "gmartinez",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-11-18T23:26:06.556Z",
+    "groups": [],
+    "user_permissions": []
+  }
+}
+]
