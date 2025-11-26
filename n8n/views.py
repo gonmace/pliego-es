@@ -171,6 +171,7 @@ def enviar_especificacion_view(request):
         }
         
         # Enviar POST request a la API webhook y esperar respuesta
+        # Usar timeout de 60 segundos para evitar que Gunicorn mate al worker
         try:
             response = requests.post(
                 N8N_WEBHOOK_URL,
@@ -178,7 +179,7 @@ def enviar_especificacion_view(request):
                 headers={
                     'Content-Type': 'application/json'
                 },
-                timeout=180  # Timeout de 180 segundos (3 minutos) para esperar la respuesta
+                timeout=60  # Timeout de 60 segundos para evitar timeout de Gunicorn
             )
             
             # Verificar si la respuesta fue exitosa
@@ -348,7 +349,7 @@ def enviar_actividades_view(request):
                 headers={
                     'Content-Type': 'application/json'
                 },
-                timeout=180
+                timeout=60
             )
             
             logger.info(f"Respuesta de URL final - Status Code: {final_response.status_code}")
@@ -590,7 +591,7 @@ def enviar_parametros_seleccionados_view(request):
                 headers={
                     'Content-Type': 'application/json'
                 },
-                timeout=180  # Timeout de 180 segundos (3 minutos) para esperar la respuesta
+                timeout=60  # Timeout de 60 segundos para evitar timeout de Gunicorn
             )
             
             response.raise_for_status()
@@ -729,7 +730,7 @@ def enviar_titulo_ajustado_view(request):
                 headers={
                     'Content-Type': 'application/json'
                 },
-                timeout=180
+                timeout=60
             )
             
             adicionales_response.raise_for_status()
@@ -765,7 +766,7 @@ def enviar_titulo_ajustado_view(request):
                     headers={
                         'Content-Type': 'application/json'
                     },
-                    timeout=180
+                    timeout=60
                 )
                 
                 resume_response.raise_for_status()
