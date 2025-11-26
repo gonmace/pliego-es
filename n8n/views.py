@@ -6,9 +6,11 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from .forms import EspecificacionTecnicaForm
+from .models import EspecificacionTecnica, Parametros
 
-N8N_WEBHOOK_URL = 'https://jaimemc.app.n8n.cloud/webhook-test/parametros'
-N8N_WEBHOOK_TITULO_URL = 'https://jaimemc.app.n8n.cloud/webhook-test/titulo'
+N8N_WEBHOOK_URL = 'https://jaimemc.app.n8n.cloud/webhook/parametros'
+N8N_WEBHOOK_TITULO_URL = 'https://jaimemc.app.n8n.cloud/webhook/titulo'
+N8N_WEBHOOK_ADICIONALES_URL = 'https://jaimemc.app.n8n.cloud/webhook-test/adicionales'
 
 
 @login_required
@@ -156,6 +158,7 @@ def enviar_actividades_view(request):
 def enviar_especificacion_view(request):
     """
     Vista AJAX para enviar título y descripción a la API de n8n
+    Guarda primero en el modelo EspecificacionTecnica antes de enviar a la API
     """
     try:
         data = json.loads(request.body)
@@ -171,6 +174,15 @@ def enviar_especificacion_view(request):
         
         # Obtener sessionID del usuario activo
         session_id = request.session.session_key or ''
+        
+        # Guardar en el modelo EspecificacionTecnica antes de enviar a la API
+        especificacion = EspecificacionTecnica.objects.create(
+            titulo=titulo,
+            descripcion=descripcion,
+            tipo_servicio=tipo_servicio,
+            sessionID=session_id,
+            creado_por=request.user
+        )
         
         # Preparar los datos para enviar a la API
         payload = {
@@ -197,18 +209,17 @@ def enviar_especificacion_view(request):
         response_data = None
         try:
             response_data = response.json()
-            # Convertir a string formateado para mostrar en el template
-            response_data_str = json.dumps(response_data, indent=2, ensure_ascii=False)
-            
-            # No guardar en sesión
         except json.JSONDecodeError:
             # Si no es JSON, usar el texto de la respuesta
-            response_data_str = f"Status Code: {response.status_code}\n\nRespuesta:\n{response.text}"
+            response_data = {'text': response.text, 'status_code': response.status_code}
         
+        # Devolver la respuesta de la API directamente (como objeto JSON)
+        # para que el JavaScript pueda procesarla fácilmente
         return JsonResponse({
             'success': True,
-            'message': 'Datos enviados exitosamente a la API y respuesta recibida.',
-            'response_data': response_data_str,
+            'message': 'Datos guardados en modelo y enviados exitosamente a la API.',
+            'response_data': response_data,  # Devolver como objeto, no como string
+            'especificacion_id': especificacion.id,  # ID del registro guardado
             'requiere_respuesta': response_data.get('requiere_respuesta', False) if isinstance(response_data, dict) else False,
             'pregunta': response_data.get('pregunta', '') if isinstance(response_data, dict) else '',
             'observacion': response_data.get('observacion', '') if isinstance(response_data, dict) else '',
@@ -337,6 +348,37 @@ def enviar_parametros_seleccionados_view(request):
                 'error': 'Título, descripción y tipo de servicio son requeridos'
             }, status=400)
         
+        # Obtener sessionID del usuario activo
+        session_id = request.session.session_key or ''
+        
+        # Buscar la EspecificacionTecnica más reciente con el mismo sessionID y título
+        especificacion_tecnica = EspecificacionTecnica.objects.filter(
+            sessionID=session_id,
+            titulo=titulo,
+            descripcion=descripcion,
+            tipo_servicio=tipo_servicio
+        ).order_by('-fecha_creacion').first()
+        
+        if not especificacion_tecnica:
+            return JsonResponse({
+                'success': False,
+                'error': 'No se encontró la especificación técnica relacionada'
+            }, status=400)
+        
+        # Guardar los parámetros seleccionados en el modelo Parametros
+        # Solo los que tienen check=true (todos los que vienen en parametros_seleccionados)
+        parametros_guardados = []
+        for param in parametros_seleccionados:
+            parametro_obj = Parametros.objects.create(
+                especificacion_tecnica=especificacion_tecnica,
+                parametro=param.get('parametro', ''),
+                valor=param.get('valor_recomendado', ''),
+                unidad=param.get('unidad_medida', ''),
+                detalle=param.get('detalle', ''),
+                sessionID=session_id
+            )
+            parametros_guardados.append(parametro_obj.id)
+        
         # Formatear parámetros para que solo contengan parametro y valor_recomendado
         parametros_formateados = []
         for param in parametros_seleccionados:
@@ -383,12 +425,13 @@ def enviar_parametros_seleccionados_view(request):
         
         return JsonResponse({
             'success': True,
-            'message': 'Parámetros enviados exitosamente',
+            'message': 'Parámetros guardados y enviados exitosamente',
             'response_data': response_data_str,
             'titulo_inicial': titulo_inicial,
             'titulo_propuesto': titulo_propuesto,
             'resume_url': resume_url,
             'response_json': response_data if isinstance(response_data, dict) else None,
+            'parametros_guardados': len(parametros_guardados),
         })
         
     except requests.exceptions.Timeout:
@@ -487,6 +530,7 @@ def enviar_actividades_view(request):
 def enviar_titulo_ajustado_view(request):
     """
     Vista AJAX para enviar el título ajustado (aceptado o rechazado)
+    Si se acepta la sugerencia, actualiza el título en EspecificacionTecnica
     """
     try:
         data = json.loads(request.body)
@@ -500,44 +544,86 @@ def enviar_titulo_ajustado_view(request):
                 'error': 'El título final es requerido'
             }, status=400)
         
-        if not resume_url:
-            return JsonResponse({
-                'success': False,
-                'error': 'La URL de resume es requerida'
-            }, status=400)
+        # Obtener sessionID del usuario activo
+        session_id = request.session.session_key or ''
         
-        # Preparar payload con el título final
-        payload = {
+        # Si se acepta la sugerencia, actualizar el título en EspecificacionTecnica
+        if aceptar and session_id:
+            # Buscar la EspecificacionTecnica más reciente con el mismo sessionID
+            especificacion_tecnica = EspecificacionTecnica.objects.filter(
+                sessionID=session_id
+            ).order_by('-fecha_creacion').first()
+            
+            if especificacion_tecnica:
+                # Actualizar el título usando PATCH (actualización parcial)
+                especificacion_tecnica.titulo = titulo_final
+                especificacion_tecnica.save(update_fields=['titulo'])
+        
+        # Preparar payload para adicionales
+        adicionales_payload = {
             'titulo_final': titulo_final,
-            'aceptar': aceptar
+            'aceptar': aceptar,
+            'sessionID': session_id
         }
         
-        # Enviar POST request a la resume_url proporcionada
-        response = requests.post(
-            resume_url,
-            json=payload,
+        # Enviar POST directamente a la URL de adicionales
+        adicionales_response = requests.post(
+            N8N_WEBHOOK_ADICIONALES_URL,
+            json=adicionales_payload,
             headers={
                 'Content-Type': 'application/json'
             },
             timeout=180
         )
         
-        response.raise_for_status()
+        adicionales_response.raise_for_status()
         
-        response_data = None
+        # Procesar respuesta de adicionales
+        adicionales_response_data = None
         try:
-            response_data = response.json()
-            response_data_str = json.dumps(response_data, indent=2, ensure_ascii=False)
-            
-            # No guardar en sesión
+            adicionales_response_data = adicionales_response.json()
+            adicionales_response_str = json.dumps(adicionales_response_data, indent=2, ensure_ascii=False)
         except json.JSONDecodeError:
-            response_data_str = f"Status Code: {response.status_code}\n\nRespuesta:\n{response.text}"
+            adicionales_response_str = f"Status Code: {adicionales_response.status_code}\n\nRespuesta:\n{adicionales_response.text}"
+            adicionales_response_data = {'text': adicionales_response.text, 'status_code': adicionales_response.status_code}
+        
+        # Opcionalmente, enviar a resume_url si existe y es válida (pero no es crítico)
+        resume_response_data = None
+        if resume_url and resume_url.strip():
+            try:
+                resume_payload = {
+                    'titulo_final': titulo_final,
+                    'aceptar': aceptar
+                }
+                
+                resume_response = requests.post(
+                    resume_url,
+                    json=resume_payload,
+                    headers={
+                        'Content-Type': 'application/json'
+                    },
+                    timeout=180
+                )
+                
+                resume_response.raise_for_status()
+                
+                try:
+                    resume_response_data = resume_response.json()
+                except json.JSONDecodeError:
+                    resume_response_data = {'text': resume_response.text, 'status_code': resume_response.status_code}
+                    
+            except requests.exceptions.RequestException as e:
+                # Si falla el POST a resume_url, solo registrar el error pero no fallar
+                print(f"Error al enviar a resume_url: {str(e)}")
+                resume_response_data = {'error': str(e)}
         
         return JsonResponse({
             'success': True,
             'message': 'Título enviado exitosamente',
-            'response_data': response_data_str,
-            'has_actividades': bool(response_data.get('actividades_adicionales')) if isinstance(response_data, dict) else False,
+            'response_data': adicionales_response_str,
+            'has_actividades': bool(adicionales_response_data.get('actividades_adicionales')) if isinstance(adicionales_response_data, dict) else False,
+            'adicionales_response': adicionales_response_data,
+            'resume_response': resume_response_data,
         })
         
     except requests.exceptions.Timeout:

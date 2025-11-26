@@ -259,151 +259,181 @@
         }
       }
       
-      // Enviar directamente a la API de n8n
+      // Enviar a la vista Django que guardará en el modelo y luego enviará a la API
       try {
-      console.log('Enviando datos a la API:', {
-        titulo: titulo,
-        descripcion: descripcion,
-        tipo_servicio: tipoServicio,
-        sessionID: sessionID
-      });
-      
-      // Crear AbortController para timeout de 2 minutos (120 segundos)
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 120000); // 120000 ms = 2 minutos
-      
-      let apiResponse;
-      try {
-        apiResponse = await fetch('https://jaimemc.app.n8n.cloud/webhook-test/parametros', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            titulo: titulo,
-            descripcion: descripcion,
-            tipo_servicio: tipoServicio,
-            sessionID: sessionID
-          }),
-          signal: controller.signal
+        console.log('Enviando datos a la vista Django (que guardará en modelo y enviará a API):', {
+          titulo: titulo,
+          descripcion: descripcion,
+          tipo_servicio: tipoServicio,
+          sessionID: sessionID
         });
-        clearTimeout(timeoutId);
-      } catch (error) {
-        clearTimeout(timeoutId);
-        if (error.name === 'AbortError') {
-          throw new Error('La solicitud tardó más de 2 minutos. Por favor, intente nuevamente.');
-        }
-        throw error;
-      }
-      
-      console.log('Respuesta recibida:', apiResponse.status, apiResponse.statusText);
-      
-      if (!apiResponse.ok) {
-        const errorText = await apiResponse.text();
-        console.error('Error en respuesta:', errorText);
-        throw new Error(`Error HTTP: ${apiResponse.status} - ${errorText}`);
-      }
-      
-      const apiResult = await apiResponse.json();
-      console.log('Resultado de la API:', apiResult);
-      
-      // Ocultar spinner
-      if (spinnerContainer) spinnerContainer.classList.add('hidden');
-      
-      // PRIMERO: Verificar si la respuesta es un array con formato de coherencia
-      let coherente = true;
-      let razon = null;
-      
-      // Verificar formato de array
-      if (Array.isArray(apiResult) && apiResult.length > 0) {
-        const firstItem = apiResult[0];
-        if (firstItem.content && Array.isArray(firstItem.content) && firstItem.content.length > 0) {
-          const textContent = firstItem.content[0].text;
-          if (textContent && typeof textContent.coherente === 'boolean') {
-            coherente = textContent.coherente;
-            razon = textContent.razon || null;
+        
+        // Función para obtener cookie CSRF
+        function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+              break;
+            }
           }
         }
-      }
-      // Verificar formato de objeto directo con coherente
-      else if (apiResult && typeof apiResult.coherente === 'boolean') {
-        coherente = apiResult.coherente;
-        razon = apiResult.razon || apiResult.observacion || null;
-      }
-      
-      console.log('Análisis de coherencia:', {
-        coherente: coherente,
-        razon: razon,
-        apiResult: apiResult,
-        isArray: Array.isArray(apiResult),
-        hasCoherente: apiResult && typeof apiResult.coherente !== 'undefined'
-      });
-      
-      // Si no es coherente, mostrar el formulario nuevamente con la razón y SALIR
-      if (!coherente && razon) {
-        console.log('No es coherente, mostrando formulario con razón');
+          return cookieValue;
+        }
+        
+        // Crear AbortController para timeout de 2 minutos (120 segundos)
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 120000); // 120000 ms = 2 minutos
+        
+        let apiResponse;
+        try {
+          // Usar la vista Django que guardará en el modelo antes de enviar a la API
+          const urlEnviarEspecificacion = window.n8nUrls?.enviarEspecificacion || '/n8n/enviar-especificacion/';
+          apiResponse = await fetch(urlEnviarEspecificacion, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+          },
+            body: JSON.stringify({
+              titulo: titulo,
+              descripcion: descripcion,
+              tipo_servicio: tipoServicio,
+              sessionID: sessionID
+            }),
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
+        } catch (error) {
+          clearTimeout(timeoutId);
+          if (error.name === 'AbortError') {
+            throw new Error('La solicitud tardó más de 2 minutos. Por favor, intente nuevamente.');
+          }
+          throw error;
+        }
+        
+          if (!apiResponse.ok) {
+          let errorData;
+          try {
+            errorData = await apiResponse.json();
+          } catch (e) {
+            // Si no es JSON, intentar leer como texto
+            const errorText = await apiResponse.text();
+            errorData = { error: errorText };
+          }
+          console.error('Error en respuesta:', errorData);
+          throw new Error(errorData.error || errorData.message || `Error HTTP: ${apiResponse.status}`);
+        }
+        
+        const djangoResponse = await apiResponse.json();
+        console.log('Respuesta de Django:', djangoResponse);
+        console.log('ID de especificación guardada:', djangoResponse.especificacion_id);
+        
+        // La vista Django devuelve la respuesta de la API en 'response_data' como objeto JSON
+        let apiResult = djangoResponse.response_data || djangoResponse;
+        
+        console.log('Resultado de la API procesado:', apiResult);
         
         // Ocultar spinner
         if (spinnerContainer) spinnerContainer.classList.add('hidden');
         
-        // Mostrar el formulario nuevamente usando la función de observación
-        // Crear un objeto con la estructura esperada
-        const apiResultConObservacion = {
-          observacion: razon,
-          titulo: apiResult.titulo || titulo,
-          descripcion: apiResult.descripcion || descripcion
-        };
+        // PRIMERO: Verificar si la respuesta es un array con formato de coherencia
+        let coherente = true;
+        let razon = null;
         
-        mostrarFormularioConObservacion(apiResultConObservacion, apiResultConObservacion.titulo, apiResultConObservacion.descripcion, tipoServicio);
+        // Verificar formato de array
+        if (Array.isArray(apiResult) && apiResult.length > 0) {
+          const firstItem = apiResult[0];
+          if (firstItem.content && Array.isArray(firstItem.content) && firstItem.content.length > 0) {
+            const textContent = firstItem.content[0].text;
+            if (textContent && typeof textContent.coherente === 'boolean') {
+              coherente = textContent.coherente;
+              razon = textContent.razon || null;
+            }
+          }
+        }
+        // Verificar formato de objeto directo con coherente
+        else if (apiResult && typeof apiResult.coherente === 'boolean') {
+          coherente = apiResult.coherente;
+          razon = apiResult.razon || apiResult.observacion || null;
+        }
         
-        // IMPORTANTE: Salir aquí para evitar cualquier recarga o redirección
-        return;
-      }
-      
-      // Si llegamos aquí, es coherente o no tiene formato de coherencia
-      // Verificar si requiere respuesta o hay observación (formato anterior)
-      if (apiResult.requiere_respuesta || apiResult.observacion) {
-        // Si requiere respuesta o hay observación, mostrar el formulario con los datos prellenados
-        mostrarFormularioConObservacion(apiResult, titulo, descripcion, tipoServicio);
-        return;
-      }
-      
-      // Verificar nueva estructura: array con body.parametros
-      let parametrosData = null;
-      if (Array.isArray(apiResult) && apiResult.length > 0 && apiResult[0].body && apiResult[0].body.parametros) {
-        parametrosData = {
-          parametros: apiResult[0].body.parametros,
-          actividad: null // No hay actividad en esta estructura
-        };
-      } else if (apiResult.body && apiResult.body.parametros) {
-        // Formato: objeto directo con body.parametros
-        parametrosData = {
-          parametros: apiResult.body.parametros,
-          actividad: null
-        };
-      } else if (apiResult.output && apiResult.output.parametros) {
-        // Formato anterior: output.parametros
-        parametrosData = apiResult.output;
-      }
-      
-      console.log('Verificando parámetros:', {
-        tieneParametros: !!(parametrosData && parametrosData.parametros),
-        parametrosData: parametrosData,
-        estructura: Array.isArray(apiResult) ? 'array' : 'objeto',
-        tieneBody: !!(apiResult.body),
-        tieneOutput: !!(apiResult.output)
-      });
-      
-      if (parametrosData && parametrosData.parametros && parametrosData.parametros.length > 0) {
-        // Si tiene parámetros, renderizar la tabla dinámicamente sin recargar
-        console.log('Renderizando tabla de parámetros con', parametrosData.parametros.length, 'parámetros');
-        renderizarTablaParametros(parametrosData, titulo, descripcion, tipoServicio);
-        return;
-      } else {
-        // Para otros tipos de respuestas, mostrar modal con JSON
-        console.log('Respuesta recibida (sin parámetros detectados):', apiResult);
-        mostrarModalJSON(apiResult);
-      }
+        console.log('Análisis de coherencia:', {
+          coherente: coherente,
+          razon: razon,
+          apiResult: apiResult,
+          isArray: Array.isArray(apiResult),
+          hasCoherente: apiResult && typeof apiResult.coherente !== 'undefined'
+        });
+        
+        // Si no es coherente, mostrar el formulario nuevamente con la razón y SALIR
+        if (!coherente && razon) {
+          console.log('No es coherente, mostrando formulario con razón');
+          
+          // Ocultar spinner
+          if (spinnerContainer) spinnerContainer.classList.add('hidden');
+          
+          // Mostrar el formulario nuevamente usando la función de observación
+          // Crear un objeto con la estructura esperada
+          const apiResultConObservacion = {
+            observacion: razon,
+            titulo: apiResult.titulo || titulo,
+            descripcion: apiResult.descripcion || descripcion
+          };
+          
+          mostrarFormularioConObservacion(apiResultConObservacion, apiResultConObservacion.titulo, apiResultConObservacion.descripcion, tipoServicio);
+          
+          // IMPORTANTE: Salir aquí para evitar cualquier recarga o redirección
+          return;
+        }
+        
+        // Si llegamos aquí, es coherente o no tiene formato de coherencia
+        // Verificar si requiere respuesta o hay observación (formato anterior)
+        if (apiResult.requiere_respuesta || apiResult.observacion) {
+          // Si requiere respuesta o hay observación, mostrar el formulario con los datos prellenados
+          mostrarFormularioConObservacion(apiResult, titulo, descripcion, tipoServicio);
+          return;
+        }
+        
+        // Verificar nueva estructura: array con body.parametros
+        let parametrosData = null;
+        if (Array.isArray(apiResult) && apiResult.length > 0 && apiResult[0].body && apiResult[0].body.parametros) {
+          parametrosData = {
+            parametros: apiResult[0].body.parametros,
+            actividad: null // No hay actividad en esta estructura
+          };
+        } else if (apiResult.body && apiResult.body.parametros) {
+          // Formato: objeto directo con body.parametros
+          parametrosData = {
+            parametros: apiResult.body.parametros,
+            actividad: null
+          };
+        } else if (apiResult.output && apiResult.output.parametros) {
+          // Formato anterior: output.parametros
+          parametrosData = apiResult.output;
+        }
+        
+        console.log('Verificando parámetros:', {
+          tieneParametros: !!(parametrosData && parametrosData.parametros),
+          parametrosData: parametrosData,
+          estructura: Array.isArray(apiResult) ? 'array' : 'objeto',
+          tieneBody: !!(apiResult.body),
+          tieneOutput: !!(apiResult.output)
+        });
+        
+        if (parametrosData && parametrosData.parametros && parametrosData.parametros.length > 0) {
+          // Si tiene parámetros, renderizar la tabla dinámicamente sin recargar
+          console.log('Renderizando tabla de parámetros con', parametrosData.parametros.length, 'parámetros');
+          renderizarTablaParametros(parametrosData, titulo, descripcion, tipoServicio);
+          return;
+        } else {
+          // Para otros tipos de respuestas, mostrar modal con JSON
+          console.log('Respuesta recibida (sin parámetros detectados):', apiResult);
+          mostrarModalJSON(apiResult);
+        }
     } catch (error) {
       console.error('Error:', error);
       
@@ -422,10 +452,6 @@
         input.disabled = false;
       });
       
-        throw error;
-      }
-    } catch (error) {
-      console.error('Error:', error);
       alert('Hubo un error: ' + error.message);
     } finally {
       // Restaurar el botón
@@ -433,6 +459,11 @@
       if (loadingSpinner) loadingSpinner.classList.add('hidden');
       if (submitBtn) submitBtn.disabled = false;
     }
+  } catch (error) {
+    // Manejo de errores del bloque try externo
+    console.error('Error en el event listener:', error);
+    alert('Hubo un error: ' + error.message);
+  }
   });
   
   console.log('Delegación de eventos configurada para btn-continuar-datos');

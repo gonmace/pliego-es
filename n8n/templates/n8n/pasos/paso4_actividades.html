@@ -1,36 +1,36 @@
 {% load static crispy_forms_tags tailwind_tags %}
 
-<!-- Paso 2: Parámetros Técnicos - Modal -->
-<dialog id="modal-parametros-tecnicos" class="modal fixed inset-0 z-[100]">
+<!-- Paso 4: Actividades Adicionales - Modal -->
+<dialog id="modal-actividades-adicionales" class="modal fixed inset-0 z-[100]">
   <div class="modal-box max-w-7xl max-h-[95vh] overflow-hidden flex flex-col">
     <div class="flex items-center justify-between mb-4">
       <h3 class="text-2xl font-bold">
         <div class="flex items-center gap-4">
           <div class="badge badge-primary badge-lg w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg animate-pulse-glow">
-            2
+            4
           </div>
           <span class="text-primary flex items-center gap-3">
-            <i class="fas fa-table"></i>
-            <span id="modal-parametros-titulo">Parámetros Técnicos</span>
+            <i class="fas fa-tasks"></i>
+            <span id="modal-actividades-titulo">Actividades Adicionales</span>
           </span>
         </div>
       </h3>
       <form method="dialog">
-        <button class="btn btn-sm btn-circle btn-ghost" id="modal-parametros-close">✕</button>
+        <button class="btn btn-sm btn-circle btn-ghost" id="modal-actividades-close">✕</button>
       </form>
     </div>
     <div class="divider my-4"></div>
     
-    <div id="spinner-container-paso2" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-base-100 bg-opacity-75">
+    <div id="spinner-container-paso4" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-base-100 bg-opacity-75">
       <div class="flex flex-col items-center">
         <span class="loading loading-spinner loading-lg text-primary"></span>
-        <p class="mt-4 text-lg font-semibold">Enviando parámetros...</p>
+        <p class="mt-4 text-lg font-semibold">Enviando actividades...</p>
       </div>
     </div>
     
     <div class="mb-4 flex-1 flex flex-col min-h-0">
       <p class="text-base-content/70 mb-4">
-        Seleccione los parámetros que desea incluir en la especificación técnica:
+        Seleccione las actividades adicionales que desea incluir en la especificación técnica:
       </p>
       
       <div class="overflow-auto rounded-lg flex-1 p-0 m-0">
@@ -38,15 +38,15 @@
           <thead>
             <tr class="bg-primary text-primary-content">
               <th class="w-1/12">
-                <input type="checkbox" id="select-all" class="checkbox checkbox-primary border-white">
+                <input type="checkbox" id="select-all-actividades" class="checkbox checkbox-primary border-white">
               </th>
-              <th class="w-3/12">Parámetro</th>
-              <th class="w-1/12 text-center">Valor Recomendado</th>
+              <th class="w-3/12">Actividad</th>
+              <th class="w-1/12 text-right">Valor Recomendado</th>
               <th class="w-2/12 text-center">Unidad</th>
-              <th class="w-5/12">Detalle</th>
+              <th class="w-5/12">Descripción</th>
             </tr>
           </thead>
-          <tbody id="parametros-table-body">
+          <tbody id="actividades-table-body">
             <!-- Las filas se llenarán dinámicamente con JavaScript -->
           </tbody>
         </table>
@@ -54,7 +54,7 @@
     </div>
     
     <div class="mt-4 pt-3 flex justify-end items-center border-t border-base-300">
-      <button class="btn btn-primary btn-lg" id="enviar-parametros-btn">
+      <button class="btn btn-primary btn-lg" id="enviar-actividades-btn">
         <i class="fas fa-arrow-right mr-2"></i>
         Continuar
       </button>
@@ -64,5 +64,4 @@
     <button>Cerrar</button>
   </form>
 </dialog>
-
 

@@ -138,8 +138,11 @@
     </form>
   </dialog>
 
-  <!-- Paso 2: Parámetros Técnicos -->
-  {% include 'n8n/pasos/paso2_parametros.html' %}
+<!-- Paso 2: Parámetros Técnicos -->
+{% include 'n8n/pasos/paso2_parametros.html' %}
+
+<!-- Paso 4: Actividades Adicionales -->
+{% include 'n8n/pasos/paso4_actividades.html' %}
 
   <div class="flex flex-col items-center">
     <!-- Indicador de pasos - Oculto -->
@@ -239,6 +242,7 @@
 
   // URLs para uso en JavaScript dinámico
   window.n8nUrls = {
+    enviarEspecificacion: '{% url "n8n:enviar_especificacion" %}',
     enviarParametros: '{% url "n8n:enviar_parametros" %}',
     enviarTitulo: '{% url "n8n:enviar_titulo_ajustado" %}'
   };
