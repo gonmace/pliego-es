@@ -16,10 +16,11 @@ urlpatterns = [
     path('proyecto/', include('main.urls')),
     path('proyecto/', include('esp_web.urls')),
     path('proyecto/', include('ubi_web.urls')),
-    path('pliego/', include('pliego_esp.urls')),
+    # path('pliego/', include('pliego_esp.urls')),
     path('prepare-doc/', include('prep_doc_gen.urls')),
     path('esp-generica/', include('esp_generica.urls')),
-    path('embeddings/', include('embeddings.urls'))
+    path('embeddings/', include('embeddings.urls')),
+    path('n8n/', include('n8n.urls'))
 ]
 
 if settings.DEBUG:

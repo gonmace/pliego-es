@@ -26,7 +26,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'crispy_tailwind',
 
-    'pliego_esp.apps.PliegoEspConfig',
+    # 'pliego_esp.apps.PliegoEspConfig',
     'prep_doc_gen',
     'esp_generica',
     'embeddings',
@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'esp_web.apps.EspWebConfig',
     'ubi_web.apps.UbiWebConfig',
     'login.apps.LoginConfig',
+    'n8n.apps.N8NConfig',
 
 ]
 
