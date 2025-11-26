@@ -507,6 +507,8 @@
           // Clonar la respuesta antes de leerla para poder intentar múltiples formatos
           const responseClone = apiResponse.clone();
           let errorData;
+          const contentType = apiResponse.headers.get('content-type') || '';
+          
           try {
             // Intentar leer como JSON desde el clon
             errorData = await responseClone.json();
@@ -514,14 +516,42 @@
             // Si no es JSON, leer como texto desde la respuesta original
             try {
               const errorText = await apiResponse.text();
-              errorData = { error: errorText };
+              
+              // Detectar si es HTML (error del servidor)
+              if (contentType.includes('text/html') || errorText.trim().startsWith('<html') || errorText.includes('<html>')) {
+                // Es un error HTML del servidor (500, etc.)
+                if (apiResponse.status >= 500) {
+                  errorData = { error: 'Error interno del servidor. Por favor, contacte al administrador o intente nuevamente más tarde.' };
+                } else {
+                  errorData = { error: `Error del servidor (${apiResponse.status}). Por favor, intente nuevamente.` };
+                }
+              } else {
+                // Es texto plano, usar directamente pero limitar longitud
+                const cleanError = errorText.length > 200 ? errorText.substring(0, 200) + '...' : errorText;
+                errorData = { error: cleanError };
+              }
             } catch (textError) {
-              // Si ambos fallan, usar solo el status
-              errorData = { error: `Error HTTP: ${apiResponse.status}` };
+              // Si ambos fallan, usar solo el status con mensaje amigable
+              if (apiResponse.status >= 500) {
+                errorData = { error: 'Error interno del servidor. Por favor, contacte al administrador o intente nuevamente más tarde.' };
+              } else {
+                errorData = { error: `Error HTTP ${apiResponse.status}. Por favor, intente nuevamente.` };
+              }
             }
           }
           console.error('Error en respuesta:', errorData);
           throw new Error(errorData.error || errorData.message || `Error HTTP: ${apiResponse.status}`);
+        }
+        
+        // Verificar que la respuesta sea JSON antes de parsearla
+        const contentType = apiResponse.headers.get('content-type') || '';
+        if (!contentType.includes('application/json')) {
+          const responseText = await apiResponse.text();
+          // Si es HTML, es un error del servidor
+          if (responseText.trim().startsWith('<html') || responseText.includes('<html>')) {
+            throw new Error('Error interno del servidor. Por favor, contacte al administrador o intente nuevamente más tarde.');
+          }
+          throw new Error('Respuesta inesperada del servidor. Por favor, intente nuevamente.');
         }
         
         const djangoResponse = await apiResponse.json();
@@ -666,7 +696,20 @@
         input.disabled = false;
       });
       
-      alert('Hubo un error: ' + error.message);
+      // Limpiar el mensaje de error para evitar mostrar HTML
+      let errorMessage = error.message || 'Error desconocido';
+      
+      // Si el mensaje contiene HTML, reemplazarlo con un mensaje genérico
+      if (errorMessage.includes('<html') || errorMessage.includes('<HTML') || errorMessage.includes('<!DOCTYPE')) {
+        errorMessage = 'Error interno del servidor. Por favor, contacte al administrador o intente nuevamente más tarde.';
+      }
+      
+      // Limitar la longitud del mensaje para evitar mensajes muy largos
+      if (errorMessage.length > 300) {
+        errorMessage = errorMessage.substring(0, 300) + '...';
+      }
+      
+      alert('Hubo un error: ' + errorMessage);
     } finally {
       // Restaurar el botón
       if (normalText) normalText.classList.remove('hidden');
