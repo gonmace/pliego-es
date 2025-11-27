@@ -28,14 +28,27 @@
       <div class="card bg-base-100 shadow-xl">
         <div class="card-body">
           {% if especificaciones %}
-            <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-3 mb-4">
-              <div class="text-sm text-base-content/70">
-                Total especificaciones disponibles:
-                <span class="font-semibold">{{ especificaciones|length }}</span>
+            <div class="flex flex-col md:flex-row md:items-center gap-3 mb-4">
+              <div class="text-sm text-base-content/70 whitespace-nowrap">
+                Total especificaciones:
+                <span class="font-semibold" id="contador-total">{{ especificaciones|length }}</span>
+                <span id="contador-filtrado" class="hidden">
+                  (<span class="font-semibold" id="contador-filtrado-numero">0</span> encontradas)
+                </span>
+              </div>
+              <div class="relative flex-1">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 z-10 pointer-events-none">
+                  <i class="fas fa-search text-base-content/50 text-sm"></i>
+                </span>
+                <input type="text"
+                       id="buscador-especificaciones"
+                       placeholder="Buscar especificación..."
+                       class="input input-bordered input-sm w-full pl-10"
+                       autocomplete="off">
               </div>
               <button id="bulk-copy-trigger"
                       type="button"
-                      class="btn btn-copy btn-sm opacity-60"
+                      class="btn btn-copy btn-sm opacity-60 whitespace-nowrap"
                       disabled>
                 <i class="fas fa-copy mr-2"></i>
                 Copiar a proyecto
@@ -60,7 +73,7 @@
                 </thead>
                 <tbody>
                   {% for especificacion in especificaciones %}
-                    <tr>
+                    <tr data-nombre="{{ especificacion.titulo|lower }}">
                       <td class="align-top text-center">
                         <input type="checkbox"
                                class="checkbox checkbox-sm spec-checkbox"
@@ -152,6 +165,57 @@
 {% block js %}
 <script>
   (function () {
+    function initBuscador() {
+      const buscador = document.getElementById('buscador-especificaciones');
+      const tabla = document.getElementById('tabla-especificaciones');
+      const contadorTotal = document.getElementById('contador-total');
+      const contadorFiltrado = document.getElementById('contador-filtrado');
+      const contadorFiltradoNumero = document.getElementById('contador-filtrado-numero');
+      const filas = tabla ? Array.from(tabla.querySelectorAll('tbody tr')) : [];
+
+      if (!buscador || !tabla) {
+        return;
+      }
+
+      function filtrarEspecificaciones(termino) {
+        const terminoLower = termino.toLowerCase().trim();
+        let visibleCount = 0;
+
+        filas.forEach((fila) => {
+          const nombre = fila.getAttribute('data-nombre') || '';
+          const debeMostrar = terminoLower.length < 3 || nombre.includes(terminoLower);
+          
+          if (debeMostrar) {
+            fila.style.display = '';
+            visibleCount++;
+          } else {
+            fila.style.display = 'none';
+          }
+        });
+
+        // Actualizar contador
+        if (terminoLower.length >= 3) {
+          contadorFiltrado.classList.remove('hidden');
+          contadorFiltradoNumero.textContent = visibleCount;
+        } else {
+          contadorFiltrado.classList.add('hidden');
+        }
+      }
+
+      buscador.addEventListener('input', (event) => {
+        filtrarEspecificaciones(event.target.value);
+      });
+
+      // Limpiar búsqueda al presionar Escape
+      buscador.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          buscador.value = '';
+          filtrarEspecificaciones('');
+          buscador.blur();
+        }
+      });
+    }
+
     function initBulkCopy() {
       const trigger = document.getElementById('bulk-copy-trigger');
       const dialog = document.getElementById('bulk-copy-dialog');
@@ -321,8 +385,12 @@
     }
 
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initBulkCopy);
+      document.addEventListener('DOMContentLoaded', () => {
+        initBuscador();
+        initBulkCopy();
+      });
     } else {
+      initBuscador();
       initBulkCopy();
     }
   })();

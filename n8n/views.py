@@ -956,6 +956,7 @@ def guardar_resultado_view(request):
                     proyecto=proyecto,
                     titulo=especificacion_tecnica.titulo,
                     contenido=contenido,
+                    especificacion_tecnica=especificacion_tecnica,  # Vincular automáticamente
                 )
                 especificacion.archivo.save(filename, ContentFile(contenido), save=True)
                 

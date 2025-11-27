@@ -63,6 +63,14 @@ class Especificacion(models.Model):
     orden = models.PositiveIntegerField(default=0, db_index=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_actualizacion = models.DateTimeField(auto_now=True)
+    especificacion_tecnica = models.ForeignKey(
+        'n8n.EspecificacionTecnica',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='especificaciones',
+        verbose_name='Especificación Técnica (n8n)'
+    )
 
     class Meta:
         db_table = 'main_especificacion'

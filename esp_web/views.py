@@ -155,6 +155,7 @@ def _copiar_especificaciones(user, especificaciones_ids, proyecto_destino):
             titulo=nuevo_titulo,
             contenido=especificacion.contenido,
             token_cost=especificacion.token_cost,
+            especificacion_tecnica=especificacion.especificacion_tecnica,  # Copiar vinculación si existe
         )
 
         slug = slugify(nueva_especificacion.titulo) or 'especificacion'
