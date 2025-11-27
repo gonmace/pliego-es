@@ -25,7 +25,7 @@ class EspecificacionTecnicaAdmin(admin.ModelAdmin):
     list_display = ('id', 'titulo', 'tipo_servicio', 'descripcion', 'resultado_markdown_preview', 'creado_por')
     list_filter = ('tipo_servicio', 'fecha_creacion', 'creado_por')
     search_fields = ('titulo', 'descripcion')
-    readonly_fields = ('id', 'resultado_markdown_preview', 'fecha_actualizacion')
+    readonly_fields = ('id', 'resultado_markdown_preview', 'fecha_creacion', 'fecha_actualizacion')
     list_per_page = 25
     date_hierarchy = 'fecha_creacion'
     inlines = [ParametrosInline, ActividadesAdicionalesInline]
